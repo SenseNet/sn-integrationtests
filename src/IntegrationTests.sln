@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.Security", "..\..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsSqlFsBlobProvider", "..\..\sn-blob-mssqlfs\src\MsSqlFsBlobProvider\MsSqlFsBlobProvider.csproj", "{A9CFEAD6-E05E-417C-A50B-199A443DEE22}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.Packaging.IntegrationTests", "SenseNet.Packaging.IntegrationTests\SenseNet.Packaging.IntegrationTests.csproj", "{998FF44E-0B9D-45FD-B1AC-56CD530F4E4D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{A9CFEAD6-E05E-417C-A50B-199A443DEE22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9CFEAD6-E05E-417C-A50B-199A443DEE22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9CFEAD6-E05E-417C-A50B-199A443DEE22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{998FF44E-0B9D-45FD-B1AC-56CD530F4E4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{998FF44E-0B9D-45FD-B1AC-56CD530F4E4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{998FF44E-0B9D-45FD-B1AC-56CD530F4E4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{998FF44E-0B9D-45FD-B1AC-56CD530F4E4D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
