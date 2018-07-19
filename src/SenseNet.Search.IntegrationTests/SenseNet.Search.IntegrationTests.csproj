@@ -116,6 +116,10 @@
       <Project>{9fa65e99-96d3-4323-896b-cb53e0777c82}</Project>
       <Name>SenseNet.Security</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SenseNet.IntegrationTests.Common\SenseNet.IntegrationTests.Common.csproj">
+      <Project>{627620f1-ec79-408d-a965-63d69c168672}</Project>
+      <Name>SenseNet.IntegrationTests.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -27,11 +27,6 @@ namespace SenseNet.Packaging.IntegrationTests
     [TestClass]
     public class PackagingMsSqlTests : TestBase
     {
-        private static readonly string ConnectionString =
-            //"Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=sensenet;Data Source=(local)";
-            //"Data Source=.;Initial Catalog=sensenet;User ID=sa;Password=sa;Pooling=False";
-            @"Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=sn7tests;Data Source=.\SQL2016";
-
         private static readonly string DropPackagesTableSql = @"
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Packages]') AND type in (N'U'))
 DROP TABLE [dbo].[Packages]
@@ -75,7 +70,7 @@ CREATE TABLE [dbo].[Packages](
             loggerAcc.SetStaticField("_loggers", loggers);
 
             // preparing database
-            ConnectionStrings.ConnectionString = ConnectionString;
+            ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
             var proc = DataProvider.CreateDataProcedure("DELETE FROM [Packages]");
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();
@@ -973,7 +968,7 @@ CREATE TABLE [dbo].[Packages](
         }
         private static void ExecuteSqlCommand(string sql)
         {
-            ConnectionStrings.ConnectionString = ConnectionString;
+            ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
             var proc = DataProvider.CreateDataProcedure(sql);
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();

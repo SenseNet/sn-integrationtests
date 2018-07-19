@@ -54,10 +54,9 @@ namespace SenseNet.BlobStorage.IntegrationTests
             }
         }
 
-        private static readonly string ConnetionStringBase = @"Data Source=.\SQL2016;Integrated Security=SSPI;Persist Security Info=False";
         private string GetConnectionString(string databaseName = null)
         {
-            return $"Initial Catalog={databaseName ?? DatabaseName};{ConnetionStringBase}";
+            return $"Initial Catalog={databaseName ?? DatabaseName};{SenseNet.IntegrationTests.Common.ConnectionStrings.ForBlobStorageTests}";
         }
 
         [AssemblyInitialize]

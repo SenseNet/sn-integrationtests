@@ -12,13 +12,14 @@ namespace SenseNet.Search.IntegrationTests
     [TestClass]
     public class CentralizedIndexingSqlTests : TestBase
     {
-        private static string _connectionString = @"Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=sn7tests;Data Source=.\SQL2016";
+        private static readonly string ConnectionString =
+            SenseNet.IntegrationTests.Common.ConnectionStrings.ForCentralizedIndexingTests;
 
         [TestMethod, TestCategory("IR")]
         public void Indexing_Centralized_Sql_RegisterAndReload()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -132,7 +133,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_UpdateStateToDone()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -173,7 +174,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_Allocate01_SelectWaiting()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -198,7 +199,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_Allocate02_IdDependency()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -223,7 +224,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_Allocate02_IdDependency_VersionId0()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -250,7 +251,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_Allocate03_InactiveDependency()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -277,7 +278,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_Allocate04_SelectMore()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -310,7 +311,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_Allocate05_PathDependency()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -343,7 +344,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_Allocate06_Timeout()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -384,7 +385,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_Allocate07_MaxRecords()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -409,7 +410,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_Allocate08_StateUpdated()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -439,7 +440,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_AllocateAndState()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -477,7 +478,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_RefreshLock()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -520,7 +521,7 @@ namespace SenseNet.Search.IntegrationTests
         public void Indexing_Centralized_Sql_DeleteFinished()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 CleanupIndexingActivitiesTable();
@@ -555,7 +556,7 @@ namespace SenseNet.Search.IntegrationTests
         public static void CleanupIndexingActivitiesTable()
         {
             var connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-            Configuration.ConnectionStrings.ConnectionString = _connectionString;
+            Configuration.ConnectionStrings.ConnectionString = ConnectionString;
             try
             {
                 DataProvider.Current.DeleteAllIndexingActivities();
