@@ -248,9 +248,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 .UseBlobMetaDataProvider(blobMetaDataProvider)
                 .UseBlobProviderSelector(new BuiltInBlobProviderSelector());
 
-            BlobStorageComponents.DataProvider = blobMetaDataProvider;
-
-            return builder;
+            return builder as RepositoryBuilder;
         }
         private string[] LoadCtds()
         {
