@@ -53,6 +53,19 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 proc.ExecuteNonQuery();
             }
         }
+        protected void HackFileRowFileStream(int fileId, byte[] bytes)
+        {
+            var sql = $"UPDATE Files SET FileStream = @FileStream WHERE FileId = {fileId}";
+            using (var proc = DataProvider.CreateDataProcedure(sql))
+            {
+                proc.CommandType = CommandType.Text;
+                var parameter = DataProvider.CreateParameter();
+                parameter.ParameterName = "@FileStream";
+                parameter.Value = bytes;
+                proc.Parameters.Add(parameter);
+                proc.ExecuteNonQuery();
+            }
+        }
 
         private string GetConnectionString(string databaseName = null)
         {
