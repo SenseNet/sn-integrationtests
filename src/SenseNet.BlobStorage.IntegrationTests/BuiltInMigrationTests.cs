@@ -4,9 +4,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.BlobStorage.IntegrationTests.Implementations;
 using SenseNet.ContentRepository;
 using SenseNet.ContentRepository.Storage;
+using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.ContentRepository.Storage.Security;
+using SenseNet.MsSqlFsBlobProvider;
 using File = SenseNet.ContentRepository.File;
 
 namespace SenseNet.BlobStorage.IntegrationTests
@@ -84,6 +86,120 @@ namespace SenseNet.BlobStorage.IntegrationTests
                     MoveData(file);
 
                 Assert.AreEqual(typeof(LocalDiskBlobProvider), GetUsedBlobProvider(file));
+            }
+        }
+
+
+        [TestMethod]
+        public void Blob_Migration_Staging_BuiltInMeta_BuiltInToExternal()
+        {
+            using (new SystemAccount())
+            using (new SizeLimitSwindler(this, _bigSizeLimit))
+            {
+                var file = CreateFile(_text);
+                Assert.AreEqual(typeof(BuiltInBlobProvider), GetUsedBlobProvider(file));
+                string loadedText = null;
+                using (new BlobProviderSwindler(typeof(LocalDiskBlobProvider)))
+                using (new SizeLimitSwindler(this, _smallSizeLimit))
+                {
+                    file = Node.Load<File>(file.Id);
+                    Assert.IsNull(file.Binary.BlobProvider);
+                    Assert.IsNull(file.Binary.BlobProviderData);
+                    var fileIdBefore = file.Binary.FileId;
+
+                    var stream = file.Binary.GetStream();
+                    var snStream = stream as SnStream;
+                    Assert.IsNotNull(snStream);
+                    Assert.AreEqual(typeof(BuiltInBlobProvider).Name, snStream.Context.Provider.GetType().Name);
+
+                    // action
+                    file.Binary.SetStream(stream);
+                    file.Save();
+
+                    // assert
+                    file = Node.Load<File>(file.Id);
+                    loadedText = GetStringFromBinary(file.Binary);
+
+                    Assert.AreEqual(typeof(LocalDiskBlobProvider).FullName, file.Binary.BlobProvider);
+                    Assert.AreEqual(fileIdBefore + 1, file.Binary.FileId);
+                }
+
+                Assert.AreEqual(_text, loadedText);
+            }
+        }
+        [TestMethod]
+        public void Blob_Migration_Staging_BuiltInMeta_SqlFsToExternal()
+        {
+            Assert.Inconclusive("Invalid test: built-in metadata provider cannot use the SqlFileStreamBlobProvider.");
+            using (new SystemAccount())
+            using (new BlobProviderSwindler(typeof(SqlFileStreamBlobProvider)))
+            using (new SizeLimitSwindler(this, _smallSizeLimit))
+            {
+                var file = CreateFile(_text);
+                Assert.AreEqual(typeof(SqlFileStreamBlobProvider), GetUsedBlobProvider(file));
+                string loadedText = null;
+                using (new BlobProviderSwindler(typeof(LocalDiskBlobProvider)))
+                {
+                    file = Node.Load<File>(file.Id);
+                    Assert.IsNull(file.Binary.BlobProvider);
+                    Assert.IsNull(file.Binary.BlobProviderData);
+                    var fileIdBefore = file.Binary.FileId;
+
+                    var stream = file.Binary.GetStream();
+                    var snStream = stream as SnStream;
+                    Assert.IsNotNull(snStream);
+                    Assert.AreEqual(typeof(SqlFileStreamBlobProvider).Name, snStream.Context.Provider.GetType().Name);
+
+                    // action
+                    file.Binary.SetStream(stream);
+                    file.Save();
+
+                    // assert
+                    file = Node.Load<File>(file.Id);
+                    loadedText = GetStringFromBinary(file.Binary);
+
+                    Assert.AreEqual(typeof(LocalDiskBlobProvider).FullName, file.Binary.BlobProvider);
+                    Assert.AreEqual(fileIdBefore + 1, file.Binary.FileId);
+                }
+
+                Assert.AreEqual(_text, loadedText);
+            }
+        }
+        [TestMethod]
+        public void Blob_Migration_Staging_BuiltInMeta_ExternalToExternal()
+        {
+            using (new SystemAccount())
+            using (new BlobProviderSwindler(typeof(LocalDiskBlobProvider)))
+            using (new SizeLimitSwindler(this, _smallSizeLimit))
+            {
+                var file = CreateFile(_text);
+                Assert.AreEqual(typeof(LocalDiskBlobProvider), GetUsedBlobProvider(file));
+                string loadedText = null;
+                using (new BlobProviderSwindler(typeof(LocalDiskChunkBlobProvider)))
+                {
+                    file = Node.Load<File>(file.Id);
+                    Assert.AreEqual(typeof(LocalDiskBlobProvider).FullName, file.Binary.BlobProvider);
+                    Assert.IsNotNull(file.Binary.BlobProviderData);
+                    var fileIdBefore = file.Binary.FileId;
+
+                    var stream = file.Binary.GetStream();
+                    var snStream = stream as SnStream;
+                    Assert.IsNotNull(snStream);
+                    Assert.AreEqual(typeof(LocalDiskBlobProvider).Name, snStream.Context.Provider.GetType().Name);
+
+                    // action
+                    file.Binary.SetStream(stream);
+                    file.Save();
+
+                    // assert
+                    file = Node.Load<File>(file.Id);
+                    loadedText = GetStringFromBinary(file.Binary);
+
+                    Assert.AreEqual(typeof(LocalDiskChunkBlobProvider).FullName, file.Binary.BlobProvider);
+                    Assert.AreEqual(fileIdBefore + 1, file.Binary.FileId);
+                }
+
+                Assert.AreEqual(_text, loadedText);
             }
         }
 
