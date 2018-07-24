@@ -53,6 +53,19 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 proc.ExecuteNonQuery();
             }
         }
+        protected void HackFileRowFileStream(int fileId, byte[] bytes)
+        {
+            var sql = $"UPDATE Files SET FileStream = @FileStream WHERE FileId = {fileId}";
+            using (var proc = DataProvider.CreateDataProcedure(sql))
+            {
+                proc.CommandType = CommandType.Text;
+                var parameter = DataProvider.CreateParameter();
+                parameter.ParameterName = "@FileStream";
+                parameter.Value = bytes;
+                proc.Parameters.Add(parameter);
+                proc.ExecuteNonQuery();
+            }
+        }
 
         private string GetConnectionString(string databaseName = null)
         {
@@ -1045,6 +1058,22 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 return reader.ReadToEnd();
         }
 
+        protected string GetStringFromBinary(BinaryData binaryData)
+        {
+            using (var stream = binaryData.GetStream())
+            using (IO.StreamReader sr = new IO.StreamReader(stream))
+                return sr.ReadToEnd();
+        }
+
+        protected Type GetUsedBlobProvider(File file)
+        {
+            file = Node.Load<File>(file.Id);
+            var bin = file.Binary;
+            var ctx = BlobStorageComponents.DataProvider.GetBlobStorageContext(bin.FileId, false, file.VersionId,
+                PropertyType.GetByName("Binary").Id);
+            return ctx.Provider.GetType();
+        }
+
         protected class SizeLimitSwindler : IDisposable
         {
             private readonly BlobStorageIntegrationTests _testClass;
@@ -1058,6 +1087,22 @@ namespace SenseNet.BlobStorage.IntegrationTests
             public void Dispose()
             {
                 _testClass.ConfigureMinimumSizeForFileStreamInBytes(_originalValue, out _);
+            }
+        }
+
+        protected class BlobProviderSwindler : IDisposable
+        {
+            private readonly string _originalValue;
+
+            public BlobProviderSwindler(Type cheat)
+            {
+                _originalValue = Configuration.BlobStorage.BlobProviderClassName;
+                Configuration.BlobStorage.BlobProviderClassName = cheat.FullName;
+                BlobStorageComponents.ProviderSelector = new BuiltInBlobProviderSelector();
+            }
+            public void Dispose()
+            {
+                Configuration.BlobStorage.BlobProviderClassName = _originalValue;
             }
         }
 

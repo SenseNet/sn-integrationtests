@@ -1,6 +1,12 @@
 ﻿using System;
+using System.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.BlobStorage.IntegrationTests.Implementations;
+using SenseNet.ContentRepository;
+using SenseNet.ContentRepository.Storage;
+using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.ContentRepository.Storage.Schema;
+using SenseNet.ContentRepository.Storage.Security;
 using SenseNet.MsSqlFsBlobProvider;
 
 namespace SenseNet.BlobStorage.IntegrationTests
@@ -113,5 +119,41 @@ namespace SenseNet.BlobStorage.IntegrationTests
         {
             TestCase16_DeleteBig();
         }
+
+        [TestMethod]
+        public void Blob_SqlFsLocalDisk_Bug_EmptyFileStreamAndExternalRecord()
+        {
+            // Symptom: record in the Files table that contains external provider and empty
+            // FileStream value (0x instead of [null]) causes error: LoadBinaryCacheEntity of the 
+            // BlobMetadata provider reads this value that overrides the BlobProvider settings
+            // and the SnStream constructor instantiates a RepositoryStream with a zero length buffer.
+
+            using (new SystemAccount())
+            using (new SizeLimitSwindler(this, 10))
+            {
+                var testRoot = CreateTestRoot();
+
+                var file = new File(testRoot) { Name = "File1.file" };
+                file.Binary.SetStream(RepositoryTools.GetStreamFromString("Lorem ipsum dolor sit amet..."));
+                file.Save();
+                var fileId = file.Binary.FileId;
+                var versionId = file.VersionId;
+                HackFileRowFileStream(fileId, new byte[0]);
+                var dbFile = LoadDbFile(fileId);
+                Assert.IsNotNull(dbFile.BlobProvider);
+                Assert.IsNotNull(dbFile.BlobProviderData);
+                Assert.IsNotNull(dbFile.FileStream);
+                Assert.AreEqual(0, dbFile.FileStream.Length);
+
+                // action
+                var bcEentity =
+                    BlobStorageComponents.DataProvider.LoadBinaryCacheEntity(versionId,
+                        PropertyType.GetByName("Binary").Id);
+
+                // assert
+                Assert.IsNull(bcEentity.RawData);
+            }
+        }
+
     }
 }
