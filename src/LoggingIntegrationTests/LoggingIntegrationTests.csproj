@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0734E56A-D609-4788-A33D-7B18A62D48D5}</ProjectGuid>
+    <ProjectGuid>{7C2FB91C-D5F5-4021-8951-D9AA54797734}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SenseNet.Search.IntegrationTests</RootNamespace>
-    <AssemblyName>SenseNet.Search.IntegrationTests</AssemblyName>
+    <RootNamespace>LoggingIntegrationTests</RootNamespace>
+    <AssemblyName>LoggingIntegrationTests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -77,23 +77,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActivityQueueSelectorTests.cs" />
-    <Compile Include="CentralizedIndexingInMemoryTests.cs" />
-    <Compile Include="CentralizedIndexingSqlTests.cs" />
-    <Compile Include="FieldIndexHandlerTests.cs" />
+    <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\sensenet\src\BlobStorage\SenseNet.BlobStorage.csproj">
-      <Project>{5577b9e7-7c55-43e3-b2a2-cc192c12c20b}</Project>
-      <Name>SenseNet.BlobStorage</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\sensenet\src\Common\SenseNet.Common.csproj">
       <Project>{42075cab-39c0-4055-aa3e-3b12850117b8}</Project>
       <Name>SenseNet.Common</Name>
@@ -101,10 +91,6 @@
     <ProjectReference Include="..\..\..\sensenet\src\ContentRepository\SenseNet.ContentRepository.csproj">
       <Project>{786e6165-ca02-45a9-bf58-207a45d7d6df}</Project>
       <Name>SenseNet.ContentRepository</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\sensenet\src\Search\SenseNet.Search.csproj">
-      <Project>{1020caaf-18fd-418f-b3b0-3cab79e619b6}</Project>
-      <Name>SenseNet.Search</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\sensenet\src\Storage\SenseNet.Storage.csproj">
       <Project>{5db4ddba-81f6-4d81-943a-18f3178b3355}</Project>
@@ -114,12 +100,8 @@
       <Project>{a0909e8f-e039-4080-a259-676cfd38ccd1}</Project>
       <Name>SenseNet.Tests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\sn-security\src\SenseNet.Security\SenseNet.Security.csproj">
-      <Project>{9fa65e99-96d3-4323-896b-cb53e0777c82}</Project>
-      <Name>SenseNet.Security</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SenseNet.IntegrationTests.Common\SenseNet.IntegrationTests.Common.csproj">
-      <Project>{627620f1-ec79-408d-a965-63d69c168672}</Project>
+      <Project>{627620F1-EC79-408D-A965-63D69C168672}</Project>
       <Name>SenseNet.IntegrationTests.Common</Name>
     </ProjectReference>
   </ItemGroup>
