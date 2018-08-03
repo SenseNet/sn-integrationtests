@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,28 +29,14 @@ namespace LoggingIntegrationTests
     }
 
     [TestClass]
-    public class UnitTest1
+    public class LoggingToSqlTests
     {
-        [TestInitialize]
-        public void InitializeTest()
-        {
-            // preparing database
-            SenseNet.Configuration.ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests;
-            var proc = DataProvider.CreateDataProcedure("DELETE FROM [LogEntries]");
-            proc.CommandType = CommandType.Text;
-            proc.ExecuteNonQuery();
-            proc = DataProvider.CreateDataProcedure("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)");
-            proc.CommandType = CommandType.Text;
-            proc.ExecuteNonQuery();
-
-            RepositoryVersionInfo.Reset();
-        }
-
         [TestMethod]
-        public void Log_Audit_Sql()
+        public void Logging_Audit_ToSql()
         {
             var provider = DataProvider.Current;
             Assert.AreEqual("SqlProvider" ,provider.GetType().Name);
+            InitializeLogEntriesTable();
 
             SnLog.AuditEventWriter = new DatabaseAuditEventWriter();
 
@@ -64,10 +52,20 @@ namespace LoggingIntegrationTests
         }
 
 
+        /* ============================================================================ */
 
-        private void SqlTest(Action callback)
+        private void InitializeLogEntriesTable()
         {
-            
+            // preparing database
+            SenseNet.Configuration.ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests;
+            var proc = DataProvider.CreateDataProcedure("DELETE FROM [LogEntries]");
+            proc.CommandType = CommandType.Text;
+            proc.ExecuteNonQuery();
+            proc = DataProvider.CreateDataProcedure("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)");
+            proc.CommandType = CommandType.Text;
+            proc.ExecuteNonQuery();
+
+            RepositoryVersionInfo.Reset();
         }
     }
 }
