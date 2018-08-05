@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.IntegrationTests.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggingIntegrationTests", "LoggingIntegrationTests\LoggingIntegrationTests.csproj", "{7C2FB91C-D5F5-4021-8951-D9AA54797734}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.EntlibLogger", "..\..\sn-logging-entlib\src\EntlibLogger\SenseNet.EntlibLogger.csproj", "{8B3AA97F-E469-41A3-A181-8CE88FCEE24B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,6 +91,10 @@ Global
 		{7C2FB91C-D5F5-4021-8951-D9AA54797734}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C2FB91C-D5F5-4021-8951-D9AA54797734}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C2FB91C-D5F5-4021-8951-D9AA54797734}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B3AA97F-E469-41A3-A181-8CE88FCEE24B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B3AA97F-E469-41A3-A181-8CE88FCEE24B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B3AA97F-E469-41A3-A181-8CE88FCEE24B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B3AA97F-E469-41A3-A181-8CE88FCEE24B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +108,7 @@ Global
 		{A0909E8F-E039-4080-A259-676CFD38CCD1} = {A6F22E95-BF95-48C6-87AD-059CEDFA97BA}
 		{9FA65E99-96D3-4323-896B-CB53E0777C82} = {A6F22E95-BF95-48C6-87AD-059CEDFA97BA}
 		{A9CFEAD6-E05E-417C-A50B-199A443DEE22} = {A6F22E95-BF95-48C6-87AD-059CEDFA97BA}
+		{8B3AA97F-E469-41A3-A181-8CE88FCEE24B} = {A6F22E95-BF95-48C6-87AD-059CEDFA97BA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {919120C5-4DC2-4FB5-AFE7-25D1E1F639DE}

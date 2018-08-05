@@ -38,6 +38,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Data">
+      <HintPath>..\..\..\sn-logging-entlib\src\References\Microsoft.Practices.EnterpriseLibrary.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Logging.Database">
+      <HintPath>..\..\..\sn-logging-entlib\src\References\Microsoft.Practices.EnterpriseLibrary.Logging.Database.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.1.2.0\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.dll</HintPath>
     </Reference>
@@ -77,11 +83,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EntlibLoggerTests.cs" />
+    <Compile Include="Implementations\TestAuditEvent.cs" />
+    <Compile Include="LoggerTestBase.cs" />
     <Compile Include="LoggingToEventLogTests.cs" />
     <Compile Include="LoggingToSqlTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +112,10 @@
     <ProjectReference Include="..\..\..\sensenet\src\Tests\SenseNet.Tests\SenseNet.Tests.csproj">
       <Project>{a0909e8f-e039-4080-a259-676cfd38ccd1}</Project>
       <Name>SenseNet.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\sn-logging-entlib\src\EntlibLogger\SenseNet.EntlibLogger.csproj">
+      <Project>{8b3aa97f-e469-41a3-a181-8ce88fcee24b}</Project>
+      <Name>SenseNet.EntlibLogger</Name>
     </ProjectReference>
     <ProjectReference Include="..\SenseNet.IntegrationTests.Common\SenseNet.IntegrationTests.Common.csproj">
       <Project>{627620F1-EC79-408D-A965-63D69C168672}</Project>
