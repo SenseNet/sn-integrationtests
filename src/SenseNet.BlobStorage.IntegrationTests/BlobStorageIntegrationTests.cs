@@ -396,6 +396,32 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
 
+        public void TestCase_UpdateFileSmallEmpty()
+        {
+            // 20 chars:       |------------------|
+            var initialText = "Lorem ipsum...";
+            var updatedText = string.Empty;
+            var dbFile = UpdateFileTest(initialText, updatedText, 20);
+
+            Assert.IsNull(dbFile.FileStream);
+            Assert.IsNotNull(dbFile.Stream);
+            Assert.AreEqual(0L, dbFile.Size);
+            Assert.AreEqual(dbFile.Size, dbFile.Stream.Length);
+            Assert.AreEqual(updatedText, GetStringFromBytes(dbFile.Stream));
+        }
+        public void TestCase_UpdateFileBigEmpty()
+        {
+            // 20 chars:       |------------------|
+            var initialText = "Lorem ipsum dolo sit amet...";
+            var updatedText = string.Empty;
+            var dbFile = UpdateFileTest(initialText, updatedText, 20);
+
+            Assert.IsNull(dbFile.FileStream);
+            Assert.IsNotNull(dbFile.Stream);
+            Assert.AreEqual(0L, dbFile.Size);
+            Assert.AreEqual(dbFile.Size, dbFile.Stream.Length);
+            Assert.AreEqual(updatedText, GetStringFromBytes(dbFile.Stream));
+        }
         public void TestCase_UpdateFileSmallSmall()
         {
             // 20 chars:       |------------------|
@@ -514,7 +540,10 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 Assert.AreEqual(false, dbFile.Staging);
                 Assert.AreEqual(0, dbFile.StagingVersionId);
                 Assert.AreEqual(0, dbFile.StagingPropertyTypeId);
-                Assert.AreEqual(updatedContent.Length + 3, dbFile.Size);
+                if(updatedContent.Length == 0)
+                    Assert.AreEqual(0, dbFile.Size);
+                else
+                    Assert.AreEqual(updatedContent.Length + 3, dbFile.Size);
 
                 return dbFile;
             }

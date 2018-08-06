@@ -39,6 +39,16 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
         [TestMethod]
+        public void Blob_BuiltIn_UpdateFileSmallEmpty()
+        {
+            TestCase_UpdateFileSmallEmpty();
+        }
+        [TestMethod]
+        public void Blob_BuiltIn_UpdateFileBigEmpty()
+        {
+            TestCase_UpdateFileBigEmpty();
+        }
+        [TestMethod]
         public void Blob_BuiltIn_UpdateFileSmallSmall()
         {
             TestCase_UpdateFileSmallSmall();

@@ -20,6 +20,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             Configuration.BlobStorage.MinimumSizeForBlobProviderInBytes = newValue;
         }
 
+        /* ==================================================== Test cases */
 
         [ClassCleanup]
         public static void CleanupClass()
@@ -38,6 +39,16 @@ namespace SenseNet.BlobStorage.IntegrationTests
             TestCase_CreateFileBig();
         }
 
+        [TestMethod]
+        public void Blob_SqlFS_UpdateFileSmallEmpty()
+        {
+            TestCase_UpdateFileSmallEmpty();
+        }
+        [TestMethod]
+        public void Blob_SqlFS_UpdateFileBigEmpty()
+        {
+            TestCase_UpdateFileBigEmpty();
+        }
         [TestMethod]
         public void Blob_SqlFS_UpdateFileSmallSmall()
         {

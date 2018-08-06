@@ -26,6 +26,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             TearDown(typeof(BuiltInLocalDiskChunkTests));
         }
 
+        /* ==================================================== Test cases */
 
         [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_CreateFileSmall()
@@ -38,6 +39,16 @@ namespace SenseNet.BlobStorage.IntegrationTests
             TestCase_CreateFileBig();
         }
 
+        [TestMethod]
+        public void Blob_BuiltInLocalDiskChunk_UpdateFileSmallEmpty()
+        {
+            TestCase_UpdateFileSmallEmpty();
+        }
+        [TestMethod]
+        public void Blob_BuiltInLocalDiskChunk_UpdateFileBigEmpty()
+        {
+            TestCase_UpdateFileBigEmpty();
+        }
         [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_UpdateFileSmallSmall()
         {
