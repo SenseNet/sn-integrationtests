@@ -28,90 +28,90 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
         [TestMethod]
-        public void Blob_SqlFS_01_CreateFileSmall()
+        public void Blob_SqlFS_CreateFileSmall()
         {
-            TestCase01_CreateFileSmall();
+            TestCase_CreateFileSmall();
         }
         [TestMethod]
-        public void Blob_SqlFS_02_CreateFileBig()
+        public void Blob_SqlFS_CreateFileBig()
         {
-            TestCase02_CreateFileBig();
-        }
-
-        [TestMethod]
-        public void Blob_SqlFS_03_UpdateFileSmallSmall()
-        {
-            TestCase03_UpdateFileSmallSmall();
-        }
-        [TestMethod]
-        public void Blob_SqlFS_04_UpdateFileSmallBig()
-        {
-            TestCase04_UpdateFileSmallBig();
-        }
-        [TestMethod]
-        public void Blob_SqlFS_05_UpdateFileBigSmall()
-        {
-            TestCase05_UpdateFileBigSmall();
-        }
-        [TestMethod]
-        public void Blob_SqlFS_06_UpdateFileBigBig()
-        {
-            TestCase06_UpdateFileBigBig();
+            TestCase_CreateFileBig();
         }
 
         [TestMethod]
-        public void Blob_SqlFs_07_WriteChunksSmall()
+        public void Blob_SqlFS_UpdateFileSmallSmall()
         {
-            TestCase07_WriteChunksSmall();
+            TestCase_UpdateFileSmallSmall();
         }
         [TestMethod]
-        public void Blob_SqlFs_08_WriteChunksBig()
+        public void Blob_SqlFS_UpdateFileSmallBig()
         {
-            TestCase08_WriteChunksBig();
-        }
-
-        [TestMethod]
-        public void Blob_SqlFs_09_DeleteBinaryPropertySmall()
-        {
-            TestCase09_DeleteBinaryPropertySmall();
+            TestCase_UpdateFileSmallBig();
         }
         [TestMethod]
-        public void Blob_SqlFs_10_DeleteBinaryPropertyBig()
+        public void Blob_SqlFS_UpdateFileBigSmall()
         {
-            TestCase10_DeleteBinaryPropertyBig();
-        }
-
-        [TestMethod]
-        public void Blob_SqlFs_11_CopyfileRowSmall()
-        {
-            TestCase11_CopyfileRowSmall();
+            TestCase_UpdateFileBigSmall();
         }
         [TestMethod]
-        public void Blob_SqlFs_12_CopyfileRowBig()
+        public void Blob_SqlFS_UpdateFileBigBig()
         {
-            TestCase12_CopyfileRowBig();
+            TestCase_UpdateFileBigBig();
         }
 
         [TestMethod]
-        public void Blob_SqlFs_13_BinaryCacheEntitySmall()
+        public void Blob_SqlFs_WriteChunksSmall()
         {
-            TestCase13_BinaryCacheEntitySmall();
+            TestCase_WriteChunksSmall();
         }
         [TestMethod]
-        public void Blob_SqlFs_14_BinaryCacheEntityBig()
+        public void Blob_SqlFs_WriteChunksBig()
         {
-            TestCase14_BinaryCacheEntityBig();
+            TestCase_WriteChunksBig();
         }
 
         [TestMethod]
-        public void Blob_SqlFs_15_DeleteSmall()
+        public void Blob_SqlFs_DeleteBinaryPropertySmall()
         {
-            TestCase15_DeleteSmall();
+            TestCase_DeleteBinaryPropertySmall();
         }
         [TestMethod]
-        public void Blob_SqlFs_16_DeleteBig()
+        public void Blob_SqlFs_DeleteBinaryPropertyBig()
         {
-            TestCase16_DeleteBig();
+            TestCase_DeleteBinaryPropertyBig();
+        }
+
+        [TestMethod]
+        public void Blob_SqlFs_CopyfileRowSmall()
+        {
+            TestCase_CopyfileRowSmall();
+        }
+        [TestMethod]
+        public void Blob_SqlFs_CopyfileRowBig()
+        {
+            TestCase_CopyfileRowBig();
+        }
+
+        [TestMethod]
+        public void Blob_SqlFs_BinaryCacheEntitySmall()
+        {
+            TestCase_BinaryCacheEntitySmall();
+        }
+        [TestMethod]
+        public void Blob_SqlFs_BinaryCacheEntityBig()
+        {
+            TestCase_BinaryCacheEntityBig();
+        }
+
+        [TestMethod]
+        public void Blob_SqlFs_DeleteSmall()
+        {
+            TestCase_DeleteSmall();
+        }
+        [TestMethod]
+        public void Blob_SqlFs_DeleteBig()
+        {
+            TestCase_DeleteBig();
         }
     }
 }
