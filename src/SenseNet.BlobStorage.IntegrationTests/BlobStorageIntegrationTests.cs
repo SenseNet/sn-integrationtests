@@ -306,7 +306,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
         #endregion
 
-        public void TestCase01_CreateFileSmall()
+        public void TestCase_CreateFileSmall()
         {
             var expectedText = "Lorem ipsum dolo sit amet";
             var dbFile = CreateFileTest(expectedText, expectedText.Length + 10);
@@ -321,7 +321,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             Assert.AreEqual(dbFile.Size, ctx.Length);
             Assert.IsTrue(ctx.BlobProviderData is BuiltinBlobProviderData);
         }
-        public void TestCase02_CreateFileBig()
+        public void TestCase_CreateFileBig()
         {
             var expectedText = "Lorem ipsum dolo sit amet";
             var dbFile = CreateFileTest(expectedText, expectedText.Length - 10);
@@ -396,7 +396,33 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
 
-        public void TestCase03_UpdateFileSmallSmall()
+        public void TestCase_UpdateFileSmallEmpty()
+        {
+            // 20 chars:       |------------------|
+            var initialText = "Lorem ipsum...";
+            var updatedText = string.Empty;
+            var dbFile = UpdateFileTest(initialText, updatedText, 20);
+
+            Assert.IsNull(dbFile.FileStream);
+            Assert.IsNotNull(dbFile.Stream);
+            Assert.AreEqual(0L, dbFile.Size);
+            Assert.AreEqual(dbFile.Size, dbFile.Stream.Length);
+            Assert.AreEqual(updatedText, GetStringFromBytes(dbFile.Stream));
+        }
+        public void TestCase_UpdateFileBigEmpty()
+        {
+            // 20 chars:       |------------------|
+            var initialText = "Lorem ipsum dolo sit amet...";
+            var updatedText = string.Empty;
+            var dbFile = UpdateFileTest(initialText, updatedText, 20);
+
+            Assert.IsNull(dbFile.FileStream);
+            Assert.IsNotNull(dbFile.Stream);
+            Assert.AreEqual(0L, dbFile.Size);
+            Assert.AreEqual(dbFile.Size, dbFile.Stream.Length);
+            Assert.AreEqual(updatedText, GetStringFromBytes(dbFile.Stream));
+        }
+        public void TestCase_UpdateFileSmallSmall()
         {
             // 20 chars:       |------------------|
             var initialText = "Lorem ipsum...";
@@ -408,7 +434,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             Assert.AreEqual(dbFile.Size, dbFile.Stream.Length);
             Assert.AreEqual(updatedText, GetStringFromBytes(dbFile.Stream));
         }
-        public void TestCase04_UpdateFileSmallBig()
+        public void TestCase_UpdateFileSmallBig()
         {
             // 20 chars:       |------------------|
             var initialText = "Lorem ipsum...";
@@ -437,7 +463,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 Assert.AreEqual(updatedText, GetStringFromBytes(dbFile.Stream));
             }
         }
-        public void TestCase05_UpdateFileBigSmall()
+        public void TestCase_UpdateFileBigSmall()
         {
             // 20 chars:       |------------------|
             var initialText = "Lorem ipsum dolo sit amet...";
@@ -449,7 +475,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             Assert.AreEqual(dbFile.Size, dbFile.Stream.Length);
             Assert.AreEqual(updatedText, GetStringFromBytes(dbFile.Stream));
         }
-        public void TestCase06_UpdateFileBigBig()
+        public void TestCase_UpdateFileBigBig()
         {
             // 20 chars:       |------------------|
             var initialText = "Lorem ipsum dolo sit amet...";
@@ -514,14 +540,17 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 Assert.AreEqual(false, dbFile.Staging);
                 Assert.AreEqual(0, dbFile.StagingVersionId);
                 Assert.AreEqual(0, dbFile.StagingPropertyTypeId);
-                Assert.AreEqual(updatedContent.Length + 3, dbFile.Size);
+                if(updatedContent.Length == 0)
+                    Assert.AreEqual(0, dbFile.Size);
+                else
+                    Assert.AreEqual(updatedContent.Length + 3, dbFile.Size);
 
                 return dbFile;
             }
         }
 
 
-        public void TestCase07_WriteChunksSmall()
+        public void TestCase_WriteChunksSmall()
         {
             // 20 chars:       |------------------|
             // 10 chars:       |--------|---------|---------|
@@ -534,7 +563,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             Assert.AreEqual(dbFile.Size, dbFile.Stream.Length);
             Assert.AreEqual(updatedText, GetStringFromBytes(dbFile.Stream));
         }
-        public void TestCase08_WriteChunksBig()
+        public void TestCase_WriteChunksBig()
         {
             // 20 chars:       |------------------|
             // 10 chars:       |--------|---------|---------|
@@ -620,12 +649,12 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
 
-        public void TestCase09_DeleteBinaryPropertySmall()
+        public void TestCase_DeleteBinaryPropertySmall()
         {
             var initialText = "Lorem ipsum dolo sit amet..";
             DeleteBinaryPropertyTest(initialText, 222);
         }
-        public void TestCase10_DeleteBinaryPropertyBig()
+        public void TestCase_DeleteBinaryPropertyBig()
         {
             var initialText = "Lorem ipsum dolo sit amet..";
             DeleteBinaryPropertyTest(initialText, 20);
@@ -654,7 +683,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
 
-        public void TestCase11_CopyfileRowSmall()
+        public void TestCase_CopyfileRowSmall()
         {
             // 20 chars:       |------------------|
             // 10 chars:       |--------|---------|---------|
@@ -672,7 +701,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             Assert.AreEqual(dbFiles[1].Size, dbFiles[1].Stream.Length);
             Assert.AreEqual(updatedText, GetStringFromBytes(dbFiles[1].Stream));
         }
-        public void TestCase12_CopyfileRowBig()
+        public void TestCase_CopyfileRowBig()
         {
             // 20 chars:       |------------------|
             // 10 chars:       |--------|---------|---------|
@@ -794,12 +823,12 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
 
-        public void TestCase13_BinaryCacheEntitySmall()
+        public void TestCase_BinaryCacheEntitySmall()
         {
             var expectedText = "Lorem ipsum dolo sit amet";
             BinaryCacheEntityTest(expectedText, expectedText.Length + 10);
         }
-        public void TestCase14_BinaryCacheEntityBig()
+        public void TestCase_BinaryCacheEntityBig()
         {
             var expectedText = "Lorem ipsum dolo sit amet";
             BinaryCacheEntityTest(expectedText, expectedText.Length - 10);
@@ -846,12 +875,12 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
 
-        public void TestCase15_DeleteSmall()
+        public void TestCase_DeleteSmall()
         {
             var expectedText = "Lorem ipsum dolo sit amet";
             DeleteTest(expectedText, expectedText.Length + 10);
         }
-        public void TestCase16_DeleteBig()
+        public void TestCase_DeleteBig()
         {
             var expectedText = "Lorem ipsum dolo sit amet";
             DeleteTest(expectedText, expectedText.Length - 10);
