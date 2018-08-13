@@ -1,6 +1,12 @@
 ﻿using System;
+using System.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.BlobStorage.IntegrationTests.Implementations;
+using SenseNet.ContentRepository;
+using SenseNet.ContentRepository.Storage;
+using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.ContentRepository.Storage.Schema;
+using SenseNet.ContentRepository.Storage.Security;
 using SenseNet.MsSqlFsBlobProvider;
 
 namespace SenseNet.BlobStorage.IntegrationTests
@@ -28,90 +34,126 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
 
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_01_CreateFileSmall()
+        public void Blob_SqlFsLocalDisk_CreateFileSmall()
         {
-            TestCase01_CreateFileSmall();
+            TestCase_CreateFileSmall();
         }
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_02_CreateFileBig()
+        public void Blob_SqlFsLocalDisk_CreateFileBig()
         {
-            TestCase02_CreateFileBig();
+            TestCase_CreateFileBig();
         }
 
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_03_UpdateFileSmallSmall()
+        public void Blob_SqlFsLocalDisk_UpdateFileSmallSmall()
         {
-            TestCase03_UpdateFileSmallSmall();
+            TestCase_UpdateFileSmallSmall();
         }
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_04_UpdateFileSmallBig()
+        public void Blob_SqlFsLocalDisk_UpdateFileSmallBig()
         {
-            TestCase04_UpdateFileSmallBig();
+            TestCase_UpdateFileSmallBig();
         }
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_05_UpdateFileBigSmall()
+        public void Blob_SqlFsLocalDisk_UpdateFileBigSmall()
         {
-            TestCase05_UpdateFileBigSmall();
+            TestCase_UpdateFileBigSmall();
         }
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_06_UpdateFileBigBig()
+        public void Blob_SqlFsLocalDisk_UpdateFileBigBig()
         {
-            TestCase06_UpdateFileBigBig();
+            TestCase_UpdateFileBigBig();
         }
 
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_07_WriteChunksSmall()
+        public void Blob_SqlFsLocalDisk_WriteChunksSmall()
         {
-            TestCase07_WriteChunksSmall();
+            TestCase_WriteChunksSmall();
         }
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_08_WriteChunksBig()
+        public void Blob_SqlFsLocalDisk_WriteChunksBig()
         {
-            TestCase08_WriteChunksBig();
+            TestCase_WriteChunksBig();
         }
 
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_09_DeleteBinaryPropertySmall()
+        public void Blob_SqlFsLocalDisk_DeleteBinaryPropertySmall()
         {
-            TestCase09_DeleteBinaryPropertySmall();
+            TestCase_DeleteBinaryPropertySmall();
         }
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_10_DeleteBinaryPropertyBig()
+        public void Blob_SqlFsLocalDisk_DeleteBinaryPropertyBig()
         {
-            TestCase10_DeleteBinaryPropertyBig();
+            TestCase_DeleteBinaryPropertyBig();
         }
 
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_11_CopyfileRowSmall()
+        public void Blob_SqlFsLocalDisk_CopyfileRowSmall()
         {
-            TestCase11_CopyfileRowSmall();
+            TestCase_CopyfileRowSmall();
         }
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_12_CopyfileRowBig()
+        public void Blob_SqlFsLocalDisk_CopyfileRowBig()
         {
-            TestCase12_CopyfileRowBig();
+            TestCase_CopyfileRowBig();
         }
 
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_13_BinaryCacheEntitySmall()
+        public void Blob_SqlFsLocalDisk_BinaryCacheEntitySmall()
         {
-            TestCase13_BinaryCacheEntitySmall();
+            TestCase_BinaryCacheEntitySmall();
         }
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_14_BinaryCacheEntityBig()
+        public void Blob_SqlFsLocalDisk_BinaryCacheEntityBig()
         {
-            TestCase14_BinaryCacheEntityBig();
+            TestCase_BinaryCacheEntityBig();
         }
 
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_15_DeleteSmall()
+        public void Blob_SqlFsLocalDisk_DeleteSmall()
         {
-            TestCase15_DeleteSmall();
+            TestCase_DeleteSmall();
         }
         [TestMethod]
-        public void Blob_SqlFsLocalDisk_16_DeleteBig()
+        public void Blob_SqlFsLocalDisk_DeleteBig()
         {
-            TestCase16_DeleteBig();
+            TestCase_DeleteBig();
         }
+
+        [TestMethod]
+        public void Blob_SqlFsLocalDisk_Bug_EmptyFileStreamAndExternalRecord()
+        {
+            // Symptom: record in the Files table that contains external provider and empty
+            // FileStream value (0x instead of [null]) causes error: LoadBinaryCacheEntity of the 
+            // BlobMetadata provider reads this value that overrides the BlobProvider settings
+            // and the SnStream constructor instantiates a RepositoryStream with a zero length buffer.
+
+            using (new SystemAccount())
+            using (new SizeLimitSwindler(this, 10))
+            {
+                var testRoot = CreateTestRoot();
+
+                var file = new File(testRoot) { Name = "File1.file" };
+                file.Binary.SetStream(RepositoryTools.GetStreamFromString("Lorem ipsum dolor sit amet..."));
+                file.Save();
+                var fileId = file.Binary.FileId;
+                var versionId = file.VersionId;
+                HackFileRowFileStream(fileId, new byte[0]);
+                var dbFile = LoadDbFile(fileId);
+                Assert.IsNotNull(dbFile.BlobProvider);
+                Assert.IsNotNull(dbFile.BlobProviderData);
+                Assert.IsNotNull(dbFile.FileStream);
+                Assert.AreEqual(0, dbFile.FileStream.Length);
+
+                // action
+                var bcEentity =
+                    BlobStorageComponents.DataProvider.LoadBinaryCacheEntity(versionId,
+                        PropertyType.GetByName("Binary").Id);
+
+                // assert
+                Assert.IsNull(bcEentity.RawData);
+            }
+        }
+
     }
 }

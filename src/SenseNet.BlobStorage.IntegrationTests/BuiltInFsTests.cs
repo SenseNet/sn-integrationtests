@@ -28,91 +28,101 @@ namespace SenseNet.BlobStorage.IntegrationTests
         /* ==================================================== Test cases */
 
         [TestMethod]
-        public void Blob_BuiltInFS_01_CreateFileSmall()
+        public void Blob_BuiltInFS_CreateFileSmall()
         {
-            TestCase01_CreateFileSmall();
+            TestCase_CreateFileSmall();
         }
         [TestMethod]
-        public void Blob_BuiltInFS_02_CreateFileBig()
+        public void Blob_BuiltInFS_CreateFileBig()
         {
-            TestCase02_CreateFileBig();
-        }
-
-        [TestMethod]
-        public void Blob_BuiltInFS_03_UpdateFileSmallSmall()
-        {
-            TestCase03_UpdateFileSmallSmall();
-        }
-        [TestMethod]
-        public void Blob_BuiltInFS_04_UpdateFileSmallBig()
-        {
-            TestCase04_UpdateFileSmallBig();
-        }
-        [TestMethod]
-        public void Blob_BuiltInFS_05_UpdateFileBigSmall()
-        {
-            TestCase05_UpdateFileBigSmall();
-        }
-        [TestMethod]
-        public void Blob_BuiltInFS_06_UpdateFileBigBig()
-        {
-            TestCase06_UpdateFileBigBig();
+            TestCase_CreateFileBig();
         }
 
         [TestMethod]
-        public void Blob_BuiltInFS_07_WriteChunksSmall()
+        public void Blob_BuiltInFS_UpdateFileSmallEmpty()
         {
-            TestCase07_WriteChunksSmall();
+            TestCase_UpdateFileSmallEmpty();
         }
         [TestMethod]
-        public void Blob_BuiltInFS_08_WriteChunksBig()
+        public void Blob_BuiltInFS_UpdateFileBigEmpty()
         {
-            TestCase08_WriteChunksBig();
-        }
-
-        [TestMethod]
-        public void Blob_BuiltInFs_09_DeleteBinaryPropertySmall()
-        {
-            TestCase09_DeleteBinaryPropertySmall();
+            TestCase_UpdateFileBigEmpty();
         }
         [TestMethod]
-        public void Blob_BuiltInFs_10_DeleteBinaryPropertyBig()
+        public void Blob_BuiltInFS_UpdateFileSmallSmall()
         {
-            TestCase10_DeleteBinaryPropertyBig();
-        }
-
-        [TestMethod]
-        public void Blob_BuiltInFs_11_CopyfileRowSmall()
-        {
-            TestCase11_CopyfileRowSmall();
+            TestCase_UpdateFileSmallSmall();
         }
         [TestMethod]
-        public void Blob_BuiltInFs_12_CopyfileRowBig()
+        public void Blob_BuiltInFS_UpdateFileSmallBig()
         {
-            TestCase12_CopyfileRowBig();
+            TestCase_UpdateFileSmallBig();
+        }
+        [TestMethod]
+        public void Blob_BuiltInFS_UpdateFileBigSmall()
+        {
+            TestCase_UpdateFileBigSmall();
+        }
+        [TestMethod]
+        public void Blob_BuiltInFS_UpdateFileBigBig()
+        {
+            TestCase_UpdateFileBigBig();
         }
 
         [TestMethod]
-        public void Blob_BuiltInFs_13_BinaryCacheEntitySmall()
+        public void Blob_BuiltInFS_WriteChunksSmall()
         {
-            TestCase13_BinaryCacheEntitySmall();
+            TestCase_WriteChunksSmall();
         }
         [TestMethod]
-        public void Blob_BuiltInFs_14_BinaryCacheEntityBig()
+        public void Blob_BuiltInFS_WriteChunksBig()
         {
-            TestCase14_BinaryCacheEntityBig();
+            TestCase_WriteChunksBig();
+        }
+
+        [TestMethod]
+        public void Blob_BuiltInFs_DeleteBinaryPropertySmall()
+        {
+            TestCase_DeleteBinaryPropertySmall();
+        }
+        [TestMethod]
+        public void Blob_BuiltInFs_DeleteBinaryPropertyBig()
+        {
+            TestCase_DeleteBinaryPropertyBig();
+        }
+
+        [TestMethod]
+        public void Blob_BuiltInFs_CopyfileRowSmall()
+        {
+            TestCase_CopyfileRowSmall();
+        }
+        [TestMethod]
+        public void Blob_BuiltInFs_CopyfileRowBig()
+        {
+            TestCase_CopyfileRowBig();
+        }
+
+        [TestMethod]
+        public void Blob_BuiltInFs_BinaryCacheEntitySmall()
+        {
+            TestCase_BinaryCacheEntitySmall();
+        }
+        [TestMethod]
+        public void Blob_BuiltInFs_BinaryCacheEntityBig()
+        {
+            TestCase_BinaryCacheEntityBig();
         }
 
 
         [TestMethod]
-        public void Blob_BuiltInFs_15_DeleteSmall()
+        public void Blob_BuiltInFs_DeleteSmall()
         {
-            TestCase15_DeleteSmall();
+            TestCase_DeleteSmall();
         }
         [TestMethod]
-        public void Blob_BuiltInFs_16_DeleteBig()
+        public void Blob_BuiltInFs_DeleteBig()
         {
-            TestCase16_DeleteBig();
+            TestCase_DeleteBig();
         }
     }
 }

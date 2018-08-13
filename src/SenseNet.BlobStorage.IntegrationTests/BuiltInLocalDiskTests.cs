@@ -1,7 +1,11 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.BlobStorage.IntegrationTests.Implementations;
+using SenseNet.ContentRepository;
+using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
+using SenseNet.ContentRepository.Storage.Schema;
+using SenseNet.ContentRepository.Storage.Security;
 
 namespace SenseNet.BlobStorage.IntegrationTests
 {
@@ -26,92 +30,138 @@ namespace SenseNet.BlobStorage.IntegrationTests
             TearDown(typeof(BuiltInLocalDiskTests));
         }
 
+        /* ==================================================== Test cases */
 
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_01_CreateFileSmall()
+        public void Blob_BuiltInLocalDisk_CreateFileSmall()
         {
-            TestCase01_CreateFileSmall();
+            TestCase_CreateFileSmall();
         }
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_02_CreateFileBig()
+        public void Blob_BuiltInLocalDisk_CreateFileBig()
         {
-            TestCase02_CreateFileBig();
-        }
-
-        [TestMethod]
-        public void Blob_BuiltInLocalDisk_03_UpdateFileSmallSmall()
-        {
-            TestCase03_UpdateFileSmallSmall();
-        }
-        [TestMethod]
-        public void Blob_BuiltInLocalDisk_04_UpdateFileSmallBig()
-        {
-            TestCase04_UpdateFileSmallBig();
-        }
-        [TestMethod]
-        public void Blob_BuiltInLocalDisk_05_UpdateFileBigSmall()
-        {
-            TestCase05_UpdateFileBigSmall();
-        }
-        [TestMethod]
-        public void Blob_BuiltInLocalDisk_06_UpdateFileBigBig()
-        {
-            TestCase06_UpdateFileBigBig();
+            TestCase_CreateFileBig();
         }
 
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_07_WriteChunksSmall()
+        public void Blob_BuiltInLocalDisk_UpdateFileSmallEmpty()
         {
-            TestCase07_WriteChunksSmall();
+            TestCase_UpdateFileSmallEmpty();
         }
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_08_WriteChunksBig()
+        public void Blob_BuiltInLocalDisk_UpdateFileBigEmpty()
         {
-            TestCase08_WriteChunksBig();
-        }
-
-        [TestMethod]
-        public void Blob_BuiltInLocalDisk_09_DeleteBinaryPropertySmall()
-        {
-            TestCase09_DeleteBinaryPropertySmall();
+            TestCase_UpdateFileBigEmpty();
         }
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_10_DeleteBinaryPropertyBig()
+        public void Blob_BuiltInLocalDisk_UpdateFileSmallSmall()
         {
-            TestCase10_DeleteBinaryPropertyBig();
-        }
-
-        [TestMethod]
-        public void Blob_BuiltInLocalDisk_11_CopyfileRowSmall()
-        {
-            TestCase11_CopyfileRowSmall();
+            TestCase_UpdateFileSmallSmall();
         }
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_12_CopyfileRowBig()
+        public void Blob_BuiltInLocalDisk_UpdateFileSmallBig()
         {
-            TestCase12_CopyfileRowBig();
+            TestCase_UpdateFileSmallBig();
+        }
+        [TestMethod]
+        public void Blob_BuiltInLocalDisk_UpdateFileBigSmall()
+        {
+            TestCase_UpdateFileBigSmall();
+        }
+        [TestMethod]
+        public void Blob_BuiltInLocalDisk_UpdateFileBigBig()
+        {
+            TestCase_UpdateFileBigBig();
         }
 
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_13_BinaryCacheEntitySmall()
+        public void Blob_BuiltInLocalDisk_WriteChunksSmall()
         {
-            TestCase13_BinaryCacheEntitySmall();
+            TestCase_WriteChunksSmall();
         }
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_14_BinaryCacheEntityBig()
+        public void Blob_BuiltInLocalDisk_WriteChunksBig()
         {
-            TestCase14_BinaryCacheEntityBig();
+            TestCase_WriteChunksBig();
         }
 
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_15_DeleteSmall()
+        public void Blob_BuiltInLocalDisk_DeleteBinaryPropertySmall()
         {
-            TestCase15_DeleteSmall();
+            TestCase_DeleteBinaryPropertySmall();
         }
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_16_DeleteBig()
+        public void Blob_BuiltInLocalDisk_DeleteBinaryPropertyBig()
         {
-            TestCase16_DeleteBig();
+            TestCase_DeleteBinaryPropertyBig();
+        }
+
+        [TestMethod]
+        public void Blob_BuiltInLocalDisk_CopyfileRowSmall()
+        {
+            TestCase_CopyfileRowSmall();
+        }
+        [TestMethod]
+        public void Blob_BuiltInLocalDisk_CopyfileRowBig()
+        {
+            TestCase_CopyfileRowBig();
+        }
+
+        [TestMethod]
+        public void Blob_BuiltInLocalDisk_BinaryCacheEntitySmall()
+        {
+            TestCase_BinaryCacheEntitySmall();
+        }
+        [TestMethod]
+        public void Blob_BuiltInLocalDisk_BinaryCacheEntityBig()
+        {
+            TestCase_BinaryCacheEntityBig();
+        }
+
+        [TestMethod]
+        public void Blob_BuiltInLocalDisk_DeleteSmall()
+        {
+            TestCase_DeleteSmall();
+        }
+        [TestMethod]
+        public void Blob_BuiltInLocalDisk_DeleteBig()
+        {
+            TestCase_DeleteBig();
+        }
+
+        [TestMethod]
+        public void Blob_BuiltInLocalDisk_Bug_EmptyFileStreamAndExternalRecord()
+        {
+            // Symptom: record in the Files table that contains external provider and empty
+            // FileStream value (0x instead of [null]) causes error: LoadBinaryCacheEntity of the 
+            // BlobMetadata provider reads this value that overrides the BlobProvider settings
+            // and the SnStream constructor instantiates a RepositoryStream with a zero length buffer.
+
+            using (new SystemAccount())
+            using (new SizeLimitSwindler(this, 10))
+            {
+                var testRoot = CreateTestRoot();
+
+                var file = new File(testRoot) { Name = "File1.file" };
+                file.Binary.SetStream(RepositoryTools.GetStreamFromString("Lorem ipsum dolor sit amet..."));
+                file.Save();
+                var fileId = file.Binary.FileId;
+                var versionId = file.VersionId;
+                HackFileRowFileStream(fileId, new byte[0]);
+                var dbFile = LoadDbFile(fileId);
+                Assert.IsNotNull(dbFile.BlobProvider);
+                Assert.IsNotNull(dbFile.BlobProviderData);
+                Assert.IsNotNull(dbFile.FileStream);
+                Assert.AreEqual(0, dbFile.FileStream.Length);
+
+                // action
+                var bcEentity =
+                    BlobStorageComponents.DataProvider.LoadBinaryCacheEntity(versionId,
+                        PropertyType.GetByName("Binary").Id);
+
+                // assert
+                Assert.IsNull(bcEentity.RawData);
+            }
         }
     }
 }
