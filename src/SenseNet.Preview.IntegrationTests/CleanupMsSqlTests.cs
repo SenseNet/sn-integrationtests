@@ -316,7 +316,7 @@ namespace SenseNet.Preview.IntegrationTests
                 .StartWorkflowEngine(false)
                 .DisableNodeObservers()
                 //.EnableNodeObservers(typeof(SettingsCache))
-                .UseTraceCategories("Test", "Event", "Custom") as RepositoryBuilder;
+                .UseTraceCategories("Test", "Event", "Custom");
         }
         private static string[] LoadCtds()
         {
