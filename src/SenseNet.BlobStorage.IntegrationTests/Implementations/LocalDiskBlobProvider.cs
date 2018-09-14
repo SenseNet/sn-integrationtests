@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.Diagnostics;
+using SenseNet.Tools;
 
 namespace SenseNet.BlobStorage.IntegrationTests.Implementations
 {
@@ -19,7 +21,12 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             if (Directory.Exists(_rootDirectory))
             {
                 foreach (var path in Directory.GetFiles(_rootDirectory))
-                    File.Delete(path);
+                    Retrier.Retry(5, 1000, () => { File.Delete(path); },
+                        (i, e) =>
+                        {
+                            SnTrace.Test.Write($"Retrier: {i}, {e?.GetType().Name ?? "[null]"}");
+                            return (e == null || e is IOException || (e.InnerException is IOException));
+                        });
             }
             else
             {
