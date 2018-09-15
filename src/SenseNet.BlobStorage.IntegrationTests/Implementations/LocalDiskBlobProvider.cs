@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
 using SenseNet.ContentRepository.Storage.Data;
-using SenseNet.Diagnostics;
-using SenseNet.Tools;
 
 namespace SenseNet.BlobStorage.IntegrationTests.Implementations
 {
