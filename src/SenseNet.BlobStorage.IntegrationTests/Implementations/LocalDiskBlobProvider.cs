@@ -21,12 +21,7 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             if (Directory.Exists(_rootDirectory))
             {
                 foreach (var path in Directory.GetFiles(_rootDirectory))
-                    Retrier.Retry(5, 1000, () => { File.Delete(path); },
-                        (i, e) =>
-                        {
-                            SnTrace.Test.Write($"Retrier: {i}, {e?.GetType().Name ?? "[null]"}");
-                            return (e == null || e is IOException || (e.InnerException is IOException));
-                        });
+                    File.Delete(path);
             }
             else
             {

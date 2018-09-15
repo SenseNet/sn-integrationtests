@@ -24,8 +24,8 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             _rootDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data\\" + GetType().Name);
             if (Directory.Exists(_rootDirectory))
             {
-                foreach (var path in Directory.GetFiles(_rootDirectory))
-                    File.Delete(path);
+                foreach (var subdir in Directory.GetDirectories(_rootDirectory))
+                    Directory.Delete(subdir, true);
             }
             else
             {
