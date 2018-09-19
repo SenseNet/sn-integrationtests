@@ -107,14 +107,16 @@ namespace SenseNet.BlobStorage.IntegrationTests
                     Assert.IsNull(file.Binary.BlobProviderData);
                     var fileIdBefore = file.Binary.FileId;
 
-                    var stream = file.Binary.GetStream();
-                    var snStream = stream as SnStream;
-                    Assert.IsNotNull(snStream);
-                    Assert.AreEqual(typeof(BuiltInBlobProvider).Name, snStream.Context.Provider.GetType().Name);
+                    using (var stream = file.Binary.GetStream())
+                    {
+                        var snStream = stream as SnStream;
+                        Assert.IsNotNull(snStream);
+                        Assert.AreEqual(typeof(BuiltInBlobProvider).Name, snStream.Context.Provider.GetType().Name);
 
-                    // action
-                    file.Binary.SetStream(stream);
-                    file.Save();
+                        // action
+                        file.Binary.SetStream(stream);
+                        file.Save();
+                    }
 
                     // assert
                     file = Node.Load<File>(file.Id);
@@ -144,14 +146,16 @@ namespace SenseNet.BlobStorage.IntegrationTests
                     Assert.IsNotNull(file.Binary.BlobProviderData);
                     var fileIdBefore = file.Binary.FileId;
 
-                    var stream = file.Binary.GetStream();
-                    var snStream = stream as SnStream;
-                    Assert.IsNotNull(snStream);
-                    Assert.AreEqual(typeof(LocalDiskBlobProvider).Name, snStream.Context.Provider.GetType().Name);
+                    using (var stream = file.Binary.GetStream())
+                    {
+                        var snStream = stream as SnStream;
+                        Assert.IsNotNull(snStream);
+                        Assert.AreEqual(typeof(LocalDiskBlobProvider).Name, snStream.Context.Provider.GetType().Name);
 
-                    // action
-                    file.Binary.SetStream(stream);
-                    file.Save();
+                        // action
+                        file.Binary.SetStream(stream);
+                        file.Save();
+                    }
 
                     // assert
                     file = Node.Load<File>(file.Id);
