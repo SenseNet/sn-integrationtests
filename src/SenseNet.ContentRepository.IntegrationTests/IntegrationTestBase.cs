@@ -75,7 +75,6 @@ namespace SenseNet.ContentRepository.IntegrationTests
             }
         }
 
-
         [TestCleanup]
         public void CleanupTest()
         {
