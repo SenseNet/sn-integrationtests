@@ -11,6 +11,7 @@ using SenseNet.Packaging.Steps;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.Packaging.IntegrationTests.Implementations;
 using SenseNet.Tests;
 
@@ -61,13 +62,17 @@ CREATE TABLE [dbo].[Packages](
             InstallPackagesTable();
         }
         [TestInitialize]
-        public void InitializeTest()
+        public void InitializePackagingTest()
         {
             // preparing logger
             _log = new StringBuilder();
             var loggers = new[] { new PackagingTestLogger(_log) };
             var loggerAcc = new PrivateType(typeof(Logger));
             loggerAcc.SetStaticField("_loggers", loggers);
+
+            // build database
+            var builder = new RepositoryBuilder();
+            builder.UsePackagingDataProvider(new SqlPackagingDataProvider());
 
             // preparing database
             ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;

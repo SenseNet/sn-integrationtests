@@ -184,7 +184,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_03_Data_Phase1.sql"), DatabaseName);
             ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_04_Data_Phase2.sql"), DatabaseName);
 
-            DataProvider.InitializeForTests();
+            DataProvider.Instance<ITestingDataProvider>().InitializeForTests();
 
             if (SqlFsEnabled)
             {
