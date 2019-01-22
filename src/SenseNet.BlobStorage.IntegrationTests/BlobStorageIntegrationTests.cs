@@ -112,7 +112,10 @@ namespace SenseNet.BlobStorage.IntegrationTests
                     PrepareDatabase();
 
                     RepositoryInstance repositoryInstance;
-                    using (repositoryInstance = Repository.Start(CreateRepositoryBuilder()))
+                    var builder = CreateRepositoryBuilder();
+                    var securityDataProvider = Providers.Instance.SecurityDataProvider;
+                    securityDataProvider.ConnectionString = ConnectionStrings.SecurityDatabaseConnectionString;
+                    using (repositoryInstance = Repository.Start(builder))
                     using (new SystemAccount())
                         PrepareRepository();
                     _repositoryInstance = repositoryInstance;
