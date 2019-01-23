@@ -43,10 +43,10 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected virtual void UpdateFileCreationDate(int fileId, DateTime dateTime)
         {
             var sql = $"UPDATE Files SET CreationDate = @CreationDate WHERE FileId = {fileId}";
-            using (var proc = DataProvider.Instance().CreateDataProcedure(sql))
+            using (var proc = DataProvider.Instance.CreateDataProcedure(sql))
             {
                 proc.CommandType = CommandType.Text;
-                var parameter = DataProvider.Instance().CreateParameter();
+                var parameter = DataProvider.Instance.CreateParameter();
                 parameter.ParameterName = "@CreationDate";
                 parameter.Value = dateTime;
                 proc.Parameters.Add(parameter);
@@ -56,10 +56,10 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected void HackFileRowFileStream(int fileId, byte[] bytes)
         {
             var sql = $"UPDATE Files SET FileStream = @FileStream WHERE FileId = {fileId}";
-            using (var proc = DataProvider.Instance().CreateDataProcedure(sql))
+            using (var proc = DataProvider.Instance.CreateDataProcedure(sql))
             {
                 proc.CommandType = CommandType.Text;
-                var parameter = DataProvider.Instance().CreateParameter();
+                var parameter = DataProvider.Instance.CreateParameter();
                 parameter.ParameterName = "@FileStream";
                 parameter.Value = bytes;
                 proc.Parameters.Add(parameter);
@@ -300,7 +300,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
         private DbDataReader ExecuteSqlReader(string sql)
         {
-            var proc = DataProvider.Instance().CreateDataProcedure(sql);
+            var proc = DataProvider.Instance.CreateDataProcedure(sql);
             proc.CommandType = CommandType.Text;
             return proc.ExecuteReader();
         }

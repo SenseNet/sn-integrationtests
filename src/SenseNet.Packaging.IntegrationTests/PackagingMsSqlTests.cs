@@ -72,14 +72,14 @@ CREATE TABLE [dbo].[Packages](
 
             // build database
             var builder = new RepositoryBuilder();
-            builder.UsePackagingDataProvider(new SqlPackagingDataProvider());
+            builder.UsePackagingDataProviderExtension(new SqlPackagingDataProvider());
 
             // preparing database
             ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
-            var proc = DataProvider.Instance().CreateDataProcedure("DELETE FROM [Packages]");
+            var proc = DataProvider.Instance.CreateDataProcedure("DELETE FROM [Packages]");
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();
-            proc = DataProvider.Instance().CreateDataProcedure("DBCC CHECKIDENT ('[Packages]', RESEED, 1)");
+            proc = DataProvider.Instance.CreateDataProcedure("DBCC CHECKIDENT ('[Packages]', RESEED, 1)");
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();
 
@@ -974,7 +974,7 @@ CREATE TABLE [dbo].[Packages](
         private static void ExecuteSqlCommand(string sql)
         {
             ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
-            var proc = DataProvider.Instance().CreateDataProcedure(sql);
+            var proc = DataProvider.Instance.CreateDataProcedure(sql);
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();
         }

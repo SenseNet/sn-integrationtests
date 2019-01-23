@@ -9,13 +9,13 @@ using SenseNet.Tests.Implementations;
 
 namespace SenseNet.IntegrationTests.Common.Implementations
 {
-    public class SqlTestingDataProvider : ITestingDataProvider
+    public class SqlTestingDataProvider : ITestingDataProviderExtension
     {
         public DataProvider MetadataProvider { get; set; }
         public void InitializeForTests()
         {
             //UNDONE: Call instance method
-            using (var proc = DataProvider.Instance().CreateDataProcedure(@"
+            using (var proc = DataProvider.Instance.CreateDataProcedure(@"
 ALTER TABLE [BinaryProperties] CHECK CONSTRAINT ALL
 ALTER TABLE [FlatProperties] CHECK CONSTRAINT ALL
 ALTER TABLE [Nodes] CHECK CONSTRAINT ALL
@@ -62,7 +62,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             var count = 0;
             var sql =
                 $"SELECT COUNT(1) FROM LogEntries WHERE Title = 'PermissionChanged' AND LogDate>='{moment.ToString("yyyy-MM-dd HH:mm:ss")}'";
-            var proc = DataProvider.Instance().CreateDataProcedure(sql);
+            var proc = DataProvider.Instance.CreateDataProcedure(sql);
             proc.CommandType = System.Data.CommandType.Text;
             using (var reader = proc.ExecuteReader())
             {

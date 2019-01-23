@@ -16,10 +16,10 @@ namespace LoggingIntegrationTests
         protected void InitializeLogEntriesTable()
         {
             SenseNet.Configuration.ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests;
-            var proc = DataProvider.Instance().CreateDataProcedure("DELETE FROM [LogEntries]");
+            var proc = DataProvider.Instance.CreateDataProcedure("DELETE FROM [LogEntries]");
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();
-            proc = DataProvider.Instance().CreateDataProcedure("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)");
+            proc = DataProvider.Instance.CreateDataProcedure("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)");
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();
 
