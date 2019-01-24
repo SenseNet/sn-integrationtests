@@ -43,26 +43,21 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected virtual void UpdateFileCreationDate(int fileId, DateTime dateTime)
         {
             var sql = $"UPDATE Files SET CreationDate = @CreationDate WHERE FileId = {fileId}";
-            using (var proc = DataProvider.Instance.CreateDataProcedure(sql))
+            using (var proc = DataProvider.Instance.CreateDataProcedure(sql)
+                .AddParameter("@CreationDate", dateTime))
             {
                 proc.CommandType = CommandType.Text;
-                var parameter = DataProvider.Instance.CreateParameter();
-                parameter.ParameterName = "@CreationDate";
-                parameter.Value = dateTime;
-                proc.Parameters.Add(parameter);
                 proc.ExecuteNonQuery();
             }
+
         }
         protected void HackFileRowFileStream(int fileId, byte[] bytes)
         {
             var sql = $"UPDATE Files SET FileStream = @FileStream WHERE FileId = {fileId}";
-            using (var proc = DataProvider.Instance.CreateDataProcedure(sql))
+            using (var proc = DataProvider.Instance.CreateDataProcedure(sql)
+                .AddParameter("@FileStream", bytes))
             {
                 proc.CommandType = CommandType.Text;
-                var parameter = DataProvider.Instance.CreateParameter();
-                parameter.ParameterName = "@FileStream";
-                parameter.Value = bytes;
-                proc.Parameters.Add(parameter);
                 proc.ExecuteNonQuery();
             }
         }
