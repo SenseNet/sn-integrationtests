@@ -159,7 +159,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
         private DbDataReader ExecuteSqlReader(string sql)
         {
-            var proc = DataProvider.CreateDataProcedure(sql);
+            var proc = DataProvider.Instance.CreateDataProcedure(sql);
             proc.CommandType = CommandType.Text;
             return proc.ExecuteReader();
         }
