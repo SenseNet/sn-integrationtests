@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository.Schema;
+using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.ContentRepository.Storage.Security;
 
 namespace SenseNet.ContentRepository.IntegrationTests
@@ -17,6 +19,9 @@ namespace SenseNet.ContentRepository.IntegrationTests
         [TestInitialize]
         public void DeleteAllAccessTokens()
         {
+            // set default implementation directly to avoid repository start
+            DataProvider.Instance.SetExtension(typeof(IAccessTokenDataProviderExtension), new SqlAccessTokenDataProvider());
+
             AccessTokenVault.DeleteAllAccessTokens();
         }
 
