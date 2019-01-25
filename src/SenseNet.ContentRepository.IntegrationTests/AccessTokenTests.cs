@@ -26,12 +26,10 @@ namespace SenseNet.ContentRepository.IntegrationTests
             TearDown();
         }
 
-
-
-
+        /* ====================================================================== */
 
         [TestMethod]
-        public void Token_Create_ForUser()
+        public void AccessToken_Create_ForUser()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
@@ -49,7 +47,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsTrue((token.ExpirationDate - DateTime.UtcNow - timeout).TotalMilliseconds < 1000);
         }
         [TestMethod]
-        public void Token_Create_ForUser_ValueLength()
+        public void AccessToken_Create_ForUser_ValueLength()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
@@ -61,7 +59,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsTrue(token.Value.Length >= 50);
         }
         [TestMethod]
-        public void Token_Create_ForUser_Twice()
+        public void AccessToken_Create_ForUser_Twice()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
@@ -75,7 +73,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.AreNotEqual(token1.Value, token2.Value);
         }
         [TestMethod]
-        public void Token_Create_ForUserAndContent()
+        public void AccessToken_Create_ForUserAndContent()
         {
             var userId = 42;
             var contentId = 142;
@@ -94,7 +92,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsTrue((token.ExpirationDate - DateTime.UtcNow - timeout).TotalMilliseconds < 1000);
         }
         [TestMethod]
-        public void Token_Create_ForUserAndFeature()
+        public void AccessToken_Create_ForUserAndFeature()
         {
             var userId = 42;
             var feature = "Feature1";
@@ -113,7 +111,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsTrue((token.ExpirationDate - DateTime.UtcNow - timeout).TotalMilliseconds < 1000);
         }
         [TestMethod]
-        public void Token_Create_ForUserContentAndFeature()
+        public void AccessToken_Create_ForUserContentAndFeature()
         {
             var userId = 42;
             var contentId = 142;
@@ -134,7 +132,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
         [TestMethod]
-        public void Token_Get_ForUser()
+        public void AccessToken_Get_ForUser()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
@@ -147,7 +145,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             AssertTokensAreEqual(savedToken, token);
         }
         [TestMethod]
-        public void Token_Get_ForUserAndContent()
+        public void AccessToken_Get_ForUserAndContent()
         {
             var userId = 42;
             var contentId = 142;
@@ -162,7 +160,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsNull(AccessTokenVault.GetToken(savedToken.Value));
         }
         [TestMethod]
-        public void Token_Get_ForUserAndFeature()
+        public void AccessToken_Get_ForUserAndFeature()
         {
             var userId = 42;
             var feature = "Feature1";
@@ -177,7 +175,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsNull(AccessTokenVault.GetToken(savedToken.Value));
         }
         [TestMethod]
-        public void Token_Get_ForUserContentAndFeature()
+        public void AccessToken_Get_ForUserContentAndFeature()
         {
             var userId = 42;
             var contentId = 142;
@@ -195,7 +193,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsNull(AccessTokenVault.GetToken(savedToken.Value, contentId));
         }
         [TestMethod]
-        public void Token_Get_Expired()
+        public void AccessToken_Get_Expired()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMilliseconds(1);
@@ -210,7 +208,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
         [TestMethod]
-        public void Token_GetByUser()
+        public void AccessToken_GetByUser()
         {
             var userId = 42;
             var contentId = 142;
@@ -249,7 +247,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
         [TestMethod]
-        public void Token_Exists()
+        public void AccessToken_Exists()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
@@ -262,7 +260,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsTrue(isExists);
         }
         [TestMethod]
-        public void Token_Exists_Missing()
+        public void AccessToken_Exists_Missing()
         {
             // ACTION
             var isExists = AccessTokenVault.TokenExists("asdf");
@@ -271,7 +269,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsFalse(isExists);
         }
         [TestMethod]
-        public void Token_Exists_Expired()
+        public void AccessToken_Exists_Expired()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMilliseconds(1);
@@ -286,7 +284,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
         [TestMethod]
-        public void Token_AssertExists()
+        public void AccessToken_AssertExists()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
@@ -299,13 +297,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
         [TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
-        public void Token_AssertExists_Missing()
+        public void AccessToken_AssertExists_Missing()
         {
             AccessTokenVault.AssertTokenExists("asdf");
         }
         [TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
-        public void Token_AssertExists_Expired()
+        public void AccessToken_AssertExists_Expired()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMilliseconds(1);
@@ -317,7 +315,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
         [TestMethod]
-        public void Token_Update()
+        public void AccessToken_Update()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10.0d);
@@ -334,13 +332,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
         [TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
-        public void Token_UpdateMissing()
+        public void AccessToken_UpdateMissing()
         {
             AccessTokenVault.UpdateToken("asdf", DateTime.UtcNow.AddMinutes(30.0d));
         }
         [TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
-        public void Token_UpdateExpired()
+        public void AccessToken_UpdateExpired()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMilliseconds(1);
@@ -352,7 +350,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
         [TestMethod]
-        public void Token_Delete_Token()
+        public void AccessToken_Delete_Token()
         {
             var userId1 = 42;
             var userId2 = 43;
@@ -378,7 +376,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsNull(AccessTokenVault.GetTokenById(savedTokens[3].Id));
         }
         [TestMethod]
-        public void Token_Delete_ByUser()
+        public void AccessToken_Delete_ByUser()
         {
             var userId1 = 42;
             var userId2 = 43;
@@ -403,7 +401,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsNotNull(AccessTokenVault.GetTokenById(savedTokens[3].Id));
         }
         [TestMethod]
-        public void Token_Delete_ByContent()
+        public void AccessToken_Delete_ByContent()
         {
             var userId1 = 42;
             var userId2 = 43;
@@ -431,7 +429,6 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
         /* ===================================================================================== */
-
 
         private void AssertTokensAreEqual(AccessToken expected, AccessToken actual)
         {

@@ -14,7 +14,6 @@ namespace SenseNet.IntegrationTests.Common.Implementations
         public DataProvider MetadataProvider { get; set; }
         public void InitializeForTests()
         {
-            //UNDONE: Call instance method
             using (var proc = DataProvider.Instance.CreateDataProcedure(@"
 ALTER TABLE [BinaryProperties] CHECK CONSTRAINT ALL
 ALTER TABLE [FlatProperties] CHECK CONSTRAINT ALL
