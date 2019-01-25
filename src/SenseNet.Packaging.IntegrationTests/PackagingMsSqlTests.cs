@@ -11,6 +11,7 @@ using SenseNet.Packaging.Steps;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.Packaging.IntegrationTests.Implementations;
 using SenseNet.Tests;
 
@@ -61,7 +62,7 @@ CREATE TABLE [dbo].[Packages](
             InstallPackagesTable();
         }
         [TestInitialize]
-        public void InitializeTest()
+        public void InitializePackagingTest()
         {
             // preparing logger
             _log = new StringBuilder();
@@ -69,12 +70,16 @@ CREATE TABLE [dbo].[Packages](
             var loggerAcc = new PrivateType(typeof(Logger));
             loggerAcc.SetStaticField("_loggers", loggers);
 
+            // build database
+            var builder = new RepositoryBuilder();
+            builder.UsePackagingDataProviderExtension(new SqlPackagingDataProvider());
+
             // preparing database
             ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
-            var proc = DataProvider.CreateDataProcedure("DELETE FROM [Packages]");
+            var proc = DataProvider.Instance.CreateDataProcedure("DELETE FROM [Packages]");
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();
-            proc = DataProvider.CreateDataProcedure("DBCC CHECKIDENT ('[Packages]', RESEED, 1)");
+            proc = DataProvider.Instance.CreateDataProcedure("DBCC CHECKIDENT ('[Packages]', RESEED, 1)");
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();
 
@@ -969,7 +974,7 @@ CREATE TABLE [dbo].[Packages](
         private static void ExecuteSqlCommand(string sql)
         {
             ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
-            var proc = DataProvider.CreateDataProcedure(sql);
+            var proc = DataProvider.Instance.CreateDataProcedure(sql);
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();
         }

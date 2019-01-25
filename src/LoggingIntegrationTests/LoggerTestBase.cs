@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Security;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.ContentRepository.Storage.Data;
@@ -15,10 +16,10 @@ namespace LoggingIntegrationTests
         protected void InitializeLogEntriesTable()
         {
             SenseNet.Configuration.ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests;
-            var proc = DataProvider.CreateDataProcedure("DELETE FROM [LogEntries]");
+            var proc = DataProvider.Instance.CreateDataProcedure("DELETE FROM [LogEntries]");
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();
-            proc = DataProvider.CreateDataProcedure("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)");
+            proc = DataProvider.Instance.CreateDataProcedure("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)");
             proc.CommandType = CommandType.Text;
             proc.ExecuteNonQuery();
 
@@ -28,7 +29,19 @@ namespace LoggingIntegrationTests
         protected EventLogEntry GetLastEventLogEntry()
         {
             var logs = EventLog.GetEventLogs();
-            var log = logs.FirstOrDefault(l => l.LogDisplayName == "SenseNet");
+            var log = logs.FirstOrDefault(l =>
+            {
+                try
+                {
+                    // Accessing to any log-property can cause SecurityException if the
+                    // matching registry key cannot be accessed for the app user
+                    return l.LogDisplayName == "SenseNet";
+                }
+                catch (SecurityException)
+                {
+                    return false;
+                }
+            });
             Assert.IsNotNull(log);
             var entries = new List<EventLogEntry>();
             foreach (EventLogEntry entry in log.Entries)

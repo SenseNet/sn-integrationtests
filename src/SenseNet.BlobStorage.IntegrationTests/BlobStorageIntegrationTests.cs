@@ -43,26 +43,21 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected virtual void UpdateFileCreationDate(int fileId, DateTime dateTime)
         {
             var sql = $"UPDATE Files SET CreationDate = @CreationDate WHERE FileId = {fileId}";
-            using (var proc = DataProvider.CreateDataProcedure(sql))
+            using (var proc = DataProvider.Instance.CreateDataProcedure(sql)
+                .AddParameter("@CreationDate", dateTime))
             {
                 proc.CommandType = CommandType.Text;
-                var parameter = DataProvider.CreateParameter();
-                parameter.ParameterName = "@CreationDate";
-                parameter.Value = dateTime;
-                proc.Parameters.Add(parameter);
                 proc.ExecuteNonQuery();
             }
+
         }
         protected void HackFileRowFileStream(int fileId, byte[] bytes)
         {
             var sql = $"UPDATE Files SET FileStream = @FileStream WHERE FileId = {fileId}";
-            using (var proc = DataProvider.CreateDataProcedure(sql))
+            using (var proc = DataProvider.Instance.CreateDataProcedure(sql)
+                .AddParameter("@FileStream", bytes))
             {
                 proc.CommandType = CommandType.Text;
-                var parameter = DataProvider.CreateParameter();
-                parameter.ParameterName = "@FileStream";
-                parameter.Value = bytes;
-                proc.Parameters.Add(parameter);
                 proc.ExecuteNonQuery();
             }
         }
@@ -112,7 +107,10 @@ namespace SenseNet.BlobStorage.IntegrationTests
                     PrepareDatabase();
 
                     RepositoryInstance repositoryInstance;
-                    using (repositoryInstance = Repository.Start(CreateRepositoryBuilder()))
+                    var builder = CreateRepositoryBuilder();
+                    var securityDataProvider = Providers.Instance.SecurityDataProvider;
+                    securityDataProvider.ConnectionString = ConnectionStrings.SecurityDatabaseConnectionString;
+                    using (repositoryInstance = Repository.Start(builder))
                     using (new SystemAccount())
                         PrepareRepository();
                     _repositoryInstance = repositoryInstance;
@@ -183,8 +181,6 @@ namespace SenseNet.BlobStorage.IntegrationTests
             ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_02_Procs.sql"), DatabaseName);
             ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_03_Data_Phase1.sql"), DatabaseName);
             ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_04_Data_Phase2.sql"), DatabaseName);
-
-            DataProvider.InitializeForTests();
 
             if (SqlFsEnabled)
             {
@@ -299,7 +295,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
         private DbDataReader ExecuteSqlReader(string sql)
         {
-            var proc = DataProvider.CreateDataProcedure(sql);
+            var proc = DataProvider.Instance.CreateDataProcedure(sql);
             proc.CommandType = CommandType.Text;
             return proc.ExecuteReader();
         }
