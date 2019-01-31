@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggingIntegrationTests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.EntlibLogger", "..\..\sn-logging-entlib\src\EntlibLogger\SenseNet.EntlibLogger.csproj", "{8B3AA97F-E469-41A3-A181-8CE88FCEE24B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.ContentRepository.IntegrationTests", "SenseNet.ContentRepository.IntegrationTests\SenseNet.ContentRepository.IntegrationTests.csproj", "{FD3AE293-694D-4D21-B299-4CC22768098C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,10 @@ Global
 		{8B3AA97F-E469-41A3-A181-8CE88FCEE24B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B3AA97F-E469-41A3-A181-8CE88FCEE24B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B3AA97F-E469-41A3-A181-8CE88FCEE24B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD3AE293-694D-4D21-B299-4CC22768098C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD3AE293-694D-4D21-B299-4CC22768098C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD3AE293-694D-4D21-B299-4CC22768098C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD3AE293-694D-4D21-B299-4CC22768098C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
