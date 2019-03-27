@@ -233,7 +233,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             };
 
             // ACTION-1
-            var tokens = AccessTokenVault.GetTokens(userId);
+            var tokens = AccessTokenVault.GetAllTokens(userId);
 
             // ASSERT-1
             Assert.AreEqual(
@@ -242,7 +242,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
             // ACTION-2
             Thread.Sleep(1100);
-            tokens = AccessTokenVault.GetTokens(userId);
+            tokens = AccessTokenVault.GetAllTokens(userId);
 
             // ASSERT-2
             // The last 4 tokens are expired

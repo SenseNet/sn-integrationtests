@@ -11,7 +11,7 @@ namespace SenseNet.IntegrationTests.Common.Implementations
 {
     public class SqlTestingDataProvider : ITestingDataProviderExtension
     {
-        public DataProvider MetadataProvider { get; set; }
+        public DataProvider MainProvider { get; set; }
         public void InitializeForTests()
         {
             using (var proc = DataProvider.Instance.CreateDataProcedure(@"
