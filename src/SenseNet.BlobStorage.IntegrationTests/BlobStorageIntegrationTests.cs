@@ -247,7 +247,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
             var builder = new RepositoryBuilder()
                 .UseAccessProvider(new DesktopAccessProvider())
-                .UseSearchEngine(new InMemorySearchEngine())
+                .UseSearchEngine(new InMemorySearchEngine(new InMemoryIndex()))
                 .UseElevatedModificationVisibilityRuleProvider(new ElevatedModificationVisibilityRule())
                 //.StartIndexingEngine(false)
                 .StartWorkflowEngine(false)
