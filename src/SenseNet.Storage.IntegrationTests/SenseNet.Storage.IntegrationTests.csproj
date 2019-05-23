@@ -45,15 +45,76 @@
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.1.3.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="SenseNet.Tools, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SenseNet.Tools.3.1.0\lib\netstandard2.0\SenseNet.Tools.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.ConfigurationManager, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Configuration.ConfigurationManager.4.5.0\lib\net461\System.Configuration.ConfigurationManager.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Diagnostics.EventLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.EventLog.4.5.0\lib\net461\System.Diagnostics.EventLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Security.AccessControl, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.AccessControl.4.5.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Permissions, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Permissions.4.5.0\lib\net461\System.Security.Permissions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Principal.Windows.4.5.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MsSqlDataProviderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StorageTestBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\sensenet\src\BlobStorage\SenseNet.BlobStorage.csproj">
+      <Project>{5577b9e7-7c55-43e3-b2a2-cc192c12c20b}</Project>
+      <Name>SenseNet.BlobStorage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\sensenet\src\Common\SenseNet.Common.csproj">
+      <Project>{42075cab-39c0-4055-aa3e-3b12850117b8}</Project>
+      <Name>SenseNet.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\sensenet\src\ContentRepository\SenseNet.ContentRepository.csproj">
+      <Project>{786e6165-ca02-45a9-bf58-207a45d7d6df}</Project>
+      <Name>SenseNet.ContentRepository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\sensenet\src\Search\SenseNet.Search.csproj">
+      <Project>{1020caaf-18fd-418f-b3b0-3cab79e619b6}</Project>
+      <Name>SenseNet.Search</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\sensenet\src\Storage\SenseNet.Storage.csproj">
+      <Project>{5db4ddba-81f6-4d81-943a-18f3178b3355}</Project>
+      <Name>SenseNet.Storage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\sensenet\src\Tests\SenseNet.Tests\SenseNet.Tests.csproj">
+      <Project>{a0909e8f-e039-4080-a259-676cfd38ccd1}</Project>
+      <Name>SenseNet.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\sn-security\src\SenseNet.Security\SenseNet.Security.csproj">
+      <Project>{9fa65e99-96d3-4323-896b-cb53e0777c82}</Project>
+      <Name>SenseNet.Security</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SenseNet.IntegrationTests.Common\SenseNet.IntegrationTests.Common.csproj">
+      <Project>{627620f1-ec79-408d-a965-63d69c168672}</Project>
+      <Name>SenseNet.IntegrationTests.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
