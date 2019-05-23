@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
+using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.Diagnostics;
 using SenseNet.Tests.Implementations;
 
@@ -94,6 +96,66 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             throw new NotImplementedException();
         }
 
+        public int GetLastNodeId()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetContentHandler(string contentTypeName, string handler)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddField(string contentTypeName, string fieldName, string fieldType = null, string fieldHandler = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task GetNodeHeadDataAsync(int nodeId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task GetVersionDataAsync(int versionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetBinaryPropertyCountAsync(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetFileCountAsync(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> GetLongTextCountAsync(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<object> GetPropertyValueAsync(int versionId, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateDynamicPropertyAsync(int versionId, string name, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetFileStagingAsync(int fileId, bool staging)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteFileAsync(int fileId)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<IndexIntegrityCheckerItem> GetTimestampDataForOneNodeIntegrityCheck(string path, int[] excludedNodeTypeIds)
         {
             throw new NotImplementedException();
@@ -104,5 +166,14 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             throw new NotImplementedException();
         }
 
+        Task<NodeHeadData> ITestingDataProviderExtension.GetNodeHeadDataAsync(int nodeId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<VersionData> ITestingDataProviderExtension.GetVersionDataAsync(int versionId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

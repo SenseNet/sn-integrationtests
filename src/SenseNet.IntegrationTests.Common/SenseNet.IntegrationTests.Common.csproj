@@ -53,11 +53,11 @@
       <Name>SenseNet.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\sensenet\src\Storage\SenseNet.Storage.csproj">
-      <Project>{5DB4DDBA-81F6-4D81-943A-18F3178B3355}</Project>
+      <Project>{5db4ddba-81f6-4d81-943a-18f3178b3355}</Project>
       <Name>SenseNet.Storage</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\sensenet\src\Tests\SenseNet.Tests\SenseNet.Tests.csproj">
-      <Project>{A0909E8F-E039-4080-A259-676CFD38CCD1}</Project>
+      <Project>{a0909e8f-e039-4080-a259-676cfd38ccd1}</Project>
       <Name>SenseNet.Tests</Name>
     </ProjectReference>
   </ItemGroup>

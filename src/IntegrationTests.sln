@@ -9,11 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.BlobStorage", "..\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.Common", "..\..\sensenet\src\Common\SenseNet.Common.csproj", "{42075CAB-39C0-4055-AA3E-3B12850117B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.ContentRepository", "..\..\sensenet\src\ContentRepository\SenseNet.ContentRepository.csproj", "{786E6165-CA02-45A9-BF58-207A45D7D6DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.ContentRepository", "..\..\sensenet\src\ContentRepository\SenseNet.ContentRepository.csproj", "{786E6165-CA02-45A9-BF58-207A45D7D6DF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.Search", "..\..\sensenet\src\Search\SenseNet.Search.csproj", "{1020CAAF-18FD-418F-B3B0-3CAB79E619B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.Storage", "..\..\sensenet\src\Storage\SenseNet.Storage.csproj", "{5DB4DDBA-81F6-4D81-943A-18F3178B3355}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.Storage", "..\..\sensenet\src\Storage\SenseNet.Storage.csproj", "{5DB4DDBA-81F6-4D81-943A-18F3178B3355}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.Tests", "..\..\sensenet\src\Tests\SenseNet.Tests\SenseNet.Tests.csproj", "{A0909E8F-E039-4080-A259-676CFD38CCD1}"
 EndProject
@@ -34,6 +34,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.EntlibLogger", "..\..\sn-logging-entlib\src\EntlibLogger\SenseNet.EntlibLogger.csproj", "{8B3AA97F-E469-41A3-A181-8CE88FCEE24B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.ContentRepository.IntegrationTests", "SenseNet.ContentRepository.IntegrationTests\SenseNet.ContentRepository.IntegrationTests.csproj", "{FD3AE293-694D-4D21-B299-4CC22768098C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.Storage.IntegrationTests", "SenseNet.Storage.IntegrationTests\SenseNet.Storage.IntegrationTests.csproj", "{0EBD60AE-9469-4550-97E5-1C1B2EC15272}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,6 +103,10 @@ Global
 		{FD3AE293-694D-4D21-B299-4CC22768098C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD3AE293-694D-4D21-B299-4CC22768098C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD3AE293-694D-4D21-B299-4CC22768098C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EBD60AE-9469-4550-97E5-1C1B2EC15272}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EBD60AE-9469-4550-97E5-1C1B2EC15272}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EBD60AE-9469-4550-97E5-1C1B2EC15272}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EBD60AE-9469-4550-97E5-1C1B2EC15272}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
