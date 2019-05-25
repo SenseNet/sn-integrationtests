@@ -187,7 +187,7 @@ DataStore.Enabled = backup;
         protected void PrepareDatabase()
         {
             var scriptRootPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\sensenet\src\Storage\Data\SqlClient\Scripts"));
+                AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\sensenet\src\Storage\Data\MsSqlClient\Scripts"));
 
             var dbid = ExecuteSqlScalarNative<int?>($"SELECT database_id FROM sys.databases WHERE Name = '{_databaseName}'", "master");
             if (dbid == null)
@@ -201,11 +201,11 @@ DataStore.Enabled = backup;
                 ExecuteSqlCommandNative(sql, "master");
             }
             // prepare database
-            ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"Install_Security.sql"), _databaseName);
-            ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"Install_01_Schema.sql"), _databaseName);
-            ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"Install_02_Procs.sql"), _databaseName);
-            ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"Install_03_Data_Phase1.sql"), _databaseName);
-            ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"Install_04_Data_Phase2.sql"), _databaseName);
+            ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"MsSqlInstall_Security.sql"), _databaseName);
+            ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"MsSqlInstall_01_Schema.sql"), _databaseName);
+            ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"MsSqlInstall_02_Procs.sql"), _databaseName);
+            //ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"MsSqlInstall_03_Data_Phase1.sql"), _databaseName);
+            //ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"MsSqlInstall_04_Data_Phase2.sql"), _databaseName);
         }
         private void ExecuteSqlScriptNative(string scriptPath, string databaseName)
         {
@@ -267,12 +267,16 @@ DataStore.Enabled = backup;
         {
             if (_initialData == null)
             {
+                InitialData initialData;
                 using (var ptr = new StringReader(InitialTestData.PropertyTypes))
                 using (var ntr = new StringReader(InitialTestData.NodeTypes))
                 using (var nr = new StringReader(InitialTestData.Nodes))
                 using (var vr = new StringReader(InitialTestData.Versions))
                 using (var dr = new StringReader(InitialTestData.DynamicData))
-                    _initialData = InitialData.Load(ptr, ntr, nr, vr, dr);
+                    initialData = InitialData.Load(ptr, ntr, nr, vr, dr);
+                initialData.ContentTypeDefinitions = InitialTestData.ContentTypeDefinitions;
+                initialData.Blobs = InitialTestData.GeneralBlobs;
+                _initialData = initialData;
             }
             return _initialData;
         }

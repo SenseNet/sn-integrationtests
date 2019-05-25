@@ -18,6 +18,6 @@
             @"Initial Catalog=sn7tests;Data Source=.\SQL2016;Integrated Security=SSPI;Persist Security Info=False";
 
         public static readonly string ForStorageTests =
-            @"Initial Catalog=sn7tests;Data Source=.\SQL2016;Integrated Security=SSPI;Persist Security Info=False";
+            @"Initial Catalog=sn71tests;Data Source=.\SQL2016;Integrated Security=SSPI;Persist Security Info=False";
     }
 }
