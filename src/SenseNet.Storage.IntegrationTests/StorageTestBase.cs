@@ -64,7 +64,7 @@ namespace SenseNet.Storage.IntegrationTests
 
             using (Repository.Start(builder))
             {
-                //PrepareRepository();
+                PrepareRepository();
 
                 //if (useCurrentUser)
                 //    callback();
@@ -100,6 +100,13 @@ namespace SenseNet.Storage.IntegrationTests
                 }
             }
         }
+        private void PrepareRepository()
+        {
+            SecurityHandler.SecurityInstaller.InstallDefaultSecurityStructure();
+            //ContentTypeInstaller.InstallContentType(LoadCtds());
+            //SaveInitialIndexDocuments();
+            //RebuildIndex();
+        }
 
 
         protected static RepositoryBuilder CreateRepositoryBuilderForStorageTest()
@@ -118,7 +125,6 @@ DataStore.Enabled = backup;
 
             var dataProvider = new InMemoryDataProvider();
             var securityDataProvider = GetSecurityDataProvider(dataProvider);
-            SecurityHandler.SecurityInstaller.InstallDefaultSecurityStructure();
 
             return new RepositoryBuilder()
                 .UseAccessProvider(new DesktopAccessProvider())
