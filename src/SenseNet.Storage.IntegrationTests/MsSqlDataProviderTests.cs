@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.Common.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data;
-using SenseNet.Storage.Data.MsSqlClient;
 using SenseNet.Tests.Implementations;
 
 namespace SenseNet.Storage.IntegrationTests

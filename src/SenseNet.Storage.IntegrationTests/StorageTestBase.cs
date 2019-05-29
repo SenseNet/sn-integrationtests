@@ -13,6 +13,7 @@ using SenseNet.ContentRepository.Schema;
 using SenseNet.ContentRepository.Security;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.ContentRepository.Storage.Security;
@@ -20,7 +21,6 @@ using SenseNet.Diagnostics;
 using SenseNet.IntegrationTests.Common.Implementations;
 using SenseNet.Security;
 using SenseNet.Security.Data;
-using SenseNet.Storage.Data.MsSqlClient;
 using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
 
