@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SenseNet.Common.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
@@ -78,11 +78,11 @@ namespace SenseNet.Storage.IntegrationTests
                 var size = await DP.GetTreeSizeAsync("/Root", true);
 
                 // ASSERT
-                var expectedSize = await MsSqlProcedure.ExecuteScalarAsync(
-                    "SELECT SUM(Size) FROM Files", value => (long)value);
+                var expectedSize = (long)await ExecuteScalarAsync("SELECT SUM(Size) FROM Files");
                 Assert.AreEqual(expectedSize, size);
             });
         }
+
         [TestMethod]
         public async Task MsSqlDP_TreeSize_Subtree()
         {
@@ -97,7 +97,7 @@ namespace SenseNet.Storage.IntegrationTests
     JOIN Versions v ON v.VersionId = b.VersionId
     JOIN Nodes n on n.NodeId = v.NodeId
 WHERE Path LIKE '/Root/System/Schema/ContentTypes/GenericContent/Folder%'";
-                var expectedSize = await MsSqlProcedure.ExecuteScalarAsync(sql, value => (long)value);
+                var expectedSize = (long) await ExecuteScalarAsync(sql);
                 Assert.AreEqual(expectedSize, size);
             });
         }
@@ -115,7 +115,7 @@ WHERE Path LIKE '/Root/System/Schema/ContentTypes/GenericContent/Folder%'";
     JOIN Versions v ON v.VersionId = b.VersionId
     JOIN Nodes n on n.NodeId = v.NodeId
 WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
-                var expectedSize = await MsSqlProcedure.ExecuteScalarAsync(sql, value => (long)value);
+                var expectedSize = (long) await ExecuteScalarAsync(sql);
                 Assert.AreEqual(expectedSize, size);
             });
         }
@@ -168,5 +168,10 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             return file;
         }
 
+        private async Task<object> ExecuteScalarAsync(string sql)
+        {
+            using (var ctx = new SnDataContext(DP))
+                return await ctx.ExecuteScalarAsync(sql);
+        }
     }
 }
