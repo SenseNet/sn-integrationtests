@@ -23,7 +23,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_InsertNode()
         {
-            await StorageTest(async () =>
+            await StorageTest(false, async () =>
             {
                 DataStore.Enabled = true;
 
@@ -72,7 +72,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_TreeSize_Root()
         {
-            await StorageTest(async () =>
+            await StorageTest(false, async () =>
             {
                 // ACTION
                 var size = await DP.GetTreeSizeAsync("/Root", true);
@@ -86,7 +86,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_TreeSize_Subtree()
         {
-            await StorageTest(async () =>
+            await StorageTest(false, async () =>
             {
                 // ACTION
                 var size = await DP.GetTreeSizeAsync("/Root/System/Schema/ContentTypes/GenericContent/Folder", true);
@@ -104,7 +104,7 @@ WHERE Path LIKE '/Root/System/Schema/ContentTypes/GenericContent/Folder%'";
         [TestMethod]
         public async Task MsSqlDP_TreeSize_Item()
         {
-            await StorageTest(async () =>
+            await StorageTest(false, async () =>
             {
                 // ACTION
                 var size = await DP.GetTreeSizeAsync("/Root/System/Schema/ContentTypes/GenericContent/Folder", false);

@@ -33,54 +33,56 @@ namespace SenseNet.Storage.IntegrationTests
         public TestContext TestContext { get; set; }
 
         private static StorageTestBase _instance;
+        private static RepositoryInstance _repositoryInstance;
 
         private string _databaseName;
         private string _connectionString;
         private string _connectionStringBackup;
         private string _securityConnectionStringBackup;
 
-        public STT.Task StorageTest(Func<STT.Task> callback)
+        public STT.Task StorageTest(bool reset, Func<STT.Task> callback)
         {
             SnTrace.Test.Enabled = true;
             SnTrace.Test.Write("START test: {0}", TestContext.TestName);
+            //if(SnTrace.SnTracers.Count == 1)
+            //    SnTrace.SnTracers.Add(new SnDebugViewTracer());
 
             DataStore.Enabled = true;
 
-            EnsureDatabase();
+            var brandNew = EnsureDatabase();
 
             DistributedApplication.Cache.Reset();
             ContentTypeManager.Reset();
             Providers.Instance.NodeTypeManeger = null;
 
-            //var portalContextAcc = new PrivateType(typeof(PortalContext));
-            //portalContextAcc.SetStaticField("_sites", new Dictionary<string, Site>());
 
-            var builder = CreateRepositoryBuilderForStorageTest();
-
-            Indexing.IsOuterSearchEngineEnabled = true;
-
-            DistributedApplication.Cache.Reset();
-            ContentTypeManager.Reset();
-
-            using (Repository.Start(builder))
+            if (reset || brandNew)
             {
-                PrepareRepository();
+                _repositoryInstance?.Dispose();
 
-                //if (useCurrentUser)
-                //    callback();
-                //else
-                    using (new SystemAccount())
-                        return callback();
+                //var portalContextAcc = new PrivateType(typeof(PortalContext));
+                //portalContextAcc.SetStaticField("_sites", new Dictionary<string, Site>());
+
+                var builder = CreateRepositoryBuilderForStorageTest();
+
+                Indexing.IsOuterSearchEngineEnabled = true;
+
+                DistributedApplication.Cache.Reset();
+                ContentTypeManager.Reset();
+                _repositoryInstance = Repository.Start(builder);
+                PrepareRepository();
             }
 
-
+            using (new SystemAccount())
+                return callback();
         }
 
-        private void EnsureDatabase()
+        private bool EnsureDatabase()
         {
-            if (_instance == null)
+            var brandNew = _instance == null;
+            if (brandNew)
             {
-                using (var op = SnTrace.Test.StartOperation("Initialize database"))
+                using (var op = SnTrace.Test.StartOperation("Install database."))
                 {
                     _connectionStringBackup = ConnectionStrings.ConnectionString;
                     _securityConnectionStringBackup = ConnectionStrings.SecurityDatabaseConnectionString;
@@ -99,6 +101,7 @@ namespace SenseNet.Storage.IntegrationTests
                     op.Successful = true;
                 }
             }
+            return brandNew;
         }
         private void PrepareRepository()
         {
@@ -113,10 +116,15 @@ namespace SenseNet.Storage.IntegrationTests
         {
             var dp2 = new MsSqlDataProvider();
             Providers.Instance.DataProvider2 = dp2;
-var backup = DataStore.Enabled;
-DataStore.Enabled = true;
-DataStore.InstallInitialDataAsync(GetInitialData()).Wait();
-DataStore.Enabled = backup;
+
+using (var op = SnTrace.Test.StartOperation("Install initial data."))
+{
+    var backup = DataStore.Enabled;
+    DataStore.Enabled = true;
+    DataStore.InstallInitialDataAsync(GetInitialData()).Wait();
+    DataStore.Enabled = backup;
+    op.Successful = true;
+}
 
             dp2.SetExtension(typeof(ISharedLockDataProviderExtension), new SqlSharedLockDataProvider());
             dp2.SetExtension(typeof(IAccessTokenDataProviderExtension), new SqlAccessTokenDataProvider());
@@ -250,13 +258,6 @@ DataStore.Enabled = backup;
                     return (T)proc.ExecuteScalar();
                 }
             }
-        }
-
-        private DbDataReader ExecuteSqlReader(string sql)
-        {
-            var proc = DataProvider.Instance.CreateDataProcedure(sql);
-            proc.CommandType = CommandType.Text;
-            return proc.ExecuteReader();
         }
 
         private string GetDatabaseName(string connectionString)
