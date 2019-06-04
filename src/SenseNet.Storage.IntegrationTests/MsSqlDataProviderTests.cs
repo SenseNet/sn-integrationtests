@@ -116,6 +116,117 @@ namespace SenseNet.Storage.IntegrationTests
         }
 
         [TestMethod]
+        public async Task MsSqlDP_CopyAndUpdate_NewVersion()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_CopyAndUpdate_ExpectedVersion()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_UpdateNodeHead()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_HandleAllDynamicProps()
+        {
+            Assert.Inconclusive();
+        }
+
+
+        [TestMethod]
+        public async Task MsSqlDP_Rename()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_LoadChildren()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_Move()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_RefreshCacheAfterSave()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_LazyLoadedBigText()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_LazyLoadedBigTextVsCache()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_LoadChildTypesToAllow()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_ContentListTypesInTree()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_ForceDelete()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_DeleteDeleted()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_GetVersionNumbers()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_GetVersionNumbers_MissingNode()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_LoadBinaryPropertyValues()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_NodeEnumerator()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_NameSuffix()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
         public async Task MsSqlDP_TreeSize_Root()
         {
             await StorageTest(false, async () =>
@@ -128,7 +239,6 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(expectedSize, size);
             });
         }
-
         [TestMethod]
         public async Task MsSqlDP_TreeSize_Subtree()
         {
@@ -164,6 +274,263 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 var expectedSize = (long) await ExecuteScalarAsync(sql);
                 Assert.AreEqual(expectedSize, size);
             });
+        }
+
+        /* ================================================================================================== NodeQuery */
+
+        [TestMethod]
+        public async Task MsSqlDP_NodeQuery_InstanceCount()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_NodeQuery_ChildrenIdentfiers()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_NodeQuery_QueryNodesByTypeAndPathAndName()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_NodeQuery_QueryNodesByTypeAndPathAndProperty()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_NodeQuery_QueryNodesByReferenceAndType()
+        {
+            Assert.Inconclusive();
+        }
+
+        /* ================================================================================================== TreeLock */
+
+        [TestMethod]
+        public async Task MsSqlDP_LoadEntityTree()
+        {
+            Assert.Inconclusive();
+        }
+
+        /* ================================================================================================== TreeLock */
+
+        [TestMethod]
+        public async Task MsSqlDP_TreeLock()
+        {
+            Assert.Inconclusive();
+        }
+
+        /* ================================================================================================== IndexDocument */
+
+        [TestMethod]
+        public async Task MsSqlDP_LoadIndexDocuments()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_SaveIndexDocumentById()
+        {
+            Assert.Inconclusive();
+        }
+
+        /* ================================================================================================== IndexingActivities */
+
+        [TestMethod]
+        public async Task MsSqlDP_IndexingActivity_GetLastIndexingActivityId()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_IndexingActivity_LoadIndexingActivities_Page()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_IndexingActivity_LoadIndexingActivities_PageUnprocessed()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_IndexingActivity_LoadIndexingActivities_Gaps()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_IndexingActivity_LoadIndexingActivities_Executable()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_IndexingActivity_UpdateRunningState()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_IndexingActivity_RefreshLockTime()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_IndexingActivity_DeleteFinished()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_IndexingActivity_LoadFull()
+        {
+            Assert.Inconclusive();
+        }
+
+        /* ================================================================================================== Nodes */
+
+        [TestMethod]
+        public async Task MsSqlDP_CopyAndUpdateNode_Rename()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_LoadNodes()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_LoadNodeHeadByVersionId_Missing()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_NodeAndVersion_CountsAndTimestamps()
+        {
+            Assert.Inconclusive();
+        }
+
+        /* ================================================================================================== Errors */
+
+        [TestMethod]
+        public async Task MsSqlDP_Error_InsertNode_AlreadyExists()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_Error_UpdateNode_Deleted()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Error_UpdateNode_MissingVersion()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Error_UpdateNode_OutOfDate()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_Error_CopyAndUpdateNode_Deleted()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Error_CopyAndUpdateNode_MissingVersion()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Error_CopyAndUpdateNode_OutOfDate()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_Error_UpdateNodeHead_Deleted()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Error_UpdateNodeHead_OutOfDate()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_Error_DeleteNode()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_Error_MoveNode_MissingSource()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Error_MoveNode_MissingTarget()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Error_MoveNode_OutOfDate()
+        {
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        public async Task MsSqlDP_Error_QueryNodesByReferenceAndTypeAsync()
+        {
+            Assert.Inconclusive();
+        }
+
+        /* ================================================================================================== Transaction */
+
+        [TestMethod]
+        public async Task MsSqlDP_Transaction_InsertNode()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Transaction_UpdateNode()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Transaction_CopyAndUpdateNode()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Transaction_UpdateNodeHead()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Transaction_MoveNode()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Transaction_RenameNode()
+        {
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Transaction_DeleteNode()
+        {
+            Assert.Inconclusive();
+        }
+
+        /* ================================================================================================== Schema */
+
+        [TestMethod]
+        public async Task MsSqlDP_Schema_()
+        {
+            Assert.Inconclusive();
         }
 
         /* ================================================================================================== */
