@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.ContentRepository;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.Tests.Implementations;
 using SenseNet.Tests.Implementations2;
@@ -16,7 +17,8 @@ namespace SenseNet.Storage.IntegrationTests
     [TestClass]
     public class MsSqlDataProviderTests : StorageTestBase
     {
-        private static DataProvider2 DP => DataStore.DataProvider;
+        // ReSharper disable once InconsistentNaming
+        private static MsSqlDataProvider DP => (MsSqlDataProvider)DataStore.DataProvider;
         // ReSharper disable once InconsistentNaming
         private static ITestingDataProviderExtension TDP => DataStore.GetDataProviderExtension<ITestingDataProviderExtension>();
 
