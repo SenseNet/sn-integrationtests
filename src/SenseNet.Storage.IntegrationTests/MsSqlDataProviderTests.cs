@@ -27,7 +27,7 @@ namespace SenseNet.Storage.IntegrationTests
             {
                 DataStore.Enabled = true;
 
-                var root = CreateFolder(Repository.Root, "TestRoot");
+                var root = CreateTestRoot();
 
                 // Create a file but do not save.
                 var created = new File(root) { Name = "File1", Index = 42, Description = "File1 Description" };
@@ -75,7 +75,7 @@ namespace SenseNet.Storage.IntegrationTests
             {
                 DataStore.Enabled = true;
 
-                var root = CreateFolder(Repository.Root, "TestRoot");
+                var root = CreateTestRoot();
 
                 var created = new File(root) { Name = "File1", Index = 42 };
                 created.Binary.SetStream(RepositoryTools.GetStreamFromString("File1 Content"));
@@ -198,6 +198,10 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             return _random.Next(1, int.MaxValue);
         }
 
+        private SystemFolder CreateTestRoot()
+        {
+            return CreateFolder(Repository.Root, "TestRoot" + Guid.NewGuid());
+        }
         private SystemFolder CreateFolder(Node parent, string name)
         {
             var folder = new SystemFolder(parent) { Name = name };
