@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.Common.Storage.Data;
+using SenseNet.Configuration;
 using SenseNet.ContentRepository;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
@@ -169,11 +171,64 @@ namespace SenseNet.Storage.IntegrationTests
                 DataProviderChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data);
             });
         }
-
         [TestMethod]
         public async Task MsSqlDP_CopyAndUpdate_ExpectedVersion()
         {
-            Assert.Inconclusive();
+            await StorageTest(false, async () =>
+            {
+                DataStore.Enabled = true;
+
+                var root = CreateTestRoot();
+                root.Save();
+                var created = new File(root) { Name = "File1" };
+                created.Binary.SetStream(RepositoryTools.GetStreamFromString("File1 Content"));
+                created.Save();
+                var versionIdBefore = created.VersionId;
+
+                created.CheckOut();
+
+                // Update a file but do not save
+                var updated = Node.Load<File>(created.Id);
+                var binary = updated.Binary;
+                binary.SetStream(RepositoryTools.GetStreamFromString("File1 Content UPDATED"));
+                updated.Binary = binary;
+                var nodeData = updated.Data;
+
+                // Patch version because the NodeSaveSetting logic is skipped.
+                nodeData.Version = VersionNumber.Parse("V1.0.A");
+
+                // Update dynamic properties
+                GenerateTestData(nodeData);
+                var modificationDateBefore = nodeData.ModificationDate;
+                var nodeTimestampBefore = nodeData.NodeTimestamp;
+
+                // ACTION
+                nodeData.ModificationDate = DateTime.UtcNow;
+                var nodeHeadData = nodeData.GetNodeHeadData();
+                var versionData = nodeData.GetVersionData();
+                var dynamicData = nodeData.GetDynamicData(false);
+                var versionIdsToDelete = new int[] { versionData.VersionId };
+                var expectedVersionId = versionIdBefore;
+                await DP.CopyAndUpdateNodeAsync(nodeHeadData, versionData, dynamicData, versionIdsToDelete, expectedVersionId);
+
+                // ASSERT
+                Assert.AreEqual(versionIdBefore, versionData.VersionId);
+
+                DistributedApplication.Cache.Reset();
+                var loaded = Node.Load<File>(nodeHeadData.NodeId);
+                Assert.IsNotNull(loaded);
+                Assert.AreEqual("File1", loaded.Name);
+                Assert.AreEqual(nodeHeadData.Path, loaded.Path);
+                Assert.AreNotEqual(nodeTimestampBefore, loaded.NodeTimestamp);
+                Assert.AreNotEqual(modificationDateBefore, loaded.ModificationDate);
+                Assert.AreEqual(VersionNumber.Parse("V1.0.A"), loaded.Version);
+                Assert.AreEqual(versionIdBefore, loaded.VersionId);
+                Assert.AreEqual("File1 Content UPDATED", RepositoryTools.GetStreamString(loaded.Binary.GetStream()));
+
+                foreach (var propType in loaded.Data.PropertyTypes)
+                    loaded.Data.GetDynamicRawData(propType);
+                DataProviderChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data);
+            });
         }
 
         [TestMethod]
