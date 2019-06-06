@@ -234,7 +234,65 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_UpdateNodeHead()
         {
-            Assert.Inconclusive();
+            await StorageTest(false, async () =>
+            {
+                DataStore.Enabled = true;
+
+                // Create a file under the test root
+                var root = CreateTestRoot();
+                root.Save();
+                var created = new File(root) { Name = "File1" };
+                created.Binary.SetStream(RepositoryTools.GetStreamFromString("File1 Content"));
+                created.Save();
+
+                // Memorize final expectations
+                var expectedVersion = created.Version;
+                var expectedVersionId = created.VersionId;
+                var createdHead = NodeHead.Get(created.Id);
+                var expectedLastMajor = createdHead.LastMajorVersionId;
+                var expectedLastMinor = createdHead.LastMinorVersionId;
+
+                // Make a new version.
+                created.CheckOut();
+
+                // Modify the new version.
+                var checkedOut = Node.Load<File>(created.Id);
+                var binary = checkedOut.Binary;
+                binary.SetStream(RepositoryTools.GetStreamFromString("File1 Content UPDATED"));
+                checkedOut.Binary = binary;
+                checkedOut.Save();
+
+                // PREPARE THE LAST ACTION: simulate UndoCheckOut
+                var modified = Node.Load<File>(created.Id);
+                var oldTimestamp = modified.NodeTimestamp;
+                // Get the editable NodeData
+                modified.Index = modified.Index;
+                var nodeData = modified.Data;
+
+                nodeData.LastLockUpdate = DP.DateTimeMinValue;
+                nodeData.LockDate = DP.DateTimeMinValue;
+                nodeData.Locked = false;
+                nodeData.LockedById = 0;
+                nodeData.ModificationDate = DateTime.UtcNow;
+                var nodeHeadData = nodeData.GetNodeHeadData();
+                var deletedVersionId = nodeData.VersionId;
+                var versionIdsToDelete = new int[] { deletedVersionId };
+
+                // ACTION: Simulate UndoCheckOut
+                await DP.UpdateNodeHeadAsync(nodeHeadData, versionIdsToDelete);
+
+                // ASSERT: the original state is restored after the UndoCheckOut operation
+                Assert.IsTrue(oldTimestamp < nodeHeadData.Timestamp);
+                DistributedApplication.Cache.Reset();
+                var reloaded = Node.Load<File>(created.Id);
+                Assert.AreEqual(expectedVersion, reloaded.Version);
+                Assert.AreEqual(expectedVersionId, reloaded.VersionId);
+                var reloadedHead = NodeHead.Get(created.Id);
+                Assert.AreEqual(expectedLastMajor, reloadedHead.LastMajorVersionId);
+                Assert.AreEqual(expectedLastMinor, reloadedHead.LastMinorVersionId);
+                Assert.AreEqual("File1 Content", RepositoryTools.GetStreamString(reloaded.Binary.GetStream()));
+                Assert.IsNull(Node.LoadNodeByVersionId(deletedVersionId));
+            });
         }
 
         [TestMethod]
