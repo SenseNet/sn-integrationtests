@@ -40,7 +40,16 @@ namespace SenseNet.Storage.IntegrationTests
         private string _connectionStringBackup;
         private string _securityConnectionStringBackup;
 
-        public STT.Task StorageTest(bool reset, Func<STT.Task> callback)
+        public STT.Task StorageTest(Func<STT.Task> callback)
+        {
+            return StorageTest(false, callback);
+        }
+        public STT.Task IsolatedStorageTest(Func<STT.Task> callback)
+        {
+            return StorageTest(true, callback);
+        }
+
+        private STT.Task StorageTest(bool isolated, Func<STT.Task> callback)
         {
             SnTrace.Test.Enabled = true;
             SnTrace.Test.Write("START test: {0}", TestContext.TestName);
@@ -56,7 +65,7 @@ namespace SenseNet.Storage.IntegrationTests
             Providers.Instance.NodeTypeManeger = null;
 
 
-            if (reset || brandNew)
+            if (isolated || brandNew)
             {
                 _repositoryInstance?.Dispose();
 
@@ -73,8 +82,19 @@ namespace SenseNet.Storage.IntegrationTests
                 PrepareRepository();
             }
 
-            using (new SystemAccount())
-                return callback();
+            try
+            {
+                using (new SystemAccount())
+                    return callback();
+            }
+            finally
+            {
+                if (isolated)
+                {
+                    _repositoryInstance?.Dispose();
+                    _instance = null;
+                }
+            }
         }
 
         private bool EnsureDatabase()

@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using SenseNet.Common.Storage.Data;
+using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.ContentRepository.Storage.DataModel;
+using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.Diagnostics;
 using SenseNet.Tests.Implementations;
 
@@ -13,10 +16,31 @@ namespace SenseNet.IntegrationTests.Common.Implementations
 {
     public class SqlTestingDataProvider : ITestingDataProviderExtension
     {
-        public DataProvider MainProvider { get; set; }
+        private DataProvider __mainProvider;
+        private DataProvider MainProvider_OLD
+        {
+            get
+            {
+                if (DataStore.Enabled)
+                    throw new PlatformNotSupportedException();
+                return __mainProvider ?? (__mainProvider = DataProvider.Instance);
+            }
+        }
+
+        private RelationalDataProviderBase __dataProvider;
+        private RelationalDataProviderBase MainProvider
+        {
+            get
+            {
+                if (!DataStore.Enabled)
+                    throw new PlatformNotSupportedException();
+                return __dataProvider ?? (__dataProvider = (RelationalDataProviderBase) DataStore.DataProvider);
+            }
+        }
+
         public void InitializeForTests()
         {
-            using (var proc = DataProvider.Instance.CreateDataProcedure(@"
+            using (var proc = MainProvider_OLD.CreateDataProcedure(@"
 ALTER TABLE [BinaryProperties] CHECK CONSTRAINT ALL
 ALTER TABLE [FlatProperties] CHECK CONSTRAINT ALL
 ALTER TABLE [Nodes] CHECK CONSTRAINT ALL
@@ -63,7 +87,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             var count = 0;
             var sql =
                 $"SELECT COUNT(1) FROM LogEntries WHERE Title = 'PermissionChanged' AND LogDate>='{moment.ToString("yyyy-MM-dd HH:mm:ss")}'";
-            var proc = DataProvider.Instance.CreateDataProcedure(sql);
+            var proc = MainProvider_OLD.CreateDataProcedure(sql);
             proc.CommandType = System.Data.CommandType.Text;
             using (var reader = proc.ExecuteReader())
             {
@@ -136,10 +160,61 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             throw new NotImplementedException();
         }
 
-        public Task<object> GetPropertyValueAsync(int versionId, string name)
+        public async Task<object> GetPropertyValueAsync(int versionId, string name)
+        {
+            var propertyType = ActiveSchema.PropertyTypes[name];
+            if (propertyType == null)
+                throw new ArgumentException("Unknown property");
+
+            switch (propertyType.DataType)
+            {
+                case DataType.Binary:
+                    return await GetBinaryPropertyValueAsync(versionId, propertyType);
+                case DataType.Text:
+                    return await GetLongTextValueAsync(versionId, propertyType);
+                default:
+                    return await GetDynamicPropertyValueAsync(versionId, propertyType);
+            }
+        }
+        private Task<object> GetBinaryPropertyValueAsync(int versionId, PropertyType propertyType)
         {
             throw new NotImplementedException();
         }
+        private async Task<object> GetLongTextValueAsync(int versionId, PropertyType propertyType)
+        {
+            using (var ctx = new SnDataContext(MainProvider))
+            {
+                return (string)await ctx.ExecuteScalarAsync(
+                    "SELECT TOP 1 Value FROM LongTextProperties " +
+                    "WHERE VersionId = @VersionId AND PropertyTypeId = @PropertyTypeId",
+                    cmd =>
+                    {
+                        cmd.Parameters.AddRange(new[]
+                        {
+                            ctx.CreateParameter("@VersionId", DbType.Int32, versionId),
+                            ctx.CreateParameter("@PropertyTypeId", DbType.Int32, propertyType.Id),
+                        });
+                    });
+            }
+        }
+        private async Task<object> GetDynamicPropertyValueAsync(int versionId, PropertyType propertyType)
+        {
+            using (var ctx = new SnDataContext(MainProvider))
+            {
+                var result = (string)await ctx.ExecuteScalarAsync(
+                    "SELECT TOP 1 DynamicProperties FROM Versions WHERE VersionId = @VersionId",
+                    cmd =>
+                    {
+                        cmd.Parameters.Add(ctx.CreateParameter("@VersionId", DbType.Int32, versionId));
+                    });
+
+                var properties = MainProvider.DeserializeDynamiProperties(result);
+                if (properties.TryGetValue(propertyType, out var value))
+                    return value;
+                return null;
+            }
+        }
+
 
         public Task UpdateDynamicPropertyAsync(int versionId, string name, object value)
         {

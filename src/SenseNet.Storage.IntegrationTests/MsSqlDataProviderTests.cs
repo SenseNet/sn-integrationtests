@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Common.Storage.Data;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository;
+using SenseNet.ContentRepository.Schema;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
@@ -28,7 +29,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_InsertNode()
         {
-            await StorageTest(false, async () =>
+            await StorageTest(async () =>
             {
                 DataStore.Enabled = true;
 
@@ -76,7 +77,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_Update()
         {
-            await StorageTest(false, async () =>
+            await StorageTest(async () =>
             {
                 DataStore.Enabled = true;
 
@@ -120,7 +121,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_CopyAndUpdate_NewVersion()
         {
-            await StorageTest(false, async () =>
+            await StorageTest(async () =>
             {
                 DataStore.Enabled = true;
 
@@ -174,7 +175,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_CopyAndUpdate_ExpectedVersion()
         {
-            await StorageTest(false, async () =>
+            await StorageTest(async () =>
             {
                 DataStore.Enabled = true;
 
@@ -230,11 +231,10 @@ namespace SenseNet.Storage.IntegrationTests
                 DataProviderChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data);
             });
         }
-
         [TestMethod]
         public async Task MsSqlDP_UpdateNodeHead()
         {
-            await StorageTest(false, async () =>
+            await StorageTest(async () =>
             {
                 DataStore.Enabled = true;
 
@@ -298,7 +298,95 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_HandleAllDynamicProps()
         {
-            Assert.Inconclusive();
+            var contentTypeName = "TestContent";
+            var ctd = $"<ContentType name='{contentTypeName}' parentType='GenericContent'" + @"
+             handler='SenseNet.ContentRepository.GenericContent'
+             xmlns='http://schemas.sensenet.com/SenseNet/ContentRepository/ContentTypeDefinition'>
+  <Fields>
+    <Field name='ShortText1' type='ShortText'/>
+    <Field name='LongText1' type='LongText'/>
+    <Field name='Integer1' type='Integer'/>
+    <Field name='Number1' type='Number'/>
+    <Field name='DateTime1' type='DateTime'/>
+    <Field name='Reference1' type='Reference'/>
+  </Fields>
+</ContentType>
+";
+            await IsolatedStorageTest(async () =>
+            {
+                Node node = null;
+                try
+                {
+                    DataStore.Enabled = true;
+
+                    ContentTypeInstaller.InstallContentType(ctd);
+                    var unused = ContentType.GetByName(contentTypeName); // preload schema
+
+                    var root = new SystemFolder(Repository.Root) { Name = "TestRoot" };
+                    root.Save();
+
+                    // ACTION-1 CREATE
+                    // Create all kind of dynamic properties
+                    node = new GenericContent(root, contentTypeName)
+                    {
+                        Name = $"{contentTypeName}1",
+                        ["ShortText1"] = "ShortText value 1",
+                        ["LongText1"] = "LongText value 1",
+                        ["Integer1"] = 42,
+                        ["Number1"] = 42.56m,
+                        ["DateTime1"] = new DateTime(1111, 11, 11)
+                    };
+                    node.AddReference("Reference1", Repository.Root);
+                    node.AddReference("Reference1", root);
+                    node.Save();
+
+                    // ASSERT-1
+                    Assert.AreEqual("ShortText value 1", await TDP.GetPropertyValueAsync(node.VersionId, "ShortText1"));
+                    Assert.AreEqual("LongText value 1", await TDP.GetPropertyValueAsync(node.VersionId, "LongText1"));
+                    Assert.AreEqual(42, await TDP.GetPropertyValueAsync(node.VersionId, "Integer1"));
+                    Assert.AreEqual(42.56m, await TDP.GetPropertyValueAsync(node.VersionId, "Number1"));
+                    Assert.AreEqual(new DateTime(1111, 11, 11), await TDP.GetPropertyValueAsync(node.VersionId, "DateTime1"));
+                    Assert.AreEqual($"{Repository.Root.Id},{root.Id}", ArrayToString((int[])await TDP.GetPropertyValueAsync(node.VersionId, "Reference1")));
+
+                    // ACTION-2 UPDATE-1
+                    node = Node.Load<GenericContent>(node.Id);
+                    // Update all kind of dynamic properties
+                    node["ShortText1"] = "ShortText value 2";
+                    node["LongText1"] = "LongText value 2";
+                    node["Integer1"] = 43;
+                    node["Number1"] = 42.099m;
+                    node["DateTime1"] = new DateTime(1111, 11, 22);
+                    node.RemoveReference("Reference1", Repository.Root);
+                    node.Save();
+
+                    // ASSERT-2
+                    Assert.AreEqual("ShortText value 2", await TDP.GetPropertyValueAsync(node.VersionId, "ShortText1"));
+                    Assert.AreEqual("LongText value 2", await TDP.GetPropertyValueAsync(node.VersionId, "LongText1"));
+                    Assert.AreEqual(43, await TDP.GetPropertyValueAsync(node.VersionId, "Integer1"));
+                    Assert.AreEqual(42.099m, await TDP.GetPropertyValueAsync(node.VersionId, "Number1"));
+                    Assert.AreEqual(new DateTime(1111, 11, 22), await TDP.GetPropertyValueAsync(node.VersionId, "DateTime1"));
+                    Assert.AreEqual($"{root.Id}", ArrayToString((int[])await TDP.GetPropertyValueAsync(node.VersionId, "Reference1")));
+
+                    // ACTION-3 UPDATE-2
+                    node = Node.Load<GenericContent>(node.Id);
+                    // Remove existing references
+                    node.RemoveReference("Reference1", root);
+                    node.Save();
+
+                    // ASSERT-3
+                    Assert.AreEqual("ShortText value 2", await TDP.GetPropertyValueAsync(node.VersionId, "ShortText1"));
+                    Assert.AreEqual("LongText value 2", await TDP.GetPropertyValueAsync(node.VersionId, "LongText1"));
+                    Assert.AreEqual(43, await TDP.GetPropertyValueAsync(node.VersionId, "Integer1"));
+                    Assert.AreEqual(42.099m, await TDP.GetPropertyValueAsync(node.VersionId, "Number1"));
+                    Assert.AreEqual(new DateTime(1111, 11, 22), await TDP.GetPropertyValueAsync(node.VersionId, "DateTime1"));
+                    Assert.IsNull(await TDP.GetPropertyValueAsync(node.VersionId, "Reference1"));
+                }
+                finally
+                {
+//node?.ForceDelete();
+//ContentTypeInstaller.RemoveContentType(contentTypeName);
+                }
+            });
         }
 
 
@@ -391,7 +479,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_TreeSize_Root()
         {
-            await StorageTest(false, async () =>
+            await StorageTest(async () =>
             {
                 // ACTION
                 var size = await DP.GetTreeSizeAsync("/Root", true);
@@ -404,7 +492,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_TreeSize_Subtree()
         {
-            await StorageTest(false, async () =>
+            await StorageTest(async () =>
             {
                 // ACTION
                 var size = await DP.GetTreeSizeAsync("/Root/System/Schema/ContentTypes/GenericContent/Folder", true);
@@ -422,7 +510,7 @@ WHERE Path LIKE '/Root/System/Schema/ContentTypes/GenericContent/Folder%'";
         [TestMethod]
         public async Task MsSqlDP_TreeSize_Item()
         {
-            await StorageTest(false, async () =>
+            await StorageTest(async () =>
             {
                 // ACTION
                 var size = await DP.GetTreeSizeAsync("/Root/System/Schema/ContentTypes/GenericContent/Folder", false);
@@ -752,5 +840,19 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             using (var ctx = new SnDataContext(DP))
                 return await ctx.ExecuteScalarAsync(sql);
         }
+
+        protected string ArrayToString(int[] array)
+        {
+            return string.Join(",", array.Select(x => x.ToString()));
+        }
+        protected string ArrayToString(List<int> array)
+        {
+            return string.Join(",", array.Select(x => x.ToString()));
+        }
+        protected string ArrayToString(IEnumerable<object> array)
+        {
+            return string.Join(",", array.Select(x => x.ToString()));
+        }
+
     }
 }
