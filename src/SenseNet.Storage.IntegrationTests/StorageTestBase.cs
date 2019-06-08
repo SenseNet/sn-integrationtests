@@ -49,7 +49,7 @@ namespace SenseNet.Storage.IntegrationTests
             return StorageTest(true, callback);
         }
 
-        private STT.Task StorageTest(bool isolated, Func<STT.Task> callback)
+        private async STT.Task StorageTest(bool isolated, Func<STT.Task> callback)
         {
             SnTrace.Test.Enabled = true;
             SnTrace.Test.Write("START test: {0}", TestContext.TestName);
@@ -85,7 +85,7 @@ namespace SenseNet.Storage.IntegrationTests
             try
             {
                 using (new SystemAccount())
-                    return callback();
+                    await callback();
             }
             finally
             {
