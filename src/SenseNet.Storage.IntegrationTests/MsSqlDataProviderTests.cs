@@ -383,8 +383,8 @@ namespace SenseNet.Storage.IntegrationTests
                 }
                 finally
                 {
-//node?.ForceDelete();
-//ContentTypeInstaller.RemoveContentType(contentTypeName);
+                    node?.ForceDelete();
+                    ContentTypeInstaller.RemoveContentType(contentTypeName);
                 }
             });
         }
@@ -439,12 +439,58 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_ForceDelete()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                var countsBefore = await GetDbObjectCountsAsync(null, DP, TDP);
+
+                // Create a small subtree
+                var root = CreateTestRoot();
+                root.Save();
+                var f1 = new SystemFolder(root) { Name = "F1" };
+                f1.Save();
+                var f2 = new File(root) { Name = "F2" };
+                f2.Binary.SetStream(RepositoryTools.GetStreamFromString("filecontent"));
+                f2.Save();
+                var f3 = new SystemFolder(f1) { Name = "F3" };
+                f3.Save();
+                var f4 = new File(root) { Name = "F4" };
+                f4.Binary.SetStream(RepositoryTools.GetStreamFromString("filecontent"));
+                f4.Save();
+
+                // ACTION
+                Node.ForceDelete(root.Path);
+
+                // ASSERT
+                Assert.IsNull(Node.Load<SystemFolder>(root.Id));
+                Assert.IsNull(Node.Load<SystemFolder>(f1.Id));
+                Assert.IsNull(Node.Load<File>(f2.Id));
+                Assert.IsNull(Node.Load<SystemFolder>(f3.Id));
+                Assert.IsNull(Node.Load<File>(f4.Id));
+                var countsAfter = await GetDbObjectCountsAsync(null, DP, TDP);
+                Assert.AreEqual(countsBefore.AllCountsExceptFiles, countsAfter.AllCountsExceptFiles);
+            });
         }
         [TestMethod]
         public async Task MsSqlDP_DeleteDeleted()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                var folder = new SystemFolder(Repository.Root) { Name = "Folder1" };
+                folder.Save();
+                folder = Node.Load<SystemFolder>(folder.Id);
+                var nodeHeadData = folder.Data.GetNodeHeadData();
+                Node.ForceDelete(folder.Path);
+
+                // ACTION
+                await DP.DeleteNodeAsync(nodeHeadData);
+
+                // ASSERT
+                // Expectation: no exception was thrown
+            });
         }
 
         [TestMethod]
@@ -833,6 +879,20 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             file.Binary.SetStream(RepositoryTools.GetStreamFromString(fileContent));
             file.Save();
             return file;
+        }
+
+        private async Task<(int Nodes, int Versions, int Binaries, int Files, int LongTexts, string AllCounts, string AllCountsExceptFiles)> GetDbObjectCountsAsync(string path, DataProvider2 DP, ITestingDataProviderExtension tdp)
+        {
+            var nodes = await DP.GetNodeCountAsync(path);
+            var versions = await DP.GetVersionCountAsync(path);
+            var binaries = await TDP.GetBinaryPropertyCountAsync(path);
+            var files = await TDP.GetFileCountAsync(path);
+            var longTexts = await TDP.GetLongTextCountAsync(path);
+            var all = $"{nodes},{versions},{binaries},{files},{longTexts}";
+            var allExceptFiles = $"{nodes},{versions},{binaries},{longTexts}";
+
+            var result = (Nodes: nodes, Versions: versions, Binaries: binaries, Files: files, LongTexts: longTexts, AllCounts: all, AllCountsExceptFiles: allExceptFiles);
+            return await Task.FromResult(result);
         }
 
         private async Task<object> ExecuteScalarAsync(string sql)

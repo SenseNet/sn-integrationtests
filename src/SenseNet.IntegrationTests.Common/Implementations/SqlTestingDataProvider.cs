@@ -145,19 +145,22 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             throw new NotImplementedException();
         }
 
-        public Task<int> GetBinaryPropertyCountAsync(string path)
+        public async Task<int> GetBinaryPropertyCountAsync(string path)
         {
-            throw new NotImplementedException();
+            using (var ctx = new SnDataContext(MainProvider))
+                return (int) await ctx.ExecuteScalarAsync("SELECT COUNT (1) FROM BinaryProperties NOLOCK", cmd => { });
         }
 
-        public Task<int> GetFileCountAsync(string path)
+        public async Task<int> GetFileCountAsync(string path)
         {
-            throw new NotImplementedException();
+            using (var ctx = new SnDataContext(MainProvider))
+                return (int)await ctx.ExecuteScalarAsync("SELECT COUNT (1) FROM Files NOLOCK", cmd => { });
         }
 
-        public Task<int> GetLongTextCountAsync(string path)
+        public async Task<int> GetLongTextCountAsync(string path)
         {
-            throw new NotImplementedException();
+            using (var ctx = new SnDataContext(MainProvider))
+                return (int)await ctx.ExecuteScalarAsync("SELECT COUNT (1) FROM LongTextProperties NOLOCK", cmd => { });
         }
 
         public async Task<object> GetPropertyValueAsync(int versionId, string name)
