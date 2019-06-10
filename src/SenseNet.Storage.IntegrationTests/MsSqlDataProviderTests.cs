@@ -393,7 +393,42 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_Rename()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                // Create a small subtree
+                var root = CreateTestRoot(); root.Save();
+                var f1 = new SystemFolder(root) {Name = "F1"}; f1.Save();
+                var f2 = new SystemFolder(root) {Name = "F2"}; f2.Save();
+                var f3 = new SystemFolder(f1) {Name = "F3"}; f3.Save();
+                var f4 = new SystemFolder(f1) {Name = "F4"}; f4.Save();
+
+                // ACTION: Rename root
+                root = Node.Load<SystemFolder>(root.Id);
+                var originalPath = root.Path;
+                var newName = Guid.NewGuid() + "-RENAMED";
+                root.Name = newName;
+                var nodeData = root.Data;
+                nodeData.Path = RepositoryPath.Combine(root.ParentPath, root.Name); // ApplySettings
+                var nodeHeadData = nodeData.GetNodeHeadData();
+                var versionData = nodeData.GetVersionData();
+                var dynamicData = nodeData.GetDynamicData(false);
+                var versionIdsToDelete = new int[0];
+                await DP.UpdateNodeAsync(nodeHeadData, versionData, dynamicData, versionIdsToDelete, originalPath);
+
+                // ASSERT
+                DistributedApplication.Cache.Reset();
+                f1 = Node.Load<SystemFolder>(f1.Id);
+                f2 = Node.Load<SystemFolder>(f2.Id);
+                f3 = Node.Load<SystemFolder>(f3.Id);
+                f4 = Node.Load<SystemFolder>(f4.Id);
+                Assert.AreEqual("/Root/" + newName, root.Path);
+                Assert.AreEqual("/Root/" + newName + "/F1", f1.Path);
+                Assert.AreEqual("/Root/" + newName + "/F2", f2.Path);
+                Assert.AreEqual("/Root/" + newName + "/F1/F3", f3.Path);
+                Assert.AreEqual("/Root/" + newName + "/F1/F4", f4.Path);
+            });
         }
 
         [TestMethod]
