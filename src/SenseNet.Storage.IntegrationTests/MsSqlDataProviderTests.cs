@@ -434,7 +434,27 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_LoadChildren()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                DistributedApplication.Cache.Reset();
+                var loaded = Repository.Root.Children.Select(x => x.Id.ToString()).ToArray();
+
+                int[] expected;
+                using (var ctx = new SnDataContext(DP))
+                    expected = await ctx.ExecuteReaderAsync(
+                        "SELECT * FROM Nodes WHERE ParentNodeId = " + Identifiers.PortalRootId,
+                        cmd => { }, async reader =>
+                        {
+                            var result = new List<int>();
+                            while (await reader.ReadAsync())
+                                result.Add(reader.GetInt32(0));
+                            return result.ToArray();
+                        });
+
+                Assert.AreEqual(string.Join(",", expected), string.Join(",", loaded));
+            });
         }
 
         [TestMethod]
