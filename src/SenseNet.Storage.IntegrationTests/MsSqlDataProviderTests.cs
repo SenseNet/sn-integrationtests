@@ -594,7 +594,11 @@ namespace SenseNet.Storage.IntegrationTests
                 var descriptionPropertyType = ActiveSchema.PropertyTypes["Description"];
 
                 // ACTION-1: Creation with text that shorter than the magic limit
-                var root = new SystemFolder(Repository.Root) { Name = "TestRoot", Description = nearlyLongText1 };
+                var root = new SystemFolder(Repository.Root)
+                {
+                    Name = Guid.NewGuid().ToString(),
+                    Description = nearlyLongText1
+                };
                 root.Save();
                 var cacheKey = DataStore.GenerateNodeDataVersionIdCacheKey(root.VersionId);
 
@@ -713,12 +717,53 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_GetVersionNumbers()
         {
-            Assert.Inconclusive();
+            await StorageTest(() =>
+            {
+                DataStore.Enabled = true;
+
+                var folderB = new SystemFolder(Repository.Root)
+                {
+                    Name = Guid.NewGuid().ToString(),
+                    VersioningMode = VersioningType.MajorAndMinor
+                };
+                folderB.Save();
+                for (int j = 0; j < 3; j++)
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        folderB.CheckOut();
+                        folderB.Index++;
+                        folderB.Save();
+                        folderB.CheckIn();
+                    }
+                    folderB.Publish();
+                }
+                var allVersinsById = Node.GetVersionNumbers(folderB.Id);
+                var allVersinsByPath = Node.GetVersionNumbers(folderB.Path);
+
+                // Check
+                var expected = new[] { "V0.1.D", "V0.2.D", "V0.3.D", "V1.0.A", "V1.1.D",
+                        "V1.2.D", "V2.0.A", "V2.1.D", "V2.2.D", "V3.0.A" }
+                    .Select(VersionNumber.Parse).ToArray();
+                AssertSequenceEqual(expected, allVersinsById);
+                AssertSequenceEqual(expected, allVersinsByPath);
+
+                return Task.CompletedTask;
+            });
         }
         [TestMethod]
         public async Task MsSqlDP_GetVersionNumbers_MissingNode()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                // ACTION
+                var result = await DP.GetVersionNumbersAsync("/Root/Deleted");
+
+                // ASSERT
+                Assert.IsFalse(result.Any());
+            });
         }
 
         [TestMethod]
