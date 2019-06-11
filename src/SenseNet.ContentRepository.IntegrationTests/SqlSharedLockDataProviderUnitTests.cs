@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.Configuration;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.ContentRepository.Storage.Security;
 
@@ -15,10 +13,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
     public class SqlSharedLockDataProviderUnitTests : IntegrationTestBase
     {
         [TestInitialize]
-        public void DeleteAllSharedLocks()
+        public void InitializeTest()
         {
             // set default implementation directly to avoid repository start
-            DataProvider.Instance.SetExtension(typeof(ISharedLockDataProviderExtension), new SqlSharedLockDataProvider());
+            Providers.Instance.DataProvider2 = new MsSqlDataProvider();
+            DataStore.DataProvider.SetExtension(typeof(ISharedLockDataProviderExtension), new SqlSharedLockDataProvider());
+
+            DataStore.Enabled = true;
 
             SharedLock.RemoveAllLocks();
         }
@@ -29,7 +30,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             TearDown();
         }
 
-        private SqlSharedLockDataProvider Provider => (SqlSharedLockDataProvider)DataProvider.GetExtension<ISharedLockDataProviderExtension>();
+        private SqlSharedLockDataProvider Provider => (SqlSharedLockDataProvider)DataStore.GetDataProviderExtension<ISharedLockDataProviderExtension>();
 
         /* ====================================================================== */
 
@@ -56,7 +57,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Provider.CreateSharedLock(nodeId, expectedLockValue);
 
             // ACTION
-            var timeout = DataProvider.GetExtension<ISharedLockDataProviderExtension>().SharedLockTimeout;
+            var timeout = Provider.SharedLockTimeout;
             Provider.SetCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-timeout.TotalMinutes - 1));
 
             // ASSERT
@@ -282,14 +283,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
         private void SetSharedLockCreationDate(int nodeId, DateTime value)
         {
-            if (!(DataProvider.GetExtension<ISharedLockDataProviderExtension>() is SqlSharedLockDataProvider dataProvider))
+            if (!(Provider is SqlSharedLockDataProvider dataProvider))
                 throw new InvalidOperationException("InMemorySharedLockDataProvider not configured.");
 
             dataProvider.SetCreationDate(nodeId, value);
         }
         private DateTime GetSharedLockCreationDate(int nodeId)
         {
-            if (!(DataProvider.GetExtension<ISharedLockDataProviderExtension>() is SqlSharedLockDataProvider dataProvider))
+            if (!(Provider is SqlSharedLockDataProvider dataProvider))
                 throw new InvalidOperationException("InMemorySharedLockDataProvider not configured.");
 
             return dataProvider.GetCreationDate(nodeId);
