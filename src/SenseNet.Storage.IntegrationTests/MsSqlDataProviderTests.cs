@@ -460,7 +460,40 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_Move()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                // Create a small subtree
+                var root = CreateTestRoot(); root.Save();
+                var rootPath = root.Path;
+                var source = new SystemFolder(root) { Name = "Source" }; source.Save();
+                var target = new SystemFolder(root) { Name = "Target" }; target.Save();
+                var f1 = new SystemFolder(source) { Name = "F1" }; f1.Save();
+                var f2 = new SystemFolder(source) { Name = "F2" }; f2.Save();
+                var f3 = new SystemFolder(f1) { Name = "F3" }; f3.Save();
+                var f4 = new SystemFolder(f1) { Name = "F4" }; f4.Save();
+
+                // ACTION: Node.Move(source.Path, target.Path);
+                var srcNodeHeadData = source.Data.GetNodeHeadData();
+                await DP.MoveNodeAsync(srcNodeHeadData, target.Id, target.NodeTimestamp);
+
+                // ASSERT
+                DistributedApplication.Cache.Reset(); //UNDONE:DB: Need to work without explicite clear.
+                target = Node.Load<SystemFolder>(target.Id);
+                source = Node.Load<SystemFolder>(source.Id);
+                f1 = Node.Load<SystemFolder>(f1.Id);
+                f2 = Node.Load<SystemFolder>(f2.Id);
+                f3 = Node.Load<SystemFolder>(f3.Id);
+                f4 = Node.Load<SystemFolder>(f4.Id);
+                Assert.AreEqual(rootPath, root.Path);
+                Assert.AreEqual(rootPath + "/Target", target.Path);
+                Assert.AreEqual(rootPath + "/Target/Source", source.Path);
+                Assert.AreEqual(rootPath + "/Target/Source/F1", f1.Path);
+                Assert.AreEqual(rootPath + "/Target/Source/F2", f2.Path);
+                Assert.AreEqual(rootPath + "/Target/Source/F1/F3", f3.Path);
+                Assert.AreEqual(rootPath + "/Target/Source/F1/F4", f4.Path);
+            });
         }
 
         [TestMethod]
