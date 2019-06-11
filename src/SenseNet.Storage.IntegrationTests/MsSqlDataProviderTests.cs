@@ -585,7 +585,61 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_LazyLoadedBigTextVsCache()
         {
-            Assert.Inconclusive();
+            await StorageTest(() =>
+            {
+                DataStore.Enabled = true;
+                var nearlyLongText1 = new string('a', DataStore.TextAlternationSizeLimit - 10);
+                var nearlyLongText2 = new string('b', DataStore.TextAlternationSizeLimit - 10);
+                var longText = new string('c', DataStore.TextAlternationSizeLimit + 10);
+                var descriptionPropertyType = ActiveSchema.PropertyTypes["Description"];
+
+                // ACTION-1: Creation with text that shorter than the magic limit
+                var root = new SystemFolder(Repository.Root) { Name = "TestRoot", Description = nearlyLongText1 };
+                root.Save();
+                var cacheKey = DataStore.GenerateNodeDataVersionIdCacheKey(root.VersionId);
+
+                // ASSERT-1: text property is in cache
+                var cachedNodeData = (NodeData)DistributedApplication.Cache[cacheKey];
+                Assert.IsTrue(cachedNodeData.IsShared);
+                var longTextProperties = cachedNodeData.GetDynamicData(false).LongTextProperties;
+                Assert.IsTrue(longTextProperties.ContainsKey(descriptionPropertyType));
+                Assert.AreEqual(nearlyLongText1, (string)longTextProperties[descriptionPropertyType]);
+
+                // ACTION-2: Update with text that shorter than the magic limit
+                root = Node.Load<SystemFolder>(root.Id);
+                root.Description = nearlyLongText2;
+                root.Save();
+
+                // ASSERT-2: text property is in cache
+                cachedNodeData = (NodeData)DistributedApplication.Cache[cacheKey];
+                Assert.IsTrue(cachedNodeData.IsShared);
+                longTextProperties = cachedNodeData.GetDynamicData(false).LongTextProperties;
+                Assert.IsTrue(longTextProperties.ContainsKey(descriptionPropertyType));
+                Assert.AreEqual(nearlyLongText2, (string)longTextProperties[descriptionPropertyType]);
+
+                // ACTION-3: Update with text that longer than the magic limit
+                root = Node.Load<SystemFolder>(root.Id);
+                root.Description = longText;
+                root.Save();
+
+                // ASSERT-3: text property is not in the cache
+                cachedNodeData = (NodeData)DistributedApplication.Cache[cacheKey];
+                Assert.IsTrue(cachedNodeData.IsShared);
+                longTextProperties = cachedNodeData.GetDynamicData(false).LongTextProperties;
+                Assert.IsFalse(longTextProperties.ContainsKey(descriptionPropertyType));
+
+                // ACTION-4: Load the text property
+                var loadedValue = root.Description;
+
+                // ASSERT-4: Property is loaded and is in cache
+                Assert.AreEqual(longText, loadedValue);
+                cachedNodeData = (NodeData)DistributedApplication.Cache[cacheKey];
+                Assert.IsTrue(cachedNodeData.IsShared);
+                longTextProperties = cachedNodeData.GetDynamicData(false).LongTextProperties;
+                Assert.IsTrue(longTextProperties.ContainsKey(descriptionPropertyType));
+
+                return Task.CompletedTask;
+            });
         }
 
         [TestMethod]
