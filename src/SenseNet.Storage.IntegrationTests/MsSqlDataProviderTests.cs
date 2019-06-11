@@ -545,7 +545,42 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_LazyLoadedBigText()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                var nearlyLongText = new string('a', DataStore.TextAlternationSizeLimit - 10);
+                var longText = new string('c', DataStore.TextAlternationSizeLimit + 10);
+                var descriptionPropertyType = ActiveSchema.PropertyTypes["Description"];
+
+                // ACTION-1a: Creation with text that shorter than the magic limit
+                var root = new SystemFolder(Repository.Root) { Name = "TestRoot", Description = nearlyLongText };
+                root.Save();
+                // ACTION-1b: Load the node
+                var loaded = (await DP.LoadNodesAsync(new[] { root.VersionId })).First();
+                var longTextProps = loaded.GetDynamicData(false).LongTextProperties;
+                var longTextPropType = longTextProps.First().Key;
+
+                // ASSERT-1
+                Assert.AreEqual("Description", longTextPropType.Name);
+
+                // ACTION-2a: Update text property value in the database over the magic limit
+                await TDP.UpdateDynamicPropertyAsync(loaded.VersionId, "Description", longText);
+                // ACTION-2b: Load the node
+                loaded = (await DP.LoadNodesAsync(new[] { root.VersionId })).First();
+                longTextProps = loaded.GetDynamicData(false).LongTextProperties;
+
+                // ASSERT-2
+                Assert.AreEqual(0, longTextProps.Count);
+
+                // ACTION-3: Load the property value
+                DistributedApplication.Cache.Reset();
+                root = Node.Load<SystemFolder>(root.Id);
+                var lazyLoadedDescription = root.Description; // Loads the property value
+
+                // ASSERT-3
+                Assert.AreEqual(longText, lazyLoadedDescription);
+            });
         }
         [TestMethod]
         public async Task MsSqlDP_LazyLoadedBigTextVsCache()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SenseNet.Common.Storage.Data;
@@ -14,6 +15,7 @@ using SenseNet.Tests.Implementations;
 
 namespace SenseNet.IntegrationTests.Common.Implementations
 {
+    [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     public class SqlTestingDataProvider : ITestingDataProviderExtension
     {
         private DataProvider __mainProvider;
@@ -219,9 +221,40 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
         }
 
 
-        public Task UpdateDynamicPropertyAsync(int versionId, string name, object value)
+        public async Task UpdateDynamicPropertyAsync(int versionId, string name, object value)
         {
-            throw new NotImplementedException();
+            var pt = ActiveSchema.PropertyTypes[name];
+            switch (pt.DataType)
+            {
+                case DataType.Text:
+                    var stringValue = (string) value;
+                    using (var ctx = new SnDataContext(MainProvider))
+                    {
+                        await ctx.ExecuteNonQueryAsync(
+                            "UPDATE LongTextProperties SET Length = @Length, Value = @Value " +
+                            "WHERE VersionId = @VersionId AND PropertyTypeId = @PropertyTypeId",
+                            cmd =>
+                            {
+                                cmd.Parameters.AddRange(new []
+                                {
+                                    ctx.CreateParameter("@VersionId", DbType.Int32, versionId),
+                                    ctx.CreateParameter("@PropertyTypeId", DbType.Int32, pt.Id),
+                                    ctx.CreateParameter("@Length", DbType.Int32, stringValue.Length),
+                                    ctx.CreateParameter("@Value", DbType.String, stringValue.Length, stringValue),
+                                });
+                            });
+                    }
+                    break;
+                case DataType.String:
+                case DataType.Int:
+                case DataType.Currency:
+                case DataType.DateTime:
+                case DataType.Binary:
+                case DataType.Reference:
+                    throw new NotImplementedException();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public Task SetFileStagingAsync(int fileId, bool staging)
