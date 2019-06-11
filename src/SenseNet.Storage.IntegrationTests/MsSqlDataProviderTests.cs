@@ -499,7 +499,47 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_RefreshCacheAfterSave()
         {
-            Assert.Inconclusive();
+            await StorageTest(() =>
+            {
+                DataStore.Enabled = true;
+
+                var root = new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString() };
+
+                // ACTION-1: Create
+                root.Save();
+                var nodeTimestamp1 = root.NodeTimestamp;
+                var versionTimestamp1 = root.VersionTimestamp;
+
+                // ASSERT-1: NodeData is in cache after creation
+                var cacheKey1 = DataStore.GenerateNodeDataVersionIdCacheKey(root.VersionId);
+                var item1 = DistributedApplication.Cache[cacheKey1];
+                Assert.IsNotNull(item1);
+                var cachedNodeData1 = item1 as NodeData;
+                Assert.IsNotNull(cachedNodeData1);
+                Assert.AreEqual(nodeTimestamp1, cachedNodeData1.NodeTimestamp);
+                Assert.AreEqual(versionTimestamp1, cachedNodeData1.VersionTimestamp);
+
+                // ACTION-2: Update
+                root.Index++;
+                root.Save();
+                var nodeTimestamp2 = root.NodeTimestamp;
+                var versionTimestamp2 = root.VersionTimestamp;
+
+                // ASSERT-2: NodeData is refreshed in the cache after update,
+                Assert.AreNotEqual(nodeTimestamp1, nodeTimestamp2);
+                Assert.AreNotEqual(versionTimestamp1, versionTimestamp2);
+                var cacheKey2 = DataStore.GenerateNodeDataVersionIdCacheKey(root.VersionId);
+                if (cacheKey1 != cacheKey2)
+                    Assert.Inconclusive("The test is invalid because the cache keys are not equal.");
+                var item2 = DistributedApplication.Cache[cacheKey2];
+                Assert.IsNotNull(item2);
+                var cachedNodeData2 = item2 as NodeData;
+                Assert.IsNotNull(cachedNodeData2);
+                Assert.AreEqual(nodeTimestamp2, cachedNodeData2.NodeTimestamp);
+                Assert.AreEqual(versionTimestamp2, cachedNodeData2.VersionTimestamp);
+
+                return Task.FromResult(true);
+            });
         }
 
         [TestMethod]
