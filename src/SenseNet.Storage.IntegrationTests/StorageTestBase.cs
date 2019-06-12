@@ -19,6 +19,7 @@ using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.ContentRepository.Storage.Security;
 using SenseNet.Diagnostics;
 using SenseNet.IntegrationTests.Common.Implementations;
+using SenseNet.Search;
 using SenseNet.Security;
 using SenseNet.Security.Data;
 using SenseNet.Tests;
@@ -58,6 +59,9 @@ namespace SenseNet.Storage.IntegrationTests
 
             DataStore.Enabled = true;
 
+            if (isolated)
+                _instance = null;
+
             var brandNew = EnsureDatabase();
 
             DistributedApplication.Cache.Reset();
@@ -68,6 +72,7 @@ namespace SenseNet.Storage.IntegrationTests
             if (isolated || brandNew)
             {
                 _repositoryInstance?.Dispose();
+                _repositoryInstance = null;
 
                 //var portalContextAcc = new PrivateType(typeof(PortalContext));
                 //portalContextAcc.SetStaticField("_sites", new Dictionary<string, Site>());
@@ -145,6 +150,7 @@ using (var op = SnTrace.Test.StartOperation("Install initial data."))
     DataStore.Enabled = backup;
     op.Successful = true;
 }
+            var inMemoryIndex = GetInitialIndex();
 
             dp2.SetExtension(typeof(ISharedLockDataProviderExtension), new SqlSharedLockDataProvider());
             dp2.SetExtension(typeof(IAccessTokenDataProviderExtension), new SqlAccessTokenDataProvider());
@@ -164,7 +170,7 @@ using (var op = SnTrace.Test.StartOperation("Install initial data."))
                     : new InMemoryBlobStorageMetaDataProvider(dataProvider))
                 .UseBlobProviderSelector(new InMemoryBlobProviderSelector())
                 .UseAccessTokenDataProviderExtension(new SqlAccessTokenDataProvider())
-                .UseSearchEngine(new InMemorySearchEngine(new InMemoryIndex()))
+                .UseSearchEngine(new InMemorySearchEngine(inMemoryIndex))
                 .UseSecurityDataProvider(securityDataProvider)
                 .UseTestingDataProviderExtension(DataStore.Enabled
                     ? (ITestingDataProviderExtension)new SqlTestingDataProvider()
@@ -320,6 +326,14 @@ using (var op = SnTrace.Test.StartOperation("Install initial data."))
             return _initialIndex.Clone();
         }
         #endregion
+
+        protected static ContentQuery CreateSafeContentQuery(string qtext)
+        {
+            var cquery = ContentQuery.CreateQuery(qtext, QuerySettings.AdminSettings);
+            var cqueryAcc = new PrivateObject(cquery);
+            cqueryAcc.SetFieldOrProperty("IsSafe", true);
+            return cquery;
+        }
 
         protected void AssertSequenceEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
         {
