@@ -788,7 +788,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_TreeSize_Root()
         {
-            await StorageTest(async () =>
+            await IsolatedStorageTest(async () =>
             {
                 // ACTION
                 var size = await DP.GetTreeSizeAsync("/Root", true);
@@ -1145,7 +1145,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                     // ACTION-1 (type: T1, ref: R1)
                     var result = await DP.QueryNodesByReferenceAndTypeAsync("Ref", ref1.Id, new[] { type1 });
                     // ASSERT-1
-                    ((InMemorySearchEngine)Providers.Instance.SearchEngine).Index.Save("D:\\index-asdf.txt");
+                    //((InMemorySearchEngine)Providers.Instance.SearchEngine).Index.Save("D:\\index-asdf.txt");
                     var expected = CreateSafeContentQuery($"+Type:{contentType1} +Ref:{ref1.Id} .SORT:Id")
                         .Execute().Identifiers.ToArray();
                     Assert.AreEqual(1, expected.Length);
