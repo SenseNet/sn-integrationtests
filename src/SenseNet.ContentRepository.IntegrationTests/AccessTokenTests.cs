@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using Tasks = System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
-using SenseNet.ContentRepository.Schema;
 using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.ContentRepository.Storage.Security;
 
@@ -17,12 +15,15 @@ namespace SenseNet.ContentRepository.IntegrationTests
     public class AccessTokenTests : IntegrationTestBase
     {
         [TestInitialize]
-        public void DeleteAllAccessTokens()
+        public async Tasks.Task InitializeTest()
         {
             // set default implementation directly to avoid repository start
-            DataProvider.Instance.SetExtension(typeof(IAccessTokenDataProviderExtension), new SqlAccessTokenDataProvider());
+            Providers.Instance.DataProvider2 = new MsSqlDataProvider();
+            DataStore.DataProvider.SetExtension(typeof(IAccessTokenDataProviderExtension), new SqlAccessTokenDataProvider());
 
-            AccessTokenVault.DeleteAllAccessTokens();
+            DataStore.Enabled = true;
+
+            await AccessTokenVault.DeleteAllAccessTokensAsync();
         }
 
         [ClassCleanup]
@@ -34,13 +35,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
         /* ====================================================================== */
 
         [TestMethod]
-        public void AccessToken_Create_ForUser()
+        public async Tasks.Task AccessToken_Create_ForUser()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
 
             // ACTION
-            var token = AccessTokenVault.CreateToken(userId, timeout);
+            var token = await AccessTokenVault.CreateTokenAsync(userId, timeout);
 
             // ASSERT
             Assert.IsTrue(token.Id > 0);
@@ -52,40 +53,40 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsTrue((token.ExpirationDate - DateTime.UtcNow - timeout).TotalMilliseconds < 1000);
         }
         [TestMethod]
-        public void AccessToken_Create_ForUser_ValueLength()
+        public async Tasks.Task AccessToken_Create_ForUser_ValueLength()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
 
             // ACTION
-            var token = AccessTokenVault.CreateToken(userId, timeout);
+            var token = await AccessTokenVault.CreateTokenAsync(userId, timeout);
 
             // ASSERT
             Assert.IsTrue(token.Value.Length >= 50);
         }
         [TestMethod]
-        public void AccessToken_Create_ForUser_Twice()
+        public async Tasks.Task AccessToken_Create_ForUser_Twice()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
 
             // ACTION
-            var token1 = AccessTokenVault.CreateToken(userId, timeout);
-            var token2 = AccessTokenVault.CreateToken(userId, timeout);
+            var token1 = await AccessTokenVault.CreateTokenAsync(userId, timeout);
+            var token2 = await AccessTokenVault.CreateTokenAsync(userId, timeout);
 
             // ASSERT
             Assert.AreNotEqual(token1.Id, token2.Id);
             Assert.AreNotEqual(token1.Value, token2.Value);
         }
         [TestMethod]
-        public void AccessToken_Create_ForUserAndContent()
+        public async Tasks.Task AccessToken_Create_ForUserAndContent()
         {
             var userId = 42;
             var contentId = 142;
             var timeout = TimeSpan.FromMinutes(10);
 
             // ACTION
-            var token = AccessTokenVault.CreateToken(userId, timeout, contentId);
+            var token = await AccessTokenVault.CreateTokenAsync(userId, timeout, contentId);
 
             // ASSERT
             Assert.IsTrue(token.Id > 0);
@@ -97,14 +98,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsTrue((token.ExpirationDate - DateTime.UtcNow - timeout).TotalMilliseconds < 1000);
         }
         [TestMethod]
-        public void AccessToken_Create_ForUserAndFeature()
+        public async Tasks.Task AccessToken_Create_ForUserAndFeature()
         {
             var userId = 42;
             var feature = "Feature1";
             var timeout = TimeSpan.FromMinutes(10);
 
             // ACTION
-            var token = AccessTokenVault.CreateToken(userId, timeout, 0, feature);
+            var token = await AccessTokenVault.CreateTokenAsync(userId, timeout, 0, feature);
 
             // ASSERT
             Assert.IsTrue(token.Id > 0);
@@ -116,7 +117,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             Assert.IsTrue((token.ExpirationDate - DateTime.UtcNow - timeout).TotalMilliseconds < 1000);
         }
         [TestMethod]
-        public void AccessToken_Create_ForUserContentAndFeature()
+        public async Tasks.Task AccessToken_Create_ForUserContentAndFeature()
         {
             var userId = 42;
             var contentId = 142;
@@ -124,7 +125,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             var timeout = TimeSpan.FromMinutes(10);
 
             // ACTION
-            var token = AccessTokenVault.CreateToken(userId, timeout, contentId, feature);
+            var token = await AccessTokenVault.CreateTokenAsync(userId, timeout, contentId, feature);
 
             // ASSERT
             Assert.IsTrue(token.Id > 0);
@@ -137,83 +138,83 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
         [TestMethod]
-        public void AccessToken_Get_ForUser()
+        public async Tasks.Task AccessToken_Get_ForUser()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
-            var savedToken = AccessTokenVault.CreateToken(userId, timeout);
+            var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
 
             // ACTION
-            var token = AccessTokenVault.GetToken(savedToken.Value);
+            var token = await AccessTokenVault.GetTokenAsync(savedToken.Value);
 
             // ASSERT
             AssertTokensAreEqual(savedToken, token);
         }
         [TestMethod]
-        public void AccessToken_Get_ForUserAndContent()
+        public async Tasks.Task AccessToken_Get_ForUserAndContent()
         {
             var userId = 42;
             var contentId = 142;
             var timeout = TimeSpan.FromMinutes(10);
-            var savedToken = AccessTokenVault.CreateToken(userId, timeout, contentId);
+            var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout, contentId);
 
             // ACTION
-            var token = AccessTokenVault.GetToken(savedToken.Value, contentId);
+            var token = await AccessTokenVault.GetTokenAsync(savedToken.Value, contentId);
 
             // ASSERT
             AssertTokensAreEqual(savedToken, token);
-            Assert.IsNull(AccessTokenVault.GetToken(savedToken.Value));
+            Assert.IsNull(await AccessTokenVault.GetTokenAsync(savedToken.Value));
         }
         [TestMethod]
-        public void AccessToken_Get_ForUserAndFeature()
+        public async Tasks.Task AccessToken_Get_ForUserAndFeature()
         {
             var userId = 42;
             var feature = "Feature1";
             var timeout = TimeSpan.FromMinutes(10);
-            var savedToken = AccessTokenVault.CreateToken(userId, timeout, 0, feature);
+            var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout, 0, feature);
 
             // ACTION
-            var token = AccessTokenVault.GetToken(savedToken.Value, 0, feature);
+            var token = await AccessTokenVault.GetTokenAsync(savedToken.Value, 0, feature);
 
             // ASSERT
             AssertTokensAreEqual(savedToken, token);
-            Assert.IsNull(AccessTokenVault.GetToken(savedToken.Value));
+            Assert.IsNull(await AccessTokenVault.GetTokenAsync(savedToken.Value));
         }
         [TestMethod]
-        public void AccessToken_Get_ForUserContentAndFeature()
+        public async Tasks.Task AccessToken_Get_ForUserContentAndFeature()
         {
             var userId = 42;
             var contentId = 142;
             var feature = "Feature1";
             var timeout = TimeSpan.FromMinutes(10);
-            var savedToken = AccessTokenVault.CreateToken(userId, timeout, contentId, feature);
+            var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout, contentId, feature);
 
             // ACTION
-            var token = AccessTokenVault.GetToken(savedToken.Value, contentId, feature);
+            var token = await AccessTokenVault.GetTokenAsync(savedToken.Value, contentId, feature);
 
             // ASSERT
             AssertTokensAreEqual(savedToken, token);
-            Assert.IsNull(AccessTokenVault.GetToken(savedToken.Value));
-            Assert.IsNull(AccessTokenVault.GetToken(savedToken.Value, 0, feature));
-            Assert.IsNull(AccessTokenVault.GetToken(savedToken.Value, contentId));
+            Assert.IsNull(await AccessTokenVault.GetTokenAsync(savedToken.Value));
+            Assert.IsNull(await AccessTokenVault.GetTokenAsync(savedToken.Value, 0, feature));
+            Assert.IsNull(await AccessTokenVault.GetTokenAsync(savedToken.Value, contentId));
         }
         [TestMethod]
-        public void AccessToken_Get_Expired()
+        public async Tasks.Task AccessToken_Get_Expired()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMilliseconds(1);
-            var savedToken = AccessTokenVault.CreateToken(userId, timeout);
+            var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
 
             // ACTION
             Thread.Sleep(10);
-            var token = AccessTokenVault.GetToken(savedToken.Value);
+            var token = await AccessTokenVault.GetTokenAsync(savedToken.Value);
 
             // ASSERT
             Assert.IsNull(token);
         }
 
         [TestMethod]
-        public void AccessToken_GetByUser()
+        public async Tasks.Task AccessToken_GetByUser()
         {
             var userId = 42;
             var contentId = 142;
@@ -222,18 +223,18 @@ namespace SenseNet.ContentRepository.IntegrationTests
             var shortTimeout = TimeSpan.FromSeconds(1);
             var savedTokens = new[]
             {
-                AccessTokenVault.CreateToken(userId, timeout),
-                AccessTokenVault.CreateToken(userId, timeout, contentId),
-                AccessTokenVault.CreateToken(userId, timeout, 0, feature),
-                AccessTokenVault.CreateToken(userId, timeout, contentId, feature),
-                AccessTokenVault.CreateToken(userId, shortTimeout),
-                AccessTokenVault.CreateToken(userId, shortTimeout, contentId),
-                AccessTokenVault.CreateToken(userId, shortTimeout, 0, feature),
-                AccessTokenVault.CreateToken(userId, shortTimeout, contentId, feature),
+                await AccessTokenVault.CreateTokenAsync(userId, timeout),
+                await AccessTokenVault.CreateTokenAsync(userId, timeout, contentId),
+                await AccessTokenVault.CreateTokenAsync(userId, timeout, 0, feature),
+                await AccessTokenVault.CreateTokenAsync(userId, timeout, contentId, feature),
+                await AccessTokenVault.CreateTokenAsync(userId, shortTimeout),
+                await AccessTokenVault.CreateTokenAsync(userId, shortTimeout, contentId),
+                await AccessTokenVault.CreateTokenAsync(userId, shortTimeout, 0, feature),
+                await AccessTokenVault.CreateTokenAsync(userId, shortTimeout, contentId, feature),
             };
 
             // ACTION-1
-            var tokens = AccessTokenVault.GetAllTokens(userId);
+            var tokens = await AccessTokenVault.GetAllTokensAsync(userId);
 
             // ASSERT-1
             Assert.AreEqual(
@@ -242,7 +243,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
             // ACTION-2
             Thread.Sleep(1100);
-            tokens = AccessTokenVault.GetAllTokens(userId);
+            tokens = await AccessTokenVault.GetAllTokensAsync(userId);
 
             // ASSERT-2
             // The last 4 tokens are expired
@@ -252,48 +253,48 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
         [TestMethod]
-        public void AccessToken_Exists()
+        public async Tasks.Task AccessToken_Exists()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
-            var savedToken = AccessTokenVault.CreateToken(userId, timeout);
+            var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
 
             // ACTION
-            var isExists = AccessTokenVault.TokenExists(savedToken.Value);
+            var isExists = await AccessTokenVault.TokenExistsAsync(savedToken.Value);
 
             // ASSERT
             Assert.IsTrue(isExists);
         }
         [TestMethod]
-        public void AccessToken_Exists_Missing()
+        public async Tasks.Task AccessToken_Exists_Missing()
         {
             // ACTION
-            var isExists = AccessTokenVault.TokenExists("asdf");
+            var isExists = await AccessTokenVault.TokenExistsAsync("asdf");
 
             // ASSERT
             Assert.IsFalse(isExists);
         }
         [TestMethod]
-        public void AccessToken_Exists_Expired()
+        public async Tasks.Task AccessToken_Exists_Expired()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMilliseconds(1);
-            var savedToken = AccessTokenVault.CreateToken(userId, timeout);
+            var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
 
             // ACTION
             Thread.Sleep(1100);
-            var isExists = AccessTokenVault.TokenExists(savedToken.Value);
+            var isExists = await AccessTokenVault.TokenExistsAsync(savedToken.Value);
 
             // ASSERT
             Assert.IsFalse(isExists);
         }
 
         [TestMethod]
-        public void AccessToken_AssertExists()
+        public async Tasks.Task AccessToken_AssertExists()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10);
-            var savedToken = AccessTokenVault.CreateToken(userId, timeout);
+            var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
 
             // ACTION
             AccessTokenVault.AssertTokenExists(savedToken.Value);
@@ -302,60 +303,60 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
         [TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
-        public void AccessToken_AssertExists_Missing()
+        public async Tasks.Task AccessToken_AssertExists_Missing()
         {
-            AccessTokenVault.AssertTokenExists("asdf");
+            await AccessTokenVault.AssertTokenExistsAsync("asdf");
         }
         [TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
-        public void AccessToken_AssertExists_Expired()
+        public async Tasks.Task AccessToken_AssertExists_Expired()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMilliseconds(1);
-            var savedToken = AccessTokenVault.CreateToken(userId, timeout);
+            var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
 
             // ACTION
             Thread.Sleep(1100);
-            AccessTokenVault.AssertTokenExists(savedToken.Value);
+            await AccessTokenVault.AssertTokenExistsAsync(savedToken.Value);
         }
 
         [TestMethod]
-        public void AccessToken_Update()
+        public async Tasks.Task AccessToken_Update()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMinutes(10.0d);
-            var savedToken = AccessTokenVault.CreateToken(userId, timeout);
+            var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
             Assert.IsTrue(savedToken.ExpirationDate < DateTime.UtcNow.AddMinutes(20.0d));
 
             // ACTION
-            AccessTokenVault.UpdateToken(savedToken.Value, DateTime.UtcNow.AddMinutes(30.0d));
+            await AccessTokenVault.UpdateTokenAsync(savedToken.Value, DateTime.UtcNow.AddMinutes(30.0d));
 
             // ASSERT
-            var loadedToken = AccessTokenVault.GetToken(savedToken.Value);
+            var loadedToken = await AccessTokenVault.GetTokenAsync(savedToken.Value);
             Assert.IsNotNull(loadedToken);
             Assert.IsTrue(loadedToken.ExpirationDate > DateTime.UtcNow.AddMinutes(20.0d));
         }
         [TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
-        public void AccessToken_UpdateMissing()
+        public async Tasks.Task AccessToken_UpdateMissing()
         {
-            AccessTokenVault.UpdateToken("asdf", DateTime.UtcNow.AddMinutes(30.0d));
+            await AccessTokenVault.UpdateTokenAsync("asdf", DateTime.UtcNow.AddMinutes(30.0d));
         }
         [TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
-        public void AccessToken_UpdateExpired()
+        public async Tasks.Task AccessToken_UpdateExpired()
         {
             var userId = 42;
             var timeout = TimeSpan.FromMilliseconds(1);
-            var savedToken = AccessTokenVault.CreateToken(userId, timeout);
+            var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
 
             // ACTION
             Thread.Sleep(1100);
-            AccessTokenVault.UpdateToken(savedToken.Value, DateTime.UtcNow.AddMinutes(30.0d));
+            await AccessTokenVault.UpdateTokenAsync(savedToken.Value, DateTime.UtcNow.AddMinutes(30.0d));
         }
 
         [TestMethod]
-        public void AccessToken_Delete_Token()
+        public async Tasks.Task AccessToken_Delete_Token()
         {
             var userId1 = 42;
             var userId2 = 43;
@@ -363,25 +364,25 @@ namespace SenseNet.ContentRepository.IntegrationTests
             var shortTimeout = TimeSpan.FromSeconds(1);
             var savedTokens = new[]
             {
-                AccessTokenVault.CreateToken(userId1, timeout),
-                AccessTokenVault.CreateToken(userId1, shortTimeout),
-                AccessTokenVault.CreateToken(userId2, timeout),
-                AccessTokenVault.CreateToken(userId2, shortTimeout),
+                await AccessTokenVault.CreateTokenAsync(userId1, timeout),
+                await AccessTokenVault.CreateTokenAsync(userId1, shortTimeout),
+                await AccessTokenVault.CreateTokenAsync(userId2, timeout),
+                await AccessTokenVault.CreateTokenAsync(userId2, shortTimeout),
             };
 
             // ACTION
             Thread.Sleep(1100);
-            AccessTokenVault.DeleteToken(savedTokens[0].Value);
-            AccessTokenVault.DeleteToken(savedTokens[3].Value);
+            await AccessTokenVault.DeleteTokenAsync(savedTokens[0].Value);
+            await AccessTokenVault.DeleteTokenAsync(savedTokens[3].Value);
 
             // ASSERT
-            Assert.IsNull(AccessTokenVault.GetTokenById(savedTokens[0].Id));
-            Assert.IsNotNull(AccessTokenVault.GetTokenById(savedTokens[1].Id));
-            Assert.IsNotNull(AccessTokenVault.GetTokenById(savedTokens[2].Id));
-            Assert.IsNull(AccessTokenVault.GetTokenById(savedTokens[3].Id));
+            Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[0].Id));
+            Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[1].Id));
+            Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[2].Id));
+            Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[3].Id));
         }
         [TestMethod]
-        public void AccessToken_Delete_ByUser()
+        public async Tasks.Task AccessToken_Delete_ByUser()
         {
             var userId1 = 42;
             var userId2 = 43;
@@ -389,24 +390,24 @@ namespace SenseNet.ContentRepository.IntegrationTests
             var shortTimeout = TimeSpan.FromSeconds(1);
             var savedTokens = new[]
             {
-                AccessTokenVault.CreateToken(userId1, timeout),
-                AccessTokenVault.CreateToken(userId1, shortTimeout),
-                AccessTokenVault.CreateToken(userId2, timeout),
-                AccessTokenVault.CreateToken(userId2, shortTimeout),
+                await AccessTokenVault.CreateTokenAsync(userId1, timeout),
+                await AccessTokenVault.CreateTokenAsync(userId1, shortTimeout),
+                await AccessTokenVault.CreateTokenAsync(userId2, timeout),
+                await AccessTokenVault.CreateTokenAsync(userId2, shortTimeout),
             };
 
             // ACTION
             Thread.Sleep(1100);
-            AccessTokenVault.DeleteTokensByUser(userId1);
+            await AccessTokenVault.DeleteTokensByUserAsync(userId1);
 
             // ASSERT
-            Assert.IsNull(AccessTokenVault.GetTokenById(savedTokens[0].Id));
-            Assert.IsNull(AccessTokenVault.GetTokenById(savedTokens[1].Id));
-            Assert.IsNotNull(AccessTokenVault.GetTokenById(savedTokens[2].Id));
-            Assert.IsNotNull(AccessTokenVault.GetTokenById(savedTokens[3].Id));
+            Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[0].Id));
+            Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[1].Id));
+            Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[2].Id));
+            Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[3].Id));
         }
         [TestMethod]
-        public void AccessToken_Delete_ByContent()
+        public async Tasks.Task AccessToken_Delete_ByContent()
         {
             var userId1 = 42;
             var userId2 = 43;
@@ -416,21 +417,21 @@ namespace SenseNet.ContentRepository.IntegrationTests
             var shortTimeout = TimeSpan.FromSeconds(1);
             var savedTokens = new[]
             {
-                AccessTokenVault.CreateToken(userId1, timeout, contentId1),
-                AccessTokenVault.CreateToken(userId1, shortTimeout, contentId2),
-                AccessTokenVault.CreateToken(userId2, timeout, contentId1),
-                AccessTokenVault.CreateToken(userId2, shortTimeout, contentId2),
+                await AccessTokenVault.CreateTokenAsync(userId1, timeout, contentId1),
+                await AccessTokenVault.CreateTokenAsync(userId1, shortTimeout, contentId2),
+                await AccessTokenVault.CreateTokenAsync(userId2, timeout, contentId1),
+                await AccessTokenVault.CreateTokenAsync(userId2, shortTimeout, contentId2),
             };
 
             // ACTION
             Thread.Sleep(1100);
-            AccessTokenVault.DeleteTokensByContent(contentId1);
+            await AccessTokenVault.DeleteTokensByContentAsync(contentId1);
 
             // ASSERT
-            Assert.IsNull(AccessTokenVault.GetTokenById(savedTokens[0].Id));
-            Assert.IsNotNull(AccessTokenVault.GetTokenById(savedTokens[1].Id));
-            Assert.IsNull(AccessTokenVault.GetTokenById(savedTokens[2].Id));
-            Assert.IsNotNull(AccessTokenVault.GetTokenById(savedTokens[3].Id));
+            Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[0].Id));
+            Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[1].Id));
+            Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[2].Id));
+            Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[3].Id));
         }
 
         /* ===================================================================================== */
