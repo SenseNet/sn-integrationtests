@@ -327,9 +327,9 @@ using (var op = SnTrace.Test.StartOperation("Install initial data."))
         }
         #endregion
 
-        protected static ContentQuery CreateSafeContentQuery(string qtext)
+        protected static ContentQuery CreateSafeContentQuery(string qtext, QuerySettings settings = null)
         {
-            var cquery = ContentQuery.CreateQuery(qtext, QuerySettings.AdminSettings);
+            var cquery = ContentQuery.CreateQuery(qtext, settings ?? QuerySettings.AdminSettings);
             var cqueryAcc = new PrivateObject(cquery);
             cqueryAcc.SetFieldOrProperty("IsSafe", true);
             return cquery;

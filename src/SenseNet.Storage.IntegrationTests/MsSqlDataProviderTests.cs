@@ -20,7 +20,7 @@ using Task = System.Threading.Tasks.Task;
 namespace SenseNet.Storage.IntegrationTests
 {
     [TestClass]
-    public class MsSqlDataProviderTests : StorageTestBase
+    public partial class MsSqlDataProviderTests : StorageTestBase
     {
         // ReSharper disable once InconsistentNaming
         private static MsSqlDataProvider DP => (MsSqlDataProvider)DataStore.DataProvider;
