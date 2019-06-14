@@ -812,7 +812,22 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_NameSuffix()
         {
-            Assert.Inconclusive();
+            await StorageTest(() =>
+            {
+                DataStore.Enabled = true;
+
+                // Create a small subtree
+                var root = new SystemFolder(Repository.Root) { Name = "TestRoot" }; root.Save();
+                var f1 = new SystemFolder(root) { Name = "folder(42)" }; f1.Save();
+
+                // ACTION
+                var newName = ContentNamingProvider.IncrementNameSuffixToLastName("folder(11)", f1.ParentId);
+
+                // ASSERT
+                Assert.AreEqual("folder(43)", newName);
+
+                return Task.CompletedTask;
+            });
         }
 
         [TestMethod]
