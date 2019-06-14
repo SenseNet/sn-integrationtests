@@ -655,7 +655,37 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_ContentListTypesInTree()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                // ALIGN-1
+                DataStore.Enabled = true;
+                ActiveSchema.Reset();
+                var contentLlistTypeCountBefore = ActiveSchema.ContentListTypes.Count;
+                var root = CreateTestRoot();
+                root.Save();
+
+                // ACTION-1
+                var result1 = await DP.GetContentListTypesInTreeAsync(root.Path);
+
+                // ASSERT-1
+                Assert.IsNotNull(result1);
+                Assert.AreEqual(0, result1.Count);
+                Assert.AreEqual(contentLlistTypeCountBefore, ActiveSchema.ContentListTypes.Count);
+
+                // ALIGN-2
+                // Creation
+                var node = new ContentList(root) { Name = "Survey-1" };
+                node.Save();
+
+                // ACTION-2
+                var result2 = await DP.GetContentListTypesInTreeAsync(root.Path);
+
+                // ASSERT
+                Assert.AreEqual(contentLlistTypeCountBefore + 1, ActiveSchema.ContentListTypes.Count);
+                Assert.IsNotNull(result2);
+                Assert.AreEqual(1, result2.Count);
+                Assert.AreEqual(ActiveSchema.ContentListTypes.Last().Id, result2[0].Id);
+            });
         }
 
         [TestMethod]
@@ -782,13 +812,28 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_NameSuffix()
         {
-            Assert.Inconclusive();
+            await StorageTest(() =>
+            {
+                DataStore.Enabled = true;
+
+                // Create a small subtree
+                var root = new SystemFolder(Repository.Root) { Name = "TestRoot" }; root.Save();
+                var f1 = new SystemFolder(root) { Name = "folder(42)" }; f1.Save();
+
+                // ACTION
+                var newName = ContentNamingProvider.IncrementNameSuffixToLastName("folder(11)", f1.ParentId);
+
+                // ASSERT
+                Assert.AreEqual("folder(43)", newName);
+
+                return Task.CompletedTask;
+            });
         }
 
         [TestMethod]
         public async Task MsSqlDP_TreeSize_Root()
         {
-            await StorageTest(async () =>
+            await IsolatedStorageTest(async () =>
             {
                 // ACTION
                 var size = await DP.GetTreeSizeAsync("/Root", true);
@@ -1145,7 +1190,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                     // ACTION-1 (type: T1, ref: R1)
                     var result = await DP.QueryNodesByReferenceAndTypeAsync("Ref", ref1.Id, new[] { type1 });
                     // ASSERT-1
-                    ((InMemorySearchEngine)Providers.Instance.SearchEngine).Index.Save("D:\\index-asdf.txt");
+                    //((InMemorySearchEngine)Providers.Instance.SearchEngine).Index.Save("D:\\index-asdf.txt");
                     var expected = CreateSafeContentQuery($"+Type:{contentType1} +Ref:{ref1.Id} .SORT:Id")
                         .Execute().Identifiers.ToArray();
                     Assert.AreEqual(1, expected.Length);

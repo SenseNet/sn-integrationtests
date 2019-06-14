@@ -175,6 +175,8 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             {
                 case DataType.Binary:
                     return await GetBinaryPropertyValueAsync(versionId, propertyType);
+                case DataType.Reference:
+                    return await GetReferencePropertyValueAsync(versionId, propertyType);
                 case DataType.Text:
                     return await GetLongTextValueAsync(versionId, propertyType);
                 default:
@@ -184,6 +186,30 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
         private Task<object> GetBinaryPropertyValueAsync(int versionId, PropertyType propertyType)
         {
             throw new NotImplementedException();
+        }
+        private async Task<object> GetReferencePropertyValueAsync(int versionId, PropertyType propertyType)
+        {
+            using (var ctx = new SnDataContext(MainProvider))
+            {
+                return await ctx.ExecuteReaderAsync(
+                    "SELECT ReferredNodeId FROM ReferenceProperties " +
+                    "WHERE VersionId = @VersionId AND PropertyTypeId = @PropertyTypeId",
+                    cmd =>
+                    {
+                        cmd.Parameters.AddRange(new[]
+                        {
+                            ctx.CreateParameter("@VersionId", DbType.Int32, versionId),
+                            ctx.CreateParameter("@PropertyTypeId", DbType.Int32, propertyType.Id),
+                        });
+                    },
+                    async reader =>
+                    {
+                        var result = new List<int>();
+                        while (await reader.ReadAsync())
+                            result.Add(reader.GetSafeInt32(0));
+                        return result.Count == 0 ? null : result.ToArray();
+                    });
+            }
         }
         private async Task<object> GetLongTextValueAsync(int versionId, PropertyType propertyType)
         {
