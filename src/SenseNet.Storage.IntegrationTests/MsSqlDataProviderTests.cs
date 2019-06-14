@@ -11,6 +11,7 @@ using SenseNet.ContentRepository.Search.Querying;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
+using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.ContentRepository.Versioning;
 using SenseNet.Search.Querying;
@@ -1243,7 +1244,21 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         [TestMethod]
         public async Task MsSqlDP_LoadEntityTree()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                // ACTION
+                var treeData = await DataStore.LoadEntityTreeAsync();
+
+                // ASSERT check the right ordering: every node follows it's parent node.
+                var tree = new Dictionary<int, EntityTreeNodeData>();
+                foreach (var node in treeData)
+                {
+                    if (node.ParentId != 0)
+                        if (!tree.ContainsKey(node.ParentId))
+                            Assert.Fail($"The parent is not yet loaded. Id: {node.Id}, ParentId: {node.ParentId}");
+                    tree.Add(node.Id, node);
+                }
+            });
         }
 
         /* ================================================================================================== TreeLock */
