@@ -13,6 +13,7 @@ using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.ContentRepository.Versioning;
+using SenseNet.Search.Querying;
 using SenseNet.Tests.Implementations;
 using SenseNet.Tests.Implementations2;
 using Task = System.Threading.Tasks.Task;
@@ -806,7 +807,30 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_NodeEnumerator()
         {
-            Assert.Inconclusive();
+            await StorageTest(() =>
+            {
+                DataStore.Enabled = true;
+
+                // Create a small subtree
+                var root = CreateTestRoot(); root.Save();
+                var f1 = new SystemFolder(root) { Name = "F1" }; f1.Save();
+                var f2 = new SystemFolder(root) { Name = "F2" }; f2.Save();
+                var f3 = new SystemFolder(f1) { Name = "F3" }; f3.Save();
+                var f4 = new SystemFolder(f1) { Name = "F4" }; f4.Save();
+                var f5 = new SystemFolder(f3) { Name = "F5" }; f5.Save();
+                var f6 = new SystemFolder(f3) { Name = "F6" }; f6.Save();
+
+                // ACTION
+                // Use ExecutionHint.ForceRelationalEngine for a valid dataprovider test case.
+                var result = NodeEnumerator.GetNodes(root.Path, ExecutionHint.ForceRelationalEngine);
+
+                // ASSERT
+                var names = string.Join(", ", result.Select(n => n.Name));
+                // preorder tree-walking
+                Assert.AreEqual(root.Name + ", F1, F3, F5, F6, F4, F2", names);
+                
+                return Task.CompletedTask;
+            });
         }
 
         [TestMethod]
