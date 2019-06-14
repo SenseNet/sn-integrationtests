@@ -129,7 +129,6 @@ namespace SenseNet.Storage.IntegrationTests
                 DataStore.Enabled = true;
 
                 var root = CreateTestRoot();
-                root.Save();
                 var created = new File(root) { Name = "File1", VersioningMode = VersioningType.MajorAndMinor };
                 created.Binary.SetStream(RepositoryTools.GetStreamFromString("File1 Content"));
                 created.Save();
@@ -183,7 +182,6 @@ namespace SenseNet.Storage.IntegrationTests
                 DataStore.Enabled = true;
 
                 var root = CreateTestRoot();
-                root.Save();
                 var created = new File(root) { Name = "File1" };
                 created.Binary.SetStream(RepositoryTools.GetStreamFromString("File1 Content"));
                 created.Save();
@@ -243,7 +241,6 @@ namespace SenseNet.Storage.IntegrationTests
 
                 // Create a file under the test root
                 var root = CreateTestRoot();
-                root.Save();
                 var created = new File(root) { Name = "File1" };
                 created.Binary.SetStream(RepositoryTools.GetStreamFromString("File1 Content"));
                 created.Save();
@@ -401,7 +398,7 @@ namespace SenseNet.Storage.IntegrationTests
                 DataStore.Enabled = true;
 
                 // Create a small subtree
-                var root = CreateTestRoot(); root.Save();
+                var root = CreateTestRoot();
                 var f1 = new SystemFolder(root) {Name = "F1"}; f1.Save();
                 var f2 = new SystemFolder(root) {Name = "F2"}; f2.Save();
                 var f3 = new SystemFolder(f1) {Name = "F3"}; f3.Save();
@@ -468,7 +465,7 @@ namespace SenseNet.Storage.IntegrationTests
                 DataStore.Enabled = true;
 
                 // Create a small subtree
-                var root = CreateTestRoot(); root.Save();
+                var root = CreateTestRoot();
                 var rootPath = root.Path;
                 var source = new SystemFolder(root) { Name = "Source" }; source.Save();
                 var target = new SystemFolder(root) { Name = "Target" }; target.Save();
@@ -664,7 +661,6 @@ namespace SenseNet.Storage.IntegrationTests
                 ActiveSchema.Reset();
                 var contentLlistTypeCountBefore = ActiveSchema.ContentListTypes.Count;
                 var root = CreateTestRoot();
-                root.Save();
 
                 // ACTION-1
                 var result1 = await DP.GetContentListTypesInTreeAsync(root.Path);
@@ -701,7 +697,6 @@ namespace SenseNet.Storage.IntegrationTests
 
                 // Create a small subtree
                 var root = CreateTestRoot();
-                root.Save();
                 var f1 = new SystemFolder(root) { Name = "F1" };
                 f1.Save();
                 var f2 = new File(root) { Name = "F2" };
@@ -850,7 +845,7 @@ namespace SenseNet.Storage.IntegrationTests
                 DataStore.Enabled = true;
 
                 // Create a small subtree
-                var root = CreateTestRoot(); root.Save();
+                var root = CreateTestRoot();
                 var f1 = new SystemFolder(root) { Name = "F1" }; f1.Save();
                 var f2 = new SystemFolder(root) { Name = "F2" }; f2.Save();
                 var f3 = new SystemFolder(f1) { Name = "F3" }; f3.Save();
