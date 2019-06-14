@@ -1445,7 +1445,28 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         [TestMethod]
         public async Task MsSqlDP_Error_InsertNode_AlreadyExists()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+                var newNode = CreateTestRoot();
+                try
+                {
+                    var node = new SystemFolder(Repository.Root) { Name = newNode.Name };
+                    var nodeData = node.Data;
+                    nodeData.Path = RepositoryPath.Combine(node.ParentPath, node.Name);
+                    var nodeHeadData = nodeData.GetNodeHeadData();
+                    var versionData = nodeData.GetVersionData();
+                    var dynamicData = nodeData.GetDynamicData(false);
+
+                    // ACTION
+                    await DP.InsertNodeAsync(nodeHeadData, versionData, dynamicData);
+                    Assert.Fail("NodeAlreadyExistsException was not thrown.");
+                }
+                catch (NodeAlreadyExistsException)
+                {
+                    // ignored
+                }
+            });
         }
 
         [TestMethod]
