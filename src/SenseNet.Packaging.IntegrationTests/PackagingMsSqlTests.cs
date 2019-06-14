@@ -11,9 +11,12 @@ using SenseNet.Packaging.Steps;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using SenseNet.Common.Storage.Data;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.Packaging.IntegrationTests.Implementations;
 using SenseNet.Tests;
+using Task = System.Threading.Tasks.Task;
 
 namespace SenseNet.Packaging.IntegrationTests
 {
@@ -62,7 +65,7 @@ CREATE TABLE [dbo].[Packages](
             InstallPackagesTable();
         }
         [TestInitialize]
-        public void InitializePackagingTest()
+        public async Task InitializePackagingTest()
         {
             // preparing logger
             _log = new StringBuilder();
@@ -70,18 +73,22 @@ CREATE TABLE [dbo].[Packages](
             var loggerAcc = new PrivateType(typeof(Logger));
             loggerAcc.SetStaticField("_loggers", loggers);
 
+            // set default implementation directly
+            var sqlDb =  new MsSqlDataProvider();
+            Providers.Instance.DataProvider2 = sqlDb;
+
             // build database
             var builder = new RepositoryBuilder();
             builder.UsePackagingDataProviderExtension(new SqlPackagingDataProvider());
 
             // preparing database
             ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
-            var proc = DataProvider.Instance.CreateDataProcedure("DELETE FROM [Packages]");
-            proc.CommandType = CommandType.Text;
-            proc.ExecuteNonQuery();
-            proc = DataProvider.Instance.CreateDataProcedure("DBCC CHECKIDENT ('[Packages]', RESEED, 1)");
-            proc.CommandType = CommandType.Text;
-            proc.ExecuteNonQuery();
+            
+            using (var ctx = new SnDataContext(sqlDb))
+            {
+                await ctx.ExecuteNonQueryAsync("DELETE FROM [Packages]");
+                await ctx.ExecuteNonQueryAsync("DBCC CHECKIDENT ('[Packages]', RESEED, 1)");
+            }
 
             RepositoryVersionInfo.Reset();
         }
@@ -801,9 +808,9 @@ CREATE TABLE [dbo].[Packages](
             Assert.AreEqual(0, packages.Length);
         }
         [TestMethod]
-        public void Packaging_SQL_VersionInfo_OnlyUnfinished()
+        public async Task Packaging_SQL_VersionInfo_OnlyUnfinished()
         {
-            SavePackage("C1", "1.0", "01:00", "2016-01-01", PackageType.Install, ExecutionResult.Unfinished);
+            await SavePackage("C1", "1.0", "01:00", "2016-01-01", PackageType.Install, ExecutionResult.Unfinished);
 
             // action
             var verInfo = RepositoryVersionInfo.Instance;
@@ -815,9 +822,9 @@ CREATE TABLE [dbo].[Packages](
             Assert.AreEqual(1, packages.Length);
         }
         [TestMethod]
-        public void Packaging_SQL_VersionInfo_OnlyFaulty()
+        public async Task Packaging_SQL_VersionInfo_OnlyFaulty()
         {
-            SavePackage("C1", "1.0", "01:00", "2016-01-01", PackageType.Install, ExecutionResult.Faulty);
+            await SavePackage("C1", "1.0", "01:00", "2016-01-01", PackageType.Install, ExecutionResult.Faulty);
 
             // action
             var verInfo = RepositoryVersionInfo.Instance;
@@ -829,17 +836,17 @@ CREATE TABLE [dbo].[Packages](
             Assert.AreEqual(1, packages.Length);
         }
         [TestMethod]
-        public void Packaging_SQL_VersionInfo_Complex()
+        public async Task Packaging_SQL_VersionInfo_Complex()
         {
-            SavePackage("C1", "1.0", "01:00", "2016-01-01", PackageType.Install, ExecutionResult.Successful);
-            SavePackage("C2", "1.0", "02:00", "2016-01-02", PackageType.Install, ExecutionResult.Successful);
-            SavePackage("C1", "1.1", "03:00", "2016-01-03", PackageType.Patch, ExecutionResult.Faulty);
-            SavePackage("C1", "1.1", "04:00", "2016-01-03", PackageType.Patch, ExecutionResult.Faulty);
-            SavePackage("C1", "1.2", "05:00", "2016-01-06", PackageType.Patch, ExecutionResult.Successful);
-            SavePackage("C2", "1.1", "06:00", "2016-01-07", PackageType.Patch, ExecutionResult.Unfinished);
-            SavePackage("C2", "1.2", "07:00", "2016-01-08", PackageType.Patch, ExecutionResult.Unfinished);
-            SavePackage("C3", "1.0", "08:00", "2016-01-09", PackageType.Install, ExecutionResult.Faulty);
-            SavePackage("C3", "2.0", "08:00", "2016-01-09", PackageType.Install, ExecutionResult.Faulty);
+            await SavePackage("C1", "1.0", "01:00", "2016-01-01", PackageType.Install, ExecutionResult.Successful);
+            await SavePackage("C2", "1.0", "02:00", "2016-01-02", PackageType.Install, ExecutionResult.Successful);
+            await SavePackage("C1", "1.1", "03:00", "2016-01-03", PackageType.Patch, ExecutionResult.Faulty);
+            await SavePackage("C1", "1.1", "04:00", "2016-01-03", PackageType.Patch, ExecutionResult.Faulty);
+            await SavePackage("C1", "1.2", "05:00", "2016-01-06", PackageType.Patch, ExecutionResult.Successful);
+            await SavePackage("C2", "1.1", "06:00", "2016-01-07", PackageType.Patch, ExecutionResult.Unfinished);
+            await SavePackage("C2", "1.2", "07:00", "2016-01-08", PackageType.Patch, ExecutionResult.Unfinished);
+            await SavePackage("C3", "1.0", "08:00", "2016-01-09", PackageType.Install, ExecutionResult.Faulty);
+            await SavePackage("C3", "2.0", "08:00", "2016-01-09", PackageType.Install, ExecutionResult.Faulty);
 
             // action
             var verInfo = RepositoryVersionInfo.Instance;
@@ -856,15 +863,15 @@ CREATE TABLE [dbo].[Packages](
         }
 
         [TestMethod]
-        public void Packaging_SQL_VersionInfo_MultipleInstall()
+        public async Task Packaging_SQL_VersionInfo_MultipleInstall()
         {
             const string packageId = "C1";
-            SavePackage(packageId, "1.0", "01:00", "2016-01-01", PackageType.Install, ExecutionResult.Successful);
-            SavePackage(packageId, "1.0", "02:00", "2016-01-02", PackageType.Install, ExecutionResult.Successful);
-            SavePackage(packageId, "1.1", "03:00", "2016-01-03", PackageType.Install, ExecutionResult.Faulty);
-            SavePackage(packageId, "1.2", "04:00", "2016-01-04", PackageType.Install, ExecutionResult.Faulty);
-            SavePackage("C2", "1.0", "05:00", "2016-01-05", PackageType.Install, ExecutionResult.Successful);
-            SavePackage(packageId, "1.0", "06:00", "2016-01-06", PackageType.Install, ExecutionResult.Successful);
+            await SavePackage(packageId, "1.0", "01:00", "2016-01-01", PackageType.Install, ExecutionResult.Successful);
+            await SavePackage(packageId, "1.0", "02:00", "2016-01-02", PackageType.Install, ExecutionResult.Successful);
+            await SavePackage(packageId, "1.1", "03:00", "2016-01-03", PackageType.Install, ExecutionResult.Faulty);
+            await SavePackage(packageId, "1.2", "04:00", "2016-01-04", PackageType.Install, ExecutionResult.Faulty);
+            await SavePackage("C2", "1.0", "05:00", "2016-01-05", PackageType.Install, ExecutionResult.Successful);
+            await SavePackage(packageId, "1.0", "06:00", "2016-01-06", PackageType.Install, ExecutionResult.Successful);
 
             var verInfo = RepositoryVersionInfo.Instance;
 
@@ -883,7 +890,7 @@ CREATE TABLE [dbo].[Packages](
         // ========================================= Storing manifest
 
         [TestMethod]
-        public void Packaging_SQL_Manifest_StoredButNotLoaded()
+        public async Task Packaging_SQL_Manifest_StoredButNotLoaded()
         {
             // prepare xml source
             var manifest = @"<?xml version='1.0' encoding='utf-8'?>
@@ -910,7 +917,7 @@ CREATE TABLE [dbo].[Packages](
             Assert.IsNull(package?.Manifest);
 
             // load manifest explicitly
-            PackageManager.Storage.LoadManifest(package);
+            await PackageManager.Storage.LoadManifestAsync(package);
             var actual = package?.Manifest;
             Assert.AreEqual(expected, actual);
         }
@@ -918,25 +925,26 @@ CREATE TABLE [dbo].[Packages](
         // ========================================= Package deletion
 
         [TestMethod]
-        public void Packaging_SQL_DeleteOne()
+        public async Task Packaging_SQL_DeleteOne()
         {
-            SavePackage("C1", "1.0", "00:00", "2016-01-01", PackageType.Install, ExecutionResult.Unfinished);
-            SavePackage("C1", "1.0", "01:00", "2016-01-01", PackageType.Install, ExecutionResult.Faulty);
-            SavePackage("C1", "1.0", "02:00", "2016-01-01", PackageType.Install, ExecutionResult.Successful);
-            SavePackage("C1", "1.1", "03:00", "2016-01-03", PackageType.Patch, ExecutionResult.Faulty);
-            SavePackage("C1", "1.1", "04:00", "2016-01-03", PackageType.Patch, ExecutionResult.Faulty);
-            SavePackage("C1", "1.1", "05:00", "2016-01-06", PackageType.Patch, ExecutionResult.Successful);
-            SavePackage("C1", "1.2", "06:00", "2016-01-07", PackageType.Patch, ExecutionResult.Unfinished);
-            SavePackage("C1", "1.2", "07:00", "2016-01-08", PackageType.Patch, ExecutionResult.Unfinished);
-            SavePackage("C1", "1.2", "08:00", "2016-01-09", PackageType.Patch, ExecutionResult.Faulty);
-            SavePackage("C1", "1.2", "09:00", "2016-01-09", PackageType.Patch, ExecutionResult.Faulty);
-            SavePackage("C1", "1.2", "10:00", "2016-01-09", PackageType.Patch, ExecutionResult.Successful);
+            await SavePackage("C1", "1.0", "00:00", "2016-01-01", PackageType.Install, ExecutionResult.Unfinished);
+            await SavePackage("C1", "1.0", "01:00", "2016-01-01", PackageType.Install, ExecutionResult.Faulty);
+            await SavePackage("C1", "1.0", "02:00", "2016-01-01", PackageType.Install, ExecutionResult.Successful);
+            await SavePackage("C1", "1.1", "03:00", "2016-01-03", PackageType.Patch, ExecutionResult.Faulty);
+            await SavePackage("C1", "1.1", "04:00", "2016-01-03", PackageType.Patch, ExecutionResult.Faulty);
+            await SavePackage("C1", "1.1", "05:00", "2016-01-06", PackageType.Patch, ExecutionResult.Successful);
+            await SavePackage("C1", "1.2", "06:00", "2016-01-07", PackageType.Patch, ExecutionResult.Unfinished);
+            await SavePackage("C1", "1.2", "07:00", "2016-01-08", PackageType.Patch, ExecutionResult.Unfinished);
+            await SavePackage("C1", "1.2", "08:00", "2016-01-09", PackageType.Patch, ExecutionResult.Faulty);
+            await SavePackage("C1", "1.2", "09:00", "2016-01-09", PackageType.Patch, ExecutionResult.Faulty);
+            await SavePackage("C1", "1.2", "10:00", "2016-01-09", PackageType.Patch, ExecutionResult.Successful);
 
             // action: delete all faulty and unfinished
             var packs = RepositoryVersionInfo.Instance.InstalledPackages
                 .Where(p => p.ExecutionResult != ExecutionResult.Successful);
             foreach (var package in packs)
-                PackageManager.Storage.DeletePackage(package);
+                await PackageManager.Storage.DeletePackageAsync(package);
+
             RepositoryVersionInfo.Reset();
 
             // check
@@ -948,14 +956,14 @@ CREATE TABLE [dbo].[Packages](
             Assert.AreEqual(expected, actual);
         }
         [TestMethod]
-        public void Packaging_SQL_DeleteAll()
+        public async Task Packaging_SQL_DeleteAll()
         {
-            SavePackage("C1", "1.0", "02:00", "2016-01-01", PackageType.Install, ExecutionResult.Successful);
-            SavePackage("C1", "1.1", "05:00", "2016-01-06", PackageType.Patch, ExecutionResult.Successful);
-            SavePackage("C1", "1.2", "10:00", "2016-01-09", PackageType.Patch, ExecutionResult.Successful);
+            await SavePackage("C1", "1.0", "02:00", "2016-01-01", PackageType.Install, ExecutionResult.Successful);
+            await SavePackage("C1", "1.1", "05:00", "2016-01-06", PackageType.Patch, ExecutionResult.Successful);
+            await SavePackage("C1", "1.2", "10:00", "2016-01-09", PackageType.Patch, ExecutionResult.Successful);
 
             // action
-            PackageManager.Storage.DeleteAllPackages();
+            await PackageManager.Storage.DeleteAllPackagesAsync();
 
             // check
             Assert.IsFalse(RepositoryVersionInfo.Instance.InstalledPackages.Any());
@@ -981,7 +989,7 @@ CREATE TABLE [dbo].[Packages](
 
         /*--------------------------------------------------------*/
 
-        private void SavePackage(string id, string version, string execTime, string releaseDate, PackageType packageType, ExecutionResult result)
+        private Task SavePackage(string id, string version, string execTime, string releaseDate, PackageType packageType, ExecutionResult result)
         {
             var package = new Package
             {
@@ -995,7 +1003,7 @@ CREATE TABLE [dbo].[Packages](
                 PackageType = packageType,
                 Manifest = $"<Package type='{packageType}'/>"
             };
-            PackageManager.Storage.SavePackage(package);
+            return PackageManager.Storage.SavePackageAsync(package);
         }
 
         internal static Manifest ParseManifestHead(string manifestXml)
