@@ -802,7 +802,44 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_LoadBinaryPropertyValues()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                var root = CreateFolder(Repository.Root, "TestRoot");
+                var file = CreateFile(root, "File-1.txt", "File content.");
+
+                var versionId = file.VersionId;
+                var fileId = file.Binary.FileId;
+                var propertyTypeId = file.Binary.PropertyType.Id;
+
+                // ACTION-1: Load existing
+                var result = await DP.LoadBinaryPropertyValueAsync(versionId, propertyTypeId);
+                // ASSERT-1
+                Assert.IsNotNull(result);
+                Assert.AreEqual("File-1", result.FileName.FileNameWithoutExtension);
+                Assert.AreEqual(".txt", result.FileName.Extension);
+                Assert.AreEqual(3L + "File content.".Length, result.Size); // +UTF-8 BOM
+                Assert.AreEqual("text/plain", result.ContentType);
+
+                // ACTION-2: Missing Binary
+                result = await DP.LoadBinaryPropertyValueAsync(versionId, 999999);
+                // ASSERT-2 (not loaded and no exceptin was thrown)
+                Assert.IsNull(result);
+
+                // ACTION-3: Staging
+                await TDP.SetFileStagingAsync(fileId, true);
+                result = await DP.LoadBinaryPropertyValueAsync(versionId, propertyTypeId);
+                // ASSERT-3 (not loaded and no exceptin was thrown)
+                Assert.IsNull(result);
+
+                // ACTION-4: Missing File (inconsistent but need to be handled)
+                await TDP.DeleteFileAsync(fileId);
+
+                result = await DP.LoadBinaryPropertyValueAsync(versionId, propertyTypeId);
+                // ASSERT-4 (not loaded and no exceptin was thrown)
+                Assert.IsNull(result);
+            });
         }
 
         [TestMethod]
@@ -1571,9 +1608,9 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             return CreateFolder(Repository.Root, "TestRoot" + Guid.NewGuid());
         }
-        private SystemFolder CreateFolder(Node parent, string name)
+        private SystemFolder CreateFolder(Node parent, string name = null)
         {
-            var folder = new SystemFolder(parent) { Name = name };
+            var folder = new SystemFolder(parent) { Name = name ?? Guid.NewGuid().ToString() };
             folder.Save();
             return folder;
         }

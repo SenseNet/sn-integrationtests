@@ -283,14 +283,37 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             }
         }
 
-        public Task SetFileStagingAsync(int fileId, bool staging)
+        public async Task SetFileStagingAsync(int fileId, bool staging)
         {
-            throw new NotImplementedException();
+            using (var ctx = new SnDataContext(MainProvider))
+            {
+                await ctx.ExecuteNonQueryAsync(
+                    "UPDATE Files SET Staging = @Staging WHERE FileId = @FileId",
+                    cmd =>
+                    {
+                        cmd.Parameters.AddRange(new[]
+                        {
+                            ctx.CreateParameter("@FileId", DbType.Int32, fileId),
+                            ctx.CreateParameter("@Staging", DbType.Boolean, staging),
+                        });
+                    });
+            }
         }
 
-        public Task DeleteFileAsync(int fileId)
+        public async Task DeleteFileAsync(int fileId)
         {
-            throw new NotImplementedException();
+            using (var ctx = new SnDataContext(MainProvider))
+            {
+                await ctx.ExecuteNonQueryAsync(
+                    "DELETE FROM Files WHERE FileId = @FileId",
+                    cmd =>
+                    {
+                        cmd.Parameters.AddRange(new[]
+                        {
+                            ctx.CreateParameter("@FileId", DbType.Int32, fileId),
+                        });
+                    });
+            }
         }
 
         public IEnumerable<IndexIntegrityCheckerItem> GetTimestampDataForOneNodeIntegrityCheck(string path, int[] excludedNodeTypeIds)
