@@ -655,7 +655,37 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_ContentListTypesInTree()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                // ALIGN-1
+                DataStore.Enabled = true;
+                ActiveSchema.Reset();
+                var contentLlistTypeCountBefore = ActiveSchema.ContentListTypes.Count;
+                var root = CreateTestRoot();
+                root.Save();
+
+                // ACTION-1
+                var result1 = await DP.GetContentListTypesInTreeAsync(root.Path);
+
+                // ASSERT-1
+                Assert.IsNotNull(result1);
+                Assert.AreEqual(0, result1.Count);
+                Assert.AreEqual(contentLlistTypeCountBefore, ActiveSchema.ContentListTypes.Count);
+
+                // ALIGN-2
+                // Creation
+                var node = new ContentList(root) { Name = "Survey-1" };
+                node.Save();
+
+                // ACTION-2
+                var result2 = await DP.GetContentListTypesInTreeAsync(root.Path);
+
+                // ASSERT
+                Assert.AreEqual(contentLlistTypeCountBefore + 1, ActiveSchema.ContentListTypes.Count);
+                Assert.IsNotNull(result2);
+                Assert.AreEqual(1, result2.Count);
+                Assert.AreEqual(ActiveSchema.ContentListTypes.Last().Id, result2[0].Id);
+            });
         }
 
         [TestMethod]
