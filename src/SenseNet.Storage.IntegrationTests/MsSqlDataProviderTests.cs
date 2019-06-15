@@ -1504,7 +1504,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             {
                 DataStore.Enabled = true;
                 var newNode =
-                    new SystemFolder(Repository.Root) { Name = "Folder1", Index = 42 };
+                    new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Index = 42 };
                 newNode.Save();
 
                 try
@@ -1531,7 +1531,33 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         [TestMethod]
         public async Task MsSqlDP_Error_UpdateNode_OutOfDate()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+                var newNode =
+                    new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Index = 42 };
+                newNode.Save();
+
+                try
+                {
+                    var node = Node.Load<SystemFolder>(newNode.Id);
+                    node.Index++;
+                    var nodeData = node.Data;
+                    var nodeHeadData = nodeData.GetNodeHeadData();
+                    var versionData = nodeData.GetVersionData();
+                    var dynamicData = nodeData.GetDynamicData(false);
+                    var versionIdsToDelete = new int[0];
+
+                    // ACTION
+                    nodeHeadData.Timestamp++;
+                    await DP.UpdateNodeAsync(nodeHeadData, versionData, dynamicData, versionIdsToDelete);
+                    Assert.Fail("NodeIsOutOfDateException was not thrown.");
+                }
+                catch (NodeIsOutOfDateException)
+                {
+                    // ignored
+                }
+            });
         }
 
         [TestMethod]
