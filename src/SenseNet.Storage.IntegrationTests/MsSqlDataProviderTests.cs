@@ -1472,7 +1472,30 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         [TestMethod]
         public async Task MsSqlDP_Error_UpdateNode_Deleted()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                try
+                {
+                    var node = Node.LoadNode(Identifiers.PortalRootId);
+                    node.Index++;
+                    var nodeData = node.Data;
+                    var nodeHeadData = nodeData.GetNodeHeadData();
+                    var versionData = nodeData.GetVersionData();
+                    var dynamicData = nodeData.GetDynamicData(false);
+                    var versionIdsToDelete = new int[0];
+
+                    // ACTION
+                    nodeHeadData.NodeId = 99999;
+                    await DP.UpdateNodeAsync(nodeHeadData, versionData, dynamicData, versionIdsToDelete);
+                    Assert.Fail("ContentNotFoundException was not thrown.");
+                }
+                catch (ContentNotFoundException)
+                {
+                    // ignored
+                }
+            });
         }
         [TestMethod]
         public async Task MsSqlDP_Error_UpdateNode_MissingVersion()
