@@ -14,6 +14,7 @@ using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.ContentRepository.Versioning;
+using SenseNet.Search.Indexing;
 using SenseNet.Search.Querying;
 using SenseNet.Tests.Implementations;
 using SenseNet.Tests.Implementations2;
@@ -1405,7 +1406,27 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         [TestMethod]
         public async Task MsSqlDP_SaveIndexDocumentById()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+                var node = CreateTestRoot();
+                var versionIds = new[] { node.VersionId };
+                var loadResult = await DP.LoadIndexDocumentsAsync(versionIds);
+                var docData = loadResult.First();
+
+                // ACTION
+                docData.IndexDocument.Add(
+                    new IndexField("TestField", "TestValue",
+                        IndexingMode.Default, IndexStoringMode.Default, IndexTermVector.Default));
+                await DP.SaveIndexDocumentAsync(node.VersionId, docData.IndexDocument.Serialize());
+
+                // ASSERT (check additional field existence)
+                loadResult = await DP.LoadIndexDocumentsAsync(versionIds);
+                docData = loadResult.First();
+                var testField = docData.IndexDocument.FirstOrDefault(x => x.Name == "TestField");
+                Assert.IsNotNull(testField);
+                Assert.AreEqual("TestValue", testField.StringValue);
+            });
         }
 
         /* ================================================================================================== IndexingActivities */
