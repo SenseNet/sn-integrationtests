@@ -1359,7 +1359,48 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         [TestMethod]
         public async Task MsSqlDP_LoadIndexDocuments()
         {
-            Assert.Inconclusive();
+            const string fileContent = "File content.";
+            const string testRootPath = "/Root/TestRoot";
+
+            void CreateStructure()
+            {
+                var root = CreateFolder(Repository.Root, "TestRoot");
+                var file1 = CreateFile(root, "File1", fileContent);
+                var file2 = CreateFile(root, "File2", fileContent);
+                var folder1 = CreateFolder(root, "Folder1");
+                var file3 = CreateFile(folder1, "File3", fileContent);
+                var file4 = CreateFile(folder1, "File4", fileContent);
+                file4.CheckOut();
+                var folder2 = CreateFolder(folder1, "Folder2");
+                var fileA5 = CreateFile(folder2, "File5", fileContent);
+                var fileA6 = CreateFile(folder2, "File6", fileContent);
+            }
+
+            await StorageTest(async () =>
+            {
+                var fileNodeType = ActiveSchema.NodeTypes["File"];
+                var systemFolderType = ActiveSchema.NodeTypes["SystemFolder"];
+
+                // ARRANGE
+                DataStore.Enabled = true;
+                CreateStructure();
+                var testRoot = Node.Load<SystemFolder>(testRootPath);
+                var testRootChildren = testRoot.Children.ToArray();
+
+                // ACTION
+                var oneVersion = await DP.LoadIndexDocumentsAsync(new[] { testRoot.VersionId });
+                var moreVersions = (await DP.LoadIndexDocumentsAsync(testRootChildren.Select(x => x.VersionId).ToArray())).ToArray();
+                var subTreeAll = DP.LoadIndexDocumentsAsync(testRootPath, new int[0]).ToArray();
+                var onlyFiles = DP.LoadIndexDocumentsAsync(testRootPath, new[] { fileNodeType.Id }).ToArray();
+                var onlySystemFolders = DP.LoadIndexDocumentsAsync(testRootPath, new[] { systemFolderType.Id }).ToArray();
+
+                // ASSERT
+                Assert.AreEqual(testRootPath, oneVersion.First().Path);
+                Assert.AreEqual(3, moreVersions.Length);
+                Assert.AreEqual(10, subTreeAll.Length);
+                Assert.AreEqual(3, onlyFiles.Length);
+                Assert.AreEqual(7, onlySystemFolders.Length);
+            });
         }
         [TestMethod]
         public async Task MsSqlDP_SaveIndexDocumentById()
