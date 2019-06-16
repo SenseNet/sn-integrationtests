@@ -554,7 +554,8 @@ namespace SenseNet.Storage.IntegrationTests
                 var descriptionPropertyType = ActiveSchema.PropertyTypes["Description"];
 
                 // ACTION-1a: Creation with text that shorter than the magic limit
-                var root = new SystemFolder(Repository.Root) { Name = "TestRoot", Description = nearlyLongText };
+                var root = new SystemFolder(Repository.Root)
+                    { Name = Guid.NewGuid().ToString(), Description = nearlyLongText };
                 root.Save();
                 // ACTION-1b: Load the node
                 var loaded = (await DP.LoadNodesAsync(new[] { root.VersionId })).First();
@@ -874,7 +875,7 @@ namespace SenseNet.Storage.IntegrationTests
                 DataStore.Enabled = true;
 
                 // Create a small subtree
-                var root = new SystemFolder(Repository.Root) { Name = "TestRoot" }; root.Save();
+                var root = CreateTestRoot();
                 var f1 = new SystemFolder(root) { Name = "folder(42)" }; f1.Save();
 
                 // ACTION
