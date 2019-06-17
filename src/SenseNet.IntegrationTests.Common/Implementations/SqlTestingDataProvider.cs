@@ -316,6 +316,14 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             }
         }
 
+        public async Task EnsureOneUnlockedSchemaLockAsync()
+        {
+            using (var ctx = new SnDataContext(MainProvider))
+                await ctx.ExecuteNonQueryAsync(@"DELETE FROM SchemaModification
+INSERT INTO SchemaModification (ModificationDate) VALUES (GETUTCDATE())
+");
+        }
+
         public IEnumerable<IndexIntegrityCheckerItem> GetTimestampDataForOneNodeIntegrityCheck(string path, int[] excludedNodeTypeIds)
         {
             throw new NotImplementedException();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -1719,9 +1720,63 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         /* ================================================================================================== Schema */
 
         [TestMethod]
-        public async Task MsSqlDP_Schema_()
+        public async Task MsSqlDP_Schema_ExclusiveUpdate()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+                await TDP.EnsureOneUnlockedSchemaLockAsync();
+
+                var ed = new SchemaEditor();
+                ed.Load();
+                var timestampBefore = ed.SchemaTimestamp;
+
+                // ACTION: try to start update with wrong timestamp
+                try
+                {
+                    var unused = await DP.StartSchemaUpdateAsync(timestampBefore - 1);
+                    Assert.Fail("Expected DataException was not thrown.");
+                }
+                catch (DataException e)
+                {
+                    Assert.AreEqual("Storage schema is out of date.", e.Message);
+                }
+
+                // ACTION: start update normally
+                var @lock = await DP.StartSchemaUpdateAsync(timestampBefore);
+
+                // ACTION: try to start update again
+                try
+                {
+                    var unused = await DP.StartSchemaUpdateAsync(timestampBefore);
+                    Assert.Fail("Expected DataException was not thrown.");
+                }
+                catch (DataException e)
+                {
+                    Assert.AreEqual("Schema is locked by someone else.", e.Message);
+                }
+
+                // ACTION: try to finish with invalid @lock
+                try
+                {
+                    var unused = await DP.FinishSchemaUpdateAsync("wrong-lock");
+                    Assert.Fail("Expected DataException was not thrown.");
+                }
+                catch (DataException e)
+                {
+                    Assert.AreEqual("Schema is locked by someone else.", e.Message);
+                }
+
+                // ACTION: finish normally
+                timestampBefore = await DP.FinishSchemaUpdateAsync(@lock);
+
+                // ASSERT: start update is allowed again
+                @lock = await DP.StartSchemaUpdateAsync(timestampBefore);
+                // cleanup
+                var timestampAfter = await DP.FinishSchemaUpdateAsync(@lock);
+                // Bonus assert: change detection
+                Assert.AreNotEqual(timestampBefore, timestampAfter);
+            });
         }
 
         /* ================================================================================================== */
