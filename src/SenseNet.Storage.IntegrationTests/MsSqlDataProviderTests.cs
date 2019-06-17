@@ -8,6 +8,7 @@ using SenseNet.Common.Storage.Data;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository;
 using SenseNet.ContentRepository.Schema;
+using SenseNet.ContentRepository.Search.Indexing;
 using SenseNet.ContentRepository.Search.Querying;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
@@ -1433,50 +1434,293 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         /* ================================================================================================== IndexingActivities */
 
         [TestMethod]
-        public async Task MsSqlDP_IndexingActivity_GetLastIndexingActivityId()
+        public async Task MsSqlDP_IA_GetLastIndexingActivityId()
         {
-            Assert.Inconclusive();
+            await IndexingActivityTest(async (firstId, lastId) =>
+            {
+                var result = await DP.GetLastIndexingActivityIdAsync();
+                Assert.AreEqual(lastId, result);
+            });
         }
         [TestMethod]
-        public async Task MsSqlDP_IndexingActivity_LoadIndexingActivities_Page()
+        public async Task MsSqlDP_IA_LoadIndexingActivities_Page()
         {
-            Assert.Inconclusive();
+            await IndexingActivityTest(async (firstId, lastId) =>
+            {
+                var from = lastId - 10;
+                var to = lastId;
+                var count = 5;
+                var factory = new TestIndexingActivityFactory();
+
+                // ACTION
+                var result = await DP.LoadIndexingActivitiesAsync(from, to, count, false, factory);
+
+                // ASSERT
+                Assert.AreEqual(5, result.Length);
+                Assert.AreEqual(100, result[0].NodeId);
+                Assert.AreEqual(101, result[1].NodeId);
+                Assert.AreEqual(102, result[2].NodeId);
+                Assert.AreEqual(103, result[3].NodeId);
+                Assert.AreEqual(104, result[4].NodeId);
+                Assert.IsFalse(result[0].IsUnprocessedActivity);
+                Assert.IsFalse(result[1].IsUnprocessedActivity);
+                Assert.IsFalse(result[2].IsUnprocessedActivity);
+                Assert.IsFalse(result[3].IsUnprocessedActivity);
+                Assert.IsFalse(result[4].IsUnprocessedActivity);
+            });
         }
         [TestMethod]
-        public async Task MsSqlDP_IndexingActivity_LoadIndexingActivities_PageUnprocessed()
+        public async Task MsSqlDP_IA_LoadIndexingActivities_PageUnprocessed()
         {
-            Assert.Inconclusive();
+            await IndexingActivityTest(async (firstId, lastId) =>
+            {
+                var from = lastId - 10;
+                var to = lastId;
+                var count = 5;
+                var factory = new TestIndexingActivityFactory();
+
+                // ACTION
+                var result = await DP.LoadIndexingActivitiesAsync(from, to, count, true, factory);
+
+                // ASSERT
+                Assert.AreEqual(5, result.Length);
+                Assert.AreEqual(100, result[0].NodeId);
+                Assert.AreEqual(101, result[1].NodeId);
+                Assert.AreEqual(102, result[2].NodeId);
+                Assert.AreEqual(103, result[3].NodeId);
+                Assert.AreEqual(104, result[4].NodeId);
+                Assert.IsTrue(result[0].IsUnprocessedActivity);
+                Assert.IsTrue(result[1].IsUnprocessedActivity);
+                Assert.IsTrue(result[2].IsUnprocessedActivity);
+                Assert.IsTrue(result[3].IsUnprocessedActivity);
+                Assert.IsTrue(result[4].IsUnprocessedActivity);
+            });
         }
         [TestMethod]
-        public async Task MsSqlDP_IndexingActivity_LoadIndexingActivities_Gaps()
+        public async Task MsSqlDP_IA_LoadIndexingActivities_Gaps()
         {
-            Assert.Inconclusive();
+            await IndexingActivityTest(async (firstId, lastId) =>
+            {
+                var gaps = new[] { lastId - 10, lastId - 9, lastId - 5 };
+                var factory = new TestIndexingActivityFactory();
+
+                // ACTION
+                var result = await DP.LoadIndexingActivitiesAsync(gaps, false, factory);
+
+                // ASSERT
+                Assert.AreEqual(3, result.Length);
+                Assert.AreEqual(100, result[0].NodeId);
+                Assert.AreEqual(101, result[1].NodeId);
+                Assert.AreEqual(105, result[2].NodeId);
+            });
         }
         [TestMethod]
-        public async Task MsSqlDP_IndexingActivity_LoadIndexingActivities_Executable()
+        public async Task MsSqlDP_IA_LoadIndexingActivities_Executable()
         {
-            Assert.Inconclusive();
+            await IndexingActivityTest(async (firstId, lastId) =>
+            {
+                var factory = new TestIndexingActivityFactory();
+                var timeout = 120;
+
+                // ACTION
+                var result = await DP.LoadExecutableIndexingActivitiesAsync(factory, 10, timeout, null);
+                Assert.IsNotNull(result.FinishedActivitiyIds);
+                Assert.AreEqual(0, result.FinishedActivitiyIds.Length);
+
+                // ASSERT
+                var expectedIds = "45,46,50,51,52,53,55,100,101,102";
+                Assert.AreEqual(expectedIds, string.Join(",", result.Activities.Select(x => x.NodeId.ToString())));
+            });
         }
         [TestMethod]
-        public async Task MsSqlDP_IndexingActivity_UpdateRunningState()
+        public async Task MsSqlDP_IA_LoadIndexingActivities_ExecutableAndFinished()
         {
-            Assert.Inconclusive();
+            await IndexingActivityTest(async (firstId, lastId) =>
+            {
+                var factory = new TestIndexingActivityFactory();
+                var timeout = 120;
+                var waitingActivityIds = new[] { firstId, firstId + 1, firstId + 2, firstId + 3, firstId + 4, firstId + 5 };
+
+                // ACTION-2
+                var result = await DP.LoadExecutableIndexingActivitiesAsync(factory, 10, timeout, waitingActivityIds);
+
+                // ASSERT
+                Assert.AreEqual(3, result.FinishedActivitiyIds.Length);
+                Assert.AreEqual(firstId, result.FinishedActivitiyIds[0]);
+                Assert.AreEqual(firstId + 1, result.FinishedActivitiyIds[1]);
+                Assert.AreEqual(firstId + 2, result.FinishedActivitiyIds[2]);
+
+                var expectedIds = "45,46,50,51,52,53,55,100,101,102";
+                Assert.AreEqual(expectedIds, string.Join(",", result.Activities.Select(x => x.NodeId.ToString())));
+            });
         }
         [TestMethod]
-        public async Task MsSqlDP_IndexingActivity_RefreshLockTime()
+        public async Task MsSqlDP_IA_UpdateRunningState()
         {
-            Assert.Inconclusive();
+            await IndexingActivityTest(async (firstId, lastId) =>
+            {
+                var gaps = new[] { lastId - 10, lastId - 9, lastId - 8 };
+                var factory = new TestIndexingActivityFactory();
+                var before = await DP.LoadIndexingActivitiesAsync(gaps, false, factory);
+                Assert.AreEqual(IndexingActivityRunningState.Waiting, before[0].RunningState);
+                Assert.AreEqual(IndexingActivityRunningState.Waiting, before[1].RunningState);
+                Assert.AreEqual(IndexingActivityRunningState.Waiting, before[2].RunningState);
+
+                // ACTION
+                await DP.UpdateIndexingActivityRunningStateAsync(gaps[0], IndexingActivityRunningState.Done);
+                await DP.UpdateIndexingActivityRunningStateAsync(gaps[1], IndexingActivityRunningState.Running);
+
+                // ASSERT
+                var after = await DP.LoadIndexingActivitiesAsync(gaps, false, factory);
+                Assert.AreEqual(IndexingActivityRunningState.Done, after[0].RunningState);
+                Assert.AreEqual(IndexingActivityRunningState.Running, after[1].RunningState);
+                Assert.AreEqual(IndexingActivityRunningState.Waiting, after[2].RunningState);
+            });
         }
         [TestMethod]
-        public async Task MsSqlDP_IndexingActivity_DeleteFinished()
+        public async Task MsSqlDP_IA_RefreshLockTime()
         {
-            Assert.Inconclusive();
+            await IndexingActivityTest(async (firstId, lastId) =>
+            {
+                var startTime = DateTime.UtcNow;
+
+                var activityIds = new[] { firstId + 5, firstId + 6 };
+                var factory = new TestIndexingActivityFactory();
+                var before = await DP.LoadIndexingActivitiesAsync(activityIds, false, factory);
+                Assert.AreEqual(47, before[0].NodeId);
+                Assert.AreEqual(48, before[1].NodeId);
+
+                // ACTION
+                await DP.RefreshIndexingActivityLockTimeAsync(activityIds);
+
+                // ASSERT
+                var after = await DP.LoadIndexingActivitiesAsync(activityIds, false, factory);
+                Assert.AreEqual(47, before[0].NodeId);
+                Assert.AreEqual(48, before[1].NodeId);
+                Assert.IsTrue(after[0].LockTime >= startTime);
+                Assert.IsTrue(after[1].LockTime >= startTime);
+            });
         }
         [TestMethod]
-        public async Task MsSqlDP_IndexingActivity_LoadFull()
+        public async Task MsSqlDP_IA_DeleteFinished()
         {
-            Assert.Inconclusive();
+            await IndexingActivityTest(async (firstId, lastId) =>
+            {
+                // ACTION
+                await DP.DeleteFinishedIndexingActivitiesAsync();
+
+                // ASSERT
+                var result = await DP.LoadIndexingActivitiesAsync(firstId, lastId, 100, false, new TestIndexingActivityFactory());
+                Assert.AreEqual(lastId - firstId - 2, result.Length);
+                Assert.AreEqual(firstId + 3, result.First().Id);
+            });
         }
+        [TestMethod]
+        public async Task MsSqlDP_IA_LoadFull()
+        {
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                await DP.DeleteAllIndexingActivitiesAsync();
+                var node = CreateFolder(Repository.Root, "Folder-1");
+
+                // ACTION
+                var result = await DP.LoadIndexingActivitiesAsync(0, 1000, 1000, false, new TestIndexingActivityFactory());
+
+                // ASSERT (IndexDocument loaded)
+                Assert.AreEqual(1, result.Length);
+                Assert.AreEqual(node.VersionId, result[0].IndexDocumentData.IndexDocument.VersionId);
+            });
+        }
+
+        #region Tools for IndexingActivities
+        private async Task IndexingActivityTest(Func<int, int, Task> callback)
+        {
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                await DP.DeleteAllIndexingActivitiesAsync();
+
+                var now = DateTime.UtcNow;
+                var firstId = await CreateActivityAsync(42, "/R/42", "Done");             // 1
+                await CreateActivityAsync(43, "/R/43", "Done");                           // 2
+                await CreateActivityAsync(44, "/R/44", "Done");                           // 3
+                await CreateActivityAsync(45, "/R/45", "Running", now.AddMinutes(-2.1));  // 4
+                await CreateActivityAsync(46, "/R/46", "Running", now.AddMinutes(-2.0));  // 5
+                await CreateActivityAsync(47, "/R/47", "Running", now.AddMinutes(-1.9));  // 6 skip
+                await CreateActivityAsync(48, "/R/48", "Running", now.AddMinutes(-1.8));  // 7 skip
+                await CreateActivityAsync(50, "/R/50", "Waiting");                        // 8
+                await CreateActivityAsync(51, "/R/51", "Waiting");                        // 9
+                await CreateActivityAsync(52, "/R/52", "Waiting");                        // 10
+                await CreateActivityAsync(52, "/R/525", "Waiting");                       // 11 skip
+                await CreateActivityAsync(53, "/R/A", "Waiting");                         // 12
+                await CreateActivityAsync(54, "/R/A/A", "Waiting");                       // 13 skip
+                await CreateActivityAsync(55, "/R/B/B", "Waiting");                       // 14
+                await CreateActivityAsync(56, "/R/B", "Waiting");                         // 15 skip
+                await CreateActivityAsync(57, "/R/B", "Waiting");                         // 16 skip
+                await CreateActivityAsync(100, "/R/100", "Waiting");                      // 17
+                await CreateActivityAsync(101, "/R/101", "Waiting");                      // 18
+                await CreateActivityAsync(102, "/R/102", "Waiting");                      // 19
+                await CreateActivityAsync(103, "/R/103", "Waiting");                      // 20
+                await CreateActivityAsync(104, "/R/104", "Waiting");                      // 21
+                await CreateActivityAsync(105, "/R/105", "Waiting");                      // 22
+                await CreateActivityAsync(106, "/R/106", "Waiting");                      // 23
+                await CreateActivityAsync(107, "/R/107", "Waiting");                      // 24
+                await CreateActivityAsync(108, "/R/108", "Waiting");                      // 25
+                await CreateActivityAsync(109, "/R/109", "Waiting");                      // 26
+                var lastId = await CreateActivityAsync(110, "/R/110", "Waiting");         // 27
+
+                try
+                {
+                    await callback(firstId, lastId);
+                }
+                finally
+                {
+                    await DP.DeleteAllIndexingActivitiesAsync();
+                }
+            });
+        }
+        private async Task<int> CreateActivityAsync(int nodeId, string path, string runningState, DateTime? lockTime = null)
+        {
+            var activity = new TestIndexingActivity(nodeId, path, runningState, lockTime);
+            await DP.RegisterIndexingActivityAsync(activity);
+            return activity.Id;
+        }
+        private class TestIndexingActivityFactory : IIndexingActivityFactory
+        {
+            public IIndexingActivity CreateActivity(IndexingActivityType activityType)
+            {
+                return new TestIndexingActivity();
+            }
+        }
+        private class TestIndexingActivity : IIndexingActivity
+        {
+            public TestIndexingActivity() { }
+            public TestIndexingActivity(int nodeId, string path, string runningState, DateTime? lockTime = null)
+            {
+                NodeId = nodeId;
+                Path = path;
+                RunningState =
+                    (IndexingActivityRunningState)Enum.Parse(typeof(IndexingActivityRunningState), runningState, true);
+                LockTime = lockTime;
+            }
+            public int Id { get; set; }
+            public IndexingActivityType ActivityType { get; set; } = IndexingActivityType.AddDocument;
+            public DateTime CreationDate { get; set; } = DateTime.UtcNow.AddMinutes(-2);
+            public IndexingActivityRunningState RunningState { get; set; }
+            public DateTime? LockTime { get; set; }
+            public int NodeId { get; set; }
+            public int VersionId { get; set; }
+            public string Path { get; set; }
+            public long? VersionTimestamp { get; set; }
+            public IndexDocumentData IndexDocumentData { get; set; }
+            public bool FromDatabase { get; set; }
+            public bool IsUnprocessedActivity { get; set; }
+            public string Extension { get; set; }
+        }
+        #endregion
 
         /* ================================================================================================== Nodes */
 

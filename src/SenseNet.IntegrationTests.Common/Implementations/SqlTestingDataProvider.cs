@@ -324,6 +324,12 @@ INSERT INTO SchemaModification (ModificationDate) VALUES (GETUTCDATE())
 ");
         }
 
+        public async Task ClearIndexingActivitiesAsync()
+        {
+            using (var ctx = new SnDataContext(MainProvider))
+                await ctx.ExecuteNonQueryAsync(@"DELETE FROM IndexingActivities");
+        }
+
         public IEnumerable<IndexIntegrityCheckerItem> GetTimestampDataForOneNodeIntegrityCheck(string path, int[] excludedNodeTypeIds)
         {
             throw new NotImplementedException();
