@@ -2155,7 +2155,28 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         [TestMethod]
         public async Task MsSqlDP_Error_MoveNode_MissingTarget()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                var root = CreateTestRoot();
+                var source = new SystemFolder(root) { Name = "Source" }; source.Save();
+                var target = new SystemFolder(root) { Name = "Target" }; target.Save();
+
+                try
+                {
+                    var node = Node.Load<SystemFolder>(source.Id);
+                    var nodeHeadData = node.Data.GetNodeHeadData();
+
+                    // ACTION
+                    await DP.MoveNodeAsync(nodeHeadData, 999999, target.NodeTimestamp);
+                    Assert.Fail("ContentNotFoundException was not thrown.");
+                }
+                catch (ContentNotFoundException)
+                {
+                    // ignored
+                }
+            });
         }
         [TestMethod]
         public async Task MsSqlDP_Error_MoveNode_OutOfDate()
