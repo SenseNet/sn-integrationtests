@@ -2181,7 +2181,29 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         [TestMethod]
         public async Task MsSqlDP_Error_MoveNode_OutOfDate()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                var root = CreateTestRoot();
+                var source = new SystemFolder(root) { Name = "Source" }; source.Save();
+                var target = new SystemFolder(root) { Name = "Target" }; target.Save();
+
+                try
+                {
+                    var node = Node.Load<SystemFolder>(source.Id);
+                    var nodeHeadData = node.Data.GetNodeHeadData();
+
+                    // ACTION
+                    nodeHeadData.Timestamp++;
+                    await DP.MoveNodeAsync(nodeHeadData, target.Id, target.NodeTimestamp);
+                    Assert.Fail("NodeIsOutOfDateException was not thrown.");
+                }
+                catch (NodeIsOutOfDateException)
+                {
+                    // ignored
+                }
+            });
         }
 
         [TestMethod]
