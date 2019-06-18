@@ -2210,7 +2210,37 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         [TestMethod]
         public async Task MsSqlDP_Error_QueryNodesByReferenceAndTypeAsync()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                try
+                {
+                    await DP.QueryNodesByReferenceAndTypeAsync(null, 1, new[] { 1 });
+                }
+                catch (ArgumentNullException)
+                {
+                    // ignored
+                }
+
+                try
+                {
+                    await DP.QueryNodesByReferenceAndTypeAsync("", 1, new[] { 1 });
+                }
+                catch (ArgumentException e)
+                {
+                    Assert.IsTrue(e.Message.Contains("cannot be empty"));
+                }
+
+                try
+                {
+                    await DP.QueryNodesByReferenceAndTypeAsync("PropertyNameThatCertainlyDoesNotExist", 1, new[] { 1 });
+                }
+                catch (ArgumentException e)
+                {
+                    Assert.IsTrue(e.Message.Contains("not found"));
+                }
+            });
         }
 
         /* ================================================================================================== Transaction */
