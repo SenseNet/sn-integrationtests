@@ -1727,25 +1727,111 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         [TestMethod]
         public async Task MsSqlDP_CopyAndUpdateNode_Rename()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+                var node = new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Index = 42 };
+                node.Save();
+                var childNode = CreateFolder(node, "Folder-2");
+                var version1 = node.Version.ToString();
+                var versionId1 = node.VersionId;
+                node.CheckOut();
+                var versionId2 = node.VersionId;
+                var originalPath = node.Path;
+
+                node = Node.Load<SystemFolder>(node.Id);
+                node.Index++;
+                var expectedName = "RENAMED-" + node.Name;
+                node.Name = expectedName;
+                node.Data.Path = RepositoryPath.Combine(node.ParentPath, node.Name); // ApplySettings
+                node.Version = VersionNumber.Parse(version1); // ApplySettings
+                var nodeData = node.Data;
+                var nodeHeadData = nodeData.GetNodeHeadData();
+                var versionData = nodeData.GetVersionData();
+                var dynamicData = nodeData.GetDynamicData(false);
+                var versionIdsToDelete = new[] { versionId2 };
+                var expectedVersionId = versionId1;
+
+                // ACTION: simulate a modification, rename and CheckIn on a checked-out, not-versioned node (V2.0.L -> V1.0.A).
+                await DataStore.DataProvider
+                    .CopyAndUpdateNodeAsync(nodeHeadData, versionData, dynamicData, versionIdsToDelete,
+                        expectedVersionId, originalPath);
+
+                // ASSERT
+                DistributedApplication.Cache.Reset();
+                var reloaded = Node.Load<SystemFolder>(node.Id);
+                Assert.AreEqual(expectedName, reloaded.Name);
+                reloaded = Node.Load<SystemFolder>(childNode.Id);
+                Assert.AreEqual($"/Root/{expectedName}/Folder-2", reloaded.Path);
+            });
         }
 
         [TestMethod]
         public async Task MsSqlDP_LoadNodes()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                var expected = new[] { Repository.Root.VersionId, User.Administrator.VersionId };
+                var versionIds = new[] { Repository.Root.VersionId, 999999, User.Administrator.VersionId };
+
+                // ACTION
+                var loadResult = await DP.LoadNodesAsync(versionIds);
+
+                // ASSERT
+                var actual = loadResult.Select(x => x.VersionId);
+                AssertSequenceEqual(expected.OrderBy(x => x), actual.OrderBy(x => x));
+            });
         }
 
         [TestMethod]
         public async Task MsSqlDP_LoadNodeHeadByVersionId_Missing()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                // ACTION
+                var result = await DP.LoadNodeHeadByVersionIdAsync(99999);
+
+                // ASSERT (returns null instead of throw any exception)
+                Assert.IsNull(result);
+            });
         }
 
         [TestMethod]
         public async Task MsSqlDP_NodeAndVersion_CountsAndTimestamps()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                // ACTIONS
+                var allNodeCountBefore = await DP.GetNodeCountAsync(null);
+                var allVersionCountBefore = await DP.GetVersionCountAsync(null);
+
+                var node = CreateTestRoot();
+                var child = CreateFolder(node, "Folder-2");
+                child.CheckOut();
+
+                var nodeCount = await DP.GetNodeCountAsync(node.Path);
+                var versionCount = await DP.GetVersionCountAsync(node.Path);
+                var allNodeCountAfter = await DP.GetNodeCountAsync(null);
+                var allVersionCountAfter = await DP.GetVersionCountAsync(null);
+
+                node = Node.Load<SystemFolder>(node.Id);
+                var nodeTimeStamp = (await TDP.GetNodeHeadDataAsync(node.Id)).Timestamp;
+                var versionTimeStamp = (await TDP.GetVersionDataAsync(node.VersionId)).Timestamp;
+
+                // ASSERTS
+                Assert.AreEqual(allNodeCountBefore + 2, allNodeCountAfter);
+                Assert.AreEqual(allVersionCountBefore + 3, allVersionCountAfter);
+                Assert.AreEqual(2, nodeCount);
+                Assert.AreEqual(3, versionCount);
+                Assert.AreEqual(node.NodeTimestamp, nodeTimeStamp);
+                Assert.AreEqual(node.VersionTimestamp, versionTimeStamp);
+            });
         }
 
         /* ================================================================================================== Errors */

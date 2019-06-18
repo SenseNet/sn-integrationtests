@@ -137,14 +137,81 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             throw new NotImplementedException();
         }
 
-        public Task GetNodeHeadDataAsync(int nodeId)
+        public async Task<NodeHeadData> GetNodeHeadDataAsync(int nodeId)
         {
-            throw new NotImplementedException();
+            using (var ctx = new SnDataContext(MainProvider))
+            {
+                return await ctx.ExecuteReaderAsync("SELECT * FROM Nodes WHERE NodeId = @NodeId", cmd =>
+                {
+                    cmd.Parameters.Add(ctx.CreateParameter("@NodeId", DbType.Int32, nodeId));
+                }, async reader =>
+                {
+                    if (!await reader.ReadAsync())
+                        return null;
+
+                    return new NodeHeadData
+                    {
+                        NodeId = reader.GetInt32("NodeId"),
+                        NodeTypeId = reader.GetInt32("NodeTypeId"),
+                        ContentListTypeId = reader.GetSafeInt32("ContentListTypeId"),
+                        ContentListId = reader.GetSafeInt32("ContentListId"),
+                        CreatingInProgress = reader.GetSafeBooleanFromByte("CreatingInProgress"),
+                        IsDeleted = reader.GetSafeBooleanFromByte("IsDeleted"),
+                        ParentNodeId = reader.GetSafeInt32("ParentNodeId"),
+                        Name = reader.GetString("Name"),
+                        DisplayName = reader.GetSafeString("DisplayName"),
+                        Path = reader.GetString("Path"),
+                        Index = reader.GetSafeInt32("Index"),
+                        Locked = reader.GetSafeBooleanFromByte("Locked"),
+                        LockedById = reader.GetSafeInt32("LockedById"),
+                        ETag = reader.GetString("ETag"),
+                        LockType = reader.GetSafeInt32("LockType"),
+                        LockTimeout = reader.GetSafeInt32("LockTimeout"),
+                        LockDate = reader.GetDateTimeUtc("LockDate"),
+                        LockToken = reader.GetString("LockToken"),
+                        LastLockUpdate = reader.GetDateTimeUtc("LastLockUpdate"),
+                        LastMinorVersionId = reader.GetSafeInt32("LastMinorVersionId"),
+                        LastMajorVersionId = reader.GetSafeInt32("LastMajorVersionId"),
+                        CreationDate = reader.GetDateTimeUtc("CreationDate"),
+                        CreatedById = reader.GetSafeInt32("CreatedById"),
+                        ModificationDate = reader.GetDateTimeUtc("ModificationDate"),
+                        ModifiedById = reader.GetSafeInt32("ModifiedById"),
+                        IsSystem = reader.GetSafeBooleanFromByte("IsSystem"),
+                        OwnerId = reader.GetSafeInt32("OwnerId"),
+                        SavingState = reader.GetSavingState("SavingState"),
+                        Timestamp = reader.GetSafeLongFromBytes("Timestamp"),
+                    };
+                });
+            }
         }
 
-        public Task GetVersionDataAsync(int versionId)
+        public async Task<VersionData> GetVersionDataAsync(int versionId)
         {
-            throw new NotImplementedException();
+            using (var ctx = new SnDataContext(MainProvider))
+            {
+                return await ctx.ExecuteReaderAsync("SELECT * FROM Versions WHERE VersionId = @VersionId", cmd =>
+                {
+                    cmd.Parameters.Add(ctx.CreateParameter("@VersionId", DbType.Int32, versionId));
+                }, async reader =>
+                {
+                    if (!await reader.ReadAsync())
+                        return null;
+
+                    return new VersionData
+                    {
+                        VersionId = reader.GetInt32("VersionId"),
+                        NodeId = reader.GetInt32("NodeId"),
+                        Version = new VersionNumber(reader.GetInt16("MajorNumber"), reader.GetInt16("MinorNumber"),
+                            (VersionStatus)reader.GetInt16("Status")),
+                        CreationDate = reader.GetDateTimeUtc("CreationDate"),
+                        CreatedById = reader.GetSafeInt32("CreatedById"),
+                        ModificationDate = reader.GetDateTimeUtc("ModificationDate"),
+                        ModifiedById = reader.GetSafeInt32("ModifiedById"),
+                        ChangedData = reader.GetChangedData("ChangedData"),
+                        Timestamp = reader.GetSafeLongFromBytes("Timestamp"),
+                    };
+                });
+            }
         }
 
         public async Task<int> GetBinaryPropertyCountAsync(string path)
@@ -336,16 +403,6 @@ INSERT INTO SchemaModification (ModificationDate) VALUES (GETUTCDATE())
         }
 
         public IEnumerable<IndexIntegrityCheckerItem> GetTimestampDataForRecursiveIntegrityCheck(string path, int[] excludedNodeTypeIds)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<NodeHeadData> ITestingDataProviderExtension.GetNodeHeadDataAsync(int nodeId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<VersionData> ITestingDataProviderExtension.GetVersionDataAsync(int versionId)
         {
             throw new NotImplementedException();
         }
