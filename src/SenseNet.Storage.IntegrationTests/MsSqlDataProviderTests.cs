@@ -2101,7 +2101,28 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         [TestMethod]
         public async Task MsSqlDP_Error_DeleteNode()
         {
-            Assert.Inconclusive();
+            await StorageTest(async () =>
+            {
+                DataStore.Enabled = true;
+
+                // Create a small subtree
+                var root = CreateTestRoot();
+
+                try
+                {
+                    var node = Node.Load<SystemFolder>(root.Id);
+                    var nodeHeadData = node.Data.GetNodeHeadData();
+
+                    // ACTION
+                    nodeHeadData.Timestamp++;
+                    await DP.DeleteNodeAsync(nodeHeadData);
+                    Assert.Fail("NodeIsOutOfDateException was not thrown.");
+                }
+                catch (NodeIsOutOfDateException)
+                {
+                    // ignored
+                }
+            });
         }
 
         [TestMethod]
