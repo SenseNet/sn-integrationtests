@@ -660,7 +660,7 @@ namespace SenseNet.Storage.IntegrationTests
                 DataStore.Enabled = true;
 
                 // Create a small subtree
-                var root = new SystemFolder(Repository.Root) { Name = "TestRoot" }; root.Save();
+                var root = CreateTestRoot();
                 var site1 = new Site(root) { Name = "Site1" }; site1.Save();
                 site1.AllowChildTypes(new[] { "Task" }); site1.Save();
                 site1 = Node.Load<Site>(site1.Id);
