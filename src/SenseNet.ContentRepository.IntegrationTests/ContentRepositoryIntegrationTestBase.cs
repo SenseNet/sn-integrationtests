@@ -22,13 +22,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
     /// [ClassCleanup] public static void CleanupClass() { TearDown(); }
     /// </summary>
     [TestClass]
-    public abstract class IntegrationTestBase
+    public abstract class ContentRepositoryIntegrationTestBase
     {
         #region Infrastructure
 
         public TestContext TestContext { get; set; }
 
-        private static IntegrationTestBase _instance;
+        private static ContentRepositoryIntegrationTestBase _instance;
 
         private string _databaseName;
         private string _connectionString;
@@ -172,10 +172,5 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
         #endregion
 
-
-        [TestMethod]
-        public void TestMethod1()
-        {
-        }
     }
 }

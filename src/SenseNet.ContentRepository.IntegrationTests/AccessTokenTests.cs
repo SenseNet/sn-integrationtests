@@ -12,7 +12,7 @@ using SenseNet.ContentRepository.Storage.Security;
 namespace SenseNet.ContentRepository.IntegrationTests
 {
     [TestClass]
-    public class AccessTokenTests : IntegrationTestBase
+    public class AccessTokenTests : ContentRepositoryIntegrationTestBase
     {
         [TestInitialize]
         public async Tasks.Task InitializeTest()

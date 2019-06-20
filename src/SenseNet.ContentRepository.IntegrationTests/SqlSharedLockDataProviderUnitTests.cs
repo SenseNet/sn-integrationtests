@@ -10,7 +10,7 @@ using SenseNet.ContentRepository.Storage.Security;
 namespace SenseNet.ContentRepository.IntegrationTests
 {
     [TestClass]
-    public class SqlSharedLockDataProviderUnitTests : IntegrationTestBase
+    public class SqlSharedLockDataProviderUnitTests : ContentRepositoryIntegrationTestBase
     {
         [TestInitialize]
         public void InitializeTest()
