@@ -79,6 +79,7 @@
     <Compile Include="ConnectionStrings.cs" />
     <Compile Include="Implementations\SqlTestingDataProvider.cs" />
     <Compile Include="IntegrationTestBase.cs" />
+    <Compile Include="MsSqlIntegrationTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

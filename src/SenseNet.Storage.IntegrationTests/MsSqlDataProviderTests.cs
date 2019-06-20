@@ -30,19 +30,8 @@ using Task = System.Threading.Tasks.Task;
 namespace SenseNet.Storage.IntegrationTests
 {
     [TestClass]
-    public partial class MsSqlDataProviderTests : IntegrationTestBase
+    public partial class MsSqlDataProviderTests : MsSqlIntegrationTestBase
     {
-        protected override DataProvider2 DataProvider => new MsSqlDataProvider();
-        protected override ISharedLockDataProviderExtension SharedLockDataProvider => new SqlSharedLockDataProvider();
-        protected override IAccessTokenDataProviderExtension AccessTokenDataProvider => new SqlAccessTokenDataProvider();
-        protected override IBlobStorageMetaDataProvider BlobStorageMetaDataProvider => new MsSqlBlobMetaDataProvider();
-        protected override ITestingDataProviderExtension TestingDataProvider => new SqlTestingDataProvider();
-
-        // ReSharper disable once InconsistentNaming
-        private static MsSqlDataProvider DP => (MsSqlDataProvider)DataStore.DataProvider;
-        // ReSharper disable once InconsistentNaming
-        private static ITestingDataProviderExtension TDP => DataStore.GetDataProviderExtension<ITestingDataProviderExtension>();
-
         [TestMethod]
         public async Task MsSqlDP_InsertNode()
         {
