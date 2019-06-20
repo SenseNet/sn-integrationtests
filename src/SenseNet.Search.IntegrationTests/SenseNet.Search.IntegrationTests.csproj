@@ -80,6 +80,7 @@
     <Compile Include="ActivityQueueSelectorTests.cs" />
     <Compile Include="CentralizedIndexingInMemoryTests.cs" />
     <Compile Include="CentralizedIndexingSqlTests.cs" />
+    <Compile Include="CentralizedIndexingTestCases.cs" />
     <Compile Include="FieldIndexHandlerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -14,9 +14,12 @@ using SenseNet.ContentRepository.Search.Querying;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
+using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.ContentRepository.Versioning;
+using SenseNet.IntegrationTests.Common;
+using SenseNet.IntegrationTests.Common.Implementations;
 using SenseNet.Portal;
 using SenseNet.Search.Indexing;
 using SenseNet.Search.Querying;
@@ -27,8 +30,14 @@ using Task = System.Threading.Tasks.Task;
 namespace SenseNet.Storage.IntegrationTests
 {
     [TestClass]
-    public partial class MsSqlDataProviderTests : StorageTestBase
+    public partial class MsSqlDataProviderTests : IntegrationTestBase
     {
+        protected override DataProvider2 DataProvider => new MsSqlDataProvider();
+        protected override ISharedLockDataProviderExtension SharedLockDataProvider => new SqlSharedLockDataProvider();
+        protected override IAccessTokenDataProviderExtension AccessTokenDataProvider => new SqlAccessTokenDataProvider();
+        protected override IBlobStorageMetaDataProvider BlobStorageMetaDataProvider => new MsSqlBlobMetaDataProvider();
+        protected override ITestingDataProviderExtension TestingDataProvider => new SqlTestingDataProvider();
+
         // ReSharper disable once InconsistentNaming
         private static MsSqlDataProvider DP => (MsSqlDataProvider)DataStore.DataProvider;
         // ReSharper disable once InconsistentNaming
@@ -2757,6 +2766,5 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             return string.Join(",", array.Select(x => x.ToString()));
         }
-
     }
 }

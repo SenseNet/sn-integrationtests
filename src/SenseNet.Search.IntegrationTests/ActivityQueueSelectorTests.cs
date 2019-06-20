@@ -144,7 +144,7 @@ namespace SenseNet.Search.IntegrationTests
         }
 
         [TestMethod, TestCategory("IR")]
-        public void Indexing_Centralized_InMemory_ExecuteUnprocessed()
+        public void Indexing_ActivitySelector_Centralized_InMemory_ExecuteUnprocessed()
         {
             var dataProvider = new InMemoryDataProvider();
             var searchEngine = new SearchEngineForActivityQueueSelectorTests(false);

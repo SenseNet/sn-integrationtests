@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using STT = System.Threading.Tasks;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository;
@@ -25,15 +25,15 @@ using SenseNet.Security.Data;
 using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
 
-namespace SenseNet.Storage.IntegrationTests
+namespace SenseNet.IntegrationTests.Common
 {
-    public class StorageTestBase
+    public abstract class IntegrationTestBase
     {
         #region Infrastructure
 
         public TestContext TestContext { get; set; }
 
-        private static StorageTestBase _instance;
+        private static IntegrationTestBase _instance;
         private static RepositoryInstance _repositoryInstance;
 
         private string _databaseName;
@@ -41,16 +41,16 @@ namespace SenseNet.Storage.IntegrationTests
         private string _connectionStringBackup;
         private string _securityConnectionStringBackup;
 
-        public STT.Task StorageTest(Func<STT.Task> callback)
+        public System.Threading.Tasks.Task StorageTest(Func<System.Threading.Tasks.Task> callback)
         {
             return StorageTest(false, callback);
         }
-        public STT.Task IsolatedStorageTest(Func<STT.Task> callback)
+        public System.Threading.Tasks.Task IsolatedStorageTest(Func<System.Threading.Tasks.Task> callback)
         {
             return StorageTest(true, callback);
         }
 
-        private async STT.Task StorageTest(bool isolated, Func<STT.Task> callback)
+        private async System.Threading.Tasks.Task StorageTest(bool isolated, Func<System.Threading.Tasks.Task> callback)
         {
             SnTrace.Test.Enabled = true;
             SnTrace.Test.Write("START test: {0}", TestContext.TestName);
@@ -101,6 +101,23 @@ namespace SenseNet.Storage.IntegrationTests
                 }
             }
         }
+        public async System.Threading.Tasks.Task NoRepositoryIntegrtionTest(Func<System.Threading.Tasks.Task> callback)
+        {
+            SnTrace.Test.Enabled = true;
+            SnTrace.Test.Write("START test: {0}", TestContext.TestName);
+            //if(SnTrace.SnTracers.Count == 1)
+            //    SnTrace.SnTracers.Add(new SnDebugViewTracer());
+
+            DataStore.Enabled = true;
+
+            var brandNew = EnsureDatabase();
+            if (brandNew)
+            {
+                var builder = CreateRepositoryBuilderForStorageTest();
+            }
+
+            await callback();
+        }
 
         private bool EnsureDatabase()
         {
@@ -109,13 +126,13 @@ namespace SenseNet.Storage.IntegrationTests
             {
                 using (var op = SnTrace.Test.StartOperation("Install database."))
                 {
-                    _connectionStringBackup = ConnectionStrings.ConnectionString;
-                    _securityConnectionStringBackup = ConnectionStrings.SecurityDatabaseConnectionString;
+                    _connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
+                    _securityConnectionStringBackup = Configuration.ConnectionStrings.SecurityDatabaseConnectionString;
                     _connectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForStorageTests;
                     _databaseName = GetDatabaseName(_connectionString);
 
-                    ConnectionStrings.ConnectionString = _connectionString;
-                    ConnectionStrings.SecurityDatabaseConnectionString = _connectionString;
+                    Configuration.ConnectionStrings.ConnectionString = _connectionString;
+                    Configuration.ConnectionStrings.SecurityDatabaseConnectionString = _connectionString;
 
                     PrepareDatabase();
 
@@ -136,26 +153,31 @@ namespace SenseNet.Storage.IntegrationTests
             //RebuildIndex();
         }
 
+        protected abstract DataProvider2 DataProvider { get; }
+        protected abstract ISharedLockDataProviderExtension SharedLockDataProvider { get; }
+        protected abstract IAccessTokenDataProviderExtension AccessTokenDataProvider { get; }
+        protected abstract IBlobStorageMetaDataProvider BlobStorageMetaDataProvider { get; }
+        protected abstract ITestingDataProviderExtension TestingDataProvider { get; }
 
-        protected static RepositoryBuilder CreateRepositoryBuilderForStorageTest()
+        protected RepositoryBuilder CreateRepositoryBuilderForStorageTest()
         {
-            var dp2 = new MsSqlDataProvider();
+            var dp2 = DataProvider;
             Providers.Instance.DataProvider2 = dp2;
 
-using (var op = SnTrace.Test.StartOperation("Install initial data."))
-{
-    var backup = DataStore.Enabled;
-    DataStore.Enabled = true;
-    DataStore.InstallInitialDataAsync(GetInitialData()).Wait();
-    DataStore.Enabled = backup;
-    op.Successful = true;
-}
+            using (var op = SnTrace.Test.StartOperation("Install initial data."))
+            {
+                var backup = DataStore.Enabled;
+                DataStore.Enabled = true;
+                DataStore.InstallInitialDataAsync(GetInitialData()).Wait();
+                DataStore.Enabled = backup;
+                op.Successful = true;
+            }
             var inMemoryIndex = GetInitialIndex();
 
-            dp2.SetExtension(typeof(ISharedLockDataProviderExtension), new SqlSharedLockDataProvider());
-            dp2.SetExtension(typeof(IAccessTokenDataProviderExtension), new SqlAccessTokenDataProvider());
+            dp2.SetExtension(typeof(ISharedLockDataProviderExtension), SharedLockDataProvider);
+            dp2.SetExtension(typeof(IAccessTokenDataProviderExtension), AccessTokenDataProvider);
 
-            Providers.Instance.BlobMetaDataProvider2 = new MsSqlBlobMetaDataProvider();
+            Providers.Instance.BlobMetaDataProvider2 = BlobStorageMetaDataProvider;
 
             var dataProvider = new InMemoryDataProvider();
             var securityDataProvider = GetSecurityDataProvider(dataProvider);
@@ -163,17 +185,16 @@ using (var op = SnTrace.Test.StartOperation("Install initial data."))
             return new RepositoryBuilder()
                 .UseAccessProvider(new DesktopAccessProvider())
                 .UseDataProvider(dataProvider)
-                .UseTestingDataProviderExtension(new SqlTestingDataProvider())
                 .UseSharedLockDataProviderExtension(new InMemorySharedLockDataProvider())
                 .UseBlobMetaDataProvider(DataStore.Enabled
-                    ? (IBlobStorageMetaDataProvider)new MsSqlBlobMetaDataProvider()
+                    ? BlobStorageMetaDataProvider
                     : new InMemoryBlobStorageMetaDataProvider(dataProvider))
                 .UseBlobProviderSelector(new InMemoryBlobProviderSelector())
-                .UseAccessTokenDataProviderExtension(new SqlAccessTokenDataProvider())
+                .UseAccessTokenDataProviderExtension(AccessTokenDataProvider)
                 .UseSearchEngine(new InMemorySearchEngine(inMemoryIndex))
                 .UseSecurityDataProvider(securityDataProvider)
                 .UseTestingDataProviderExtension(DataStore.Enabled
-                    ? (ITestingDataProviderExtension)new SqlTestingDataProvider()
+                    ? TestingDataProvider
                     : new InMemoryTestingDataProvider()) //DB:ok
                 .UseElevatedModificationVisibilityRuleProvider(new ElevatedModificationVisibilityRule())
                 .StartWorkflowEngine(false)
@@ -219,9 +240,9 @@ using (var op = SnTrace.Test.StartOperation("Install initial data."))
         private void TearDownPrivate()
         {
             if (_connectionStringBackup != null)
-                ConnectionStrings.ConnectionString = _connectionStringBackup;
+                Configuration.ConnectionStrings.ConnectionString = _connectionStringBackup;
             if (_securityConnectionStringBackup != null)
-                ConnectionStrings.SecurityDatabaseConnectionString = _securityConnectionStringBackup;
+                Configuration.ConnectionStrings.SecurityDatabaseConnectionString = _securityConnectionStringBackup;
         }
 
         protected void PrepareDatabase()
@@ -341,6 +362,5 @@ using (var op = SnTrace.Test.StartOperation("Install initial data."))
             var a = string.Join(", ", actual.Select(x => x.ToString()));
             Assert.AreEqual(e, a);
         }
-
     }
 }
