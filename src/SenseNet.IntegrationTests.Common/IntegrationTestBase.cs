@@ -27,6 +27,12 @@ using SenseNet.Tests.Implementations;
 
 namespace SenseNet.IntegrationTests.Common
 {
+    /// <summary>
+    /// Base IntegrationTests class for the various features of the ContentRepository and Storage
+    /// This class installs SQL database once but does not start a Repository.
+    /// The right cleanup needs a static cleanup method in the overwritten instance:
+    /// [ClassCleanup] public static void CleanupClass() { TearDown(); }
+    /// </summary>
     public abstract class IntegrationTestBase
     {
         #region Infrastructure
