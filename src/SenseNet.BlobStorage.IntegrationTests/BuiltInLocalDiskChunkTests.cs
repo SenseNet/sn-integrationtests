@@ -9,7 +9,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
     public class BuiltInLocalDiskChunkTests : BlobStorageIntegrationTests
     {
         protected override string DatabaseName => "sn7blobtests_builtin";
-        protected override bool SqlFsEnabled => true;
+        protected override bool SqlFsEnabled => false;
         protected override bool SqlFsUsed => false;
         protected override Type ExpectedExternalBlobProviderType => typeof(LocalDiskChunkBlobProvider);
         protected override Type ExpectedMetadataProviderType => typeof(MsSqlBlobMetaDataProvider);

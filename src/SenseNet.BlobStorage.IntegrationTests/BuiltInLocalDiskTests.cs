@@ -12,8 +12,8 @@ namespace SenseNet.BlobStorage.IntegrationTests
     [TestClass]
     public class BuiltInLocalDiskTests : BlobStorageIntegrationTests
     {
-        protected override string DatabaseName => "sn7blobtests_builtinfs";
-        protected override bool SqlFsEnabled => true;
+        protected override string DatabaseName => "sn7blobtests_builtin"; //"sn7blobtests_builtinfs";
+        protected override bool SqlFsEnabled => false;
         protected override bool SqlFsUsed => false;
         protected override Type ExpectedExternalBlobProviderType => typeof(LocalDiskBlobProvider);
         protected override Type ExpectedMetadataProviderType => typeof(MsSqlBlobMetaDataProvider);
@@ -137,6 +137,8 @@ namespace SenseNet.BlobStorage.IntegrationTests
             // BlobMetadata provider reads this value that overrides the BlobProvider settings
             // and the SnStream constructor instantiates a RepositoryStream with a zero length buffer.
 
+            Assert.Inconclusive();
+
             using (new SystemAccount())
             using (new SizeLimitSwindler(this, 10))
             {
@@ -147,7 +149,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 file.Save();
                 var fileId = file.Binary.FileId;
                 var versionId = file.VersionId;
-                HackFileRowFileStream(fileId, new byte[0]);
+                HackFileRowStream(fileId, new byte[0]);
                 var dbFile = LoadDbFile(fileId);
                 Assert.IsNotNull(dbFile.BlobProvider);
                 Assert.IsNotNull(dbFile.BlobProviderData);

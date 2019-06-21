@@ -6,6 +6,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using IO = System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.Common.Storage.Data;
+using SenseNet.Common.Storage.Data.MsSqlClient;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository;
 using SenseNet.ContentRepository.Schema;
@@ -13,12 +15,16 @@ using SenseNet.ContentRepository.Search;
 using SenseNet.ContentRepository.Security;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
+using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.ContentRepository.Storage.Security;
 using SenseNet.Diagnostics;
 using SenseNet.MsSqlFsBlobProvider;
+using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
+// ReSharper disable AccessToDisposedClosure
 
 namespace SenseNet.BlobStorage.IntegrationTests
 {
@@ -43,22 +49,70 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected virtual void UpdateFileCreationDate(int fileId, DateTime dateTime)
         {
             var sql = $"UPDATE Files SET CreationDate = @CreationDate WHERE FileId = {fileId}";
-            using (var proc = DataProvider.Instance.CreateDataProcedure(sql)
-                .AddParameter("@CreationDate", dateTime))
+            if (DataStore.Enabled)
             {
-                proc.CommandType = CommandType.Text;
-                proc.ExecuteNonQuery();
+                using (var ctx = new SnDataContext((MsSqlDataProvider) DataStore.DataProvider))
+                {
+                    ctx.ExecuteNonQueryAsync(sql, cmd =>
+                    {
+                        cmd.Parameters.Add(ctx.CreateParameter("@CreationDate", DbType.DateTime2, dateTime));
+                    }).Wait();
+                }
             }
-
+            else
+            {
+                using (var proc = DataProvider.Instance.CreateDataProcedure(sql)
+                    .AddParameter("@CreationDate", dateTime))
+                {
+                    proc.CommandType = CommandType.Text;
+                    proc.ExecuteNonQuery();
+                }
+            }
         }
         protected void HackFileRowFileStream(int fileId, byte[] bytes)
         {
             var sql = $"UPDATE Files SET FileStream = @FileStream WHERE FileId = {fileId}";
-            using (var proc = DataProvider.Instance.CreateDataProcedure(sql)
-                .AddParameter("@FileStream", bytes))
+            if (DataStore.Enabled)
             {
-                proc.CommandType = CommandType.Text;
-                proc.ExecuteNonQuery();
+                using (var ctx = new SnDataContext((MsSqlDataProvider)DataStore.DataProvider))
+                {
+                    ctx.ExecuteNonQueryAsync(sql, cmd =>
+                    {
+                        cmd.Parameters.Add(ctx.CreateParameter("@FileStream", DbType.Binary, bytes));
+                    }).Wait();
+                }
+            }
+            else
+            {
+                using (var proc = DataProvider.Instance.CreateDataProcedure(sql)
+                    .AddParameter("@FileStream", bytes))
+                {
+                    proc.CommandType = CommandType.Text;
+                    proc.ExecuteNonQuery();
+                }
+            }
+        }
+        protected void HackFileRowStream(int fileId, byte[] bytes)
+        {
+            var sql = $"UPDATE Files SET Stream = @Stream WHERE FileId = {fileId}";
+            if (DataStore.Enabled)
+            {
+                using (var ctx = new SnDataContext((MsSqlDataProvider)DataStore.DataProvider))
+                {
+                    ctx.ExecuteNonQueryAsync(sql, cmd =>
+                    {
+                        cmd.Parameters.Add(ctx.CreateParameter("@Stream", DbType.Binary, bytes));
+                    }).Wait();
+                }
+            }
+            else
+            {
+                using (var proc = DataProvider.Instance.CreateDataProcedure(sql)
+                    .AddParameter("@FileStream", bytes))
+                {
+                    proc.CommandType = CommandType.Text;
+                    proc.ExecuteNonQuery();
+                }
             }
         }
 
@@ -81,14 +135,19 @@ namespace SenseNet.BlobStorage.IntegrationTests
         private string _connectionStringBackup;
         private string _securityConnectionStringBackup;
         private RepositoryInstance _repositoryInstance;
+        private RepositoryInstance _commonRepositoryInstance;
         [TestInitialize]
         public void Initialize()
         {
+            if(SqlFsEnabled)
+                Assert.Inconclusive();
+
             // Test class initialization problem: the test framework
             // uses brand new instance for each test method.
 
             SnTrace.Test.Enabled = true;
             SnTrace.Test.Write("START test: {0}", TestContext.TestName);
+            DataStore.Enabled = true;
 
             var prepared = Instances.TryGetValue(GetType(), out var instance);
             if (!prepared)
@@ -161,8 +220,10 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
         protected void PrepareDatabase()
         {
-            var scriptRootPath = IO.Path.GetFullPath(IO.Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\sensenet\src\Storage\Data\SqlClient\Scripts"));
+            var scriptRootPath = IO.Path.GetFullPath(IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                DataStore.Enabled
+                ? @"..\..\..\..\..\sensenet\src\Storage\Data\MsSqlClient\Scripts"
+                : @"..\..\..\..\..\sensenet\src\Storage\Data\SqlClient\Scripts"));
 
             var dbid = ExecuteSqlScalarNative<int?>($"SELECT database_id FROM sys.databases WHERE Name = '{DatabaseName}'", "master");
             if (dbid == null)
@@ -176,17 +237,26 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 ExecuteSqlCommandNative(sql, "master");
             }
             // prepare database
-            ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_Security.sql"), DatabaseName);
-            ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_01_Schema.sql"), DatabaseName);
-            ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_02_Procs.sql"), DatabaseName);
-            ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_03_Data_Phase1.sql"), DatabaseName);
-            ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_04_Data_Phase2.sql"), DatabaseName);
+            if (DataStore.Enabled)
+            {
+                ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"MsSqlInstall_Security.sql"), DatabaseName);
+                ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"MsSqlInstall_01_Schema.sql"), DatabaseName);
+            }
+            else
+            {
+                ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_Security.sql"), DatabaseName);
+                ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_01_Schema.sql"), DatabaseName);
+                ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_02_Procs.sql"), DatabaseName);
+                ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_03_Data_Phase1.sql"), DatabaseName);
+                ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"Install_04_Data_Phase2.sql"), DatabaseName);
+            }
 
             if (SqlFsEnabled)
             {
+                throw new NotSupportedException();
                 ExecuteSqlScriptNative(
-                    IO.Path.Combine(IO.Path.GetFullPath(IO.Path.Combine(
-                                AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\sn-blob-mssqlfs\src\MsSqlFsBlobProvider\Scripts")),
+                    IO.Path.Combine(IO.Path.GetFullPath(IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                        @"..\..\..\..\..\sn-blob-mssqlfs\src\MsSqlFsBlobProvider\Scripts")),
                         @"EnableFilestream.sql"), DatabaseName);
             }
         }
@@ -242,12 +312,31 @@ namespace SenseNet.BlobStorage.IntegrationTests
         {
             Configuration.BlobStorage.BlobProviderClassName = ExpectedExternalBlobProviderType?.FullName;
             BuiltInBlobProviderSelector.ExternalBlobProvider = null; // reset external provider
-
             var blobMetaDataProvider = (IBlobStorageMetaDataProvider)Activator.CreateInstance(ExpectedMetadataProviderType);
+
+            /* ------------------------------------------------------------------------ */
+            var dp2 = new MsSqlDataProvider();
+            Providers.Instance.DataProvider2 = dp2;
+
+            using (var op = SnTrace.Test.StartOperation("Install initial data."))
+            {
+                var backup = DataStore.Enabled;
+                DataStore.Enabled = true;
+                DataStore.InstallInitialDataAsync(GetInitialData()).Wait();
+                DataStore.Enabled = backup;
+                op.Successful = true;
+            }
+            var inMemoryIndex = GetInitialIndex();
+
+            dp2.SetExtension(typeof(ISharedLockDataProviderExtension), new SqlSharedLockDataProvider());
+            dp2.SetExtension(typeof(IAccessTokenDataProviderExtension), new SqlAccessTokenDataProvider());
+
+            Providers.Instance.BlobMetaDataProvider2 = blobMetaDataProvider;
+            /* ------------------------------------------------------------------------ */
 
             var builder = new RepositoryBuilder()
                 .UseAccessProvider(new DesktopAccessProvider())
-                .UseSearchEngine(new InMemorySearchEngine(new InMemoryIndex()))
+                .UseSearchEngine(new InMemorySearchEngine(inMemoryIndex))
                 .UseElevatedModificationVisibilityRuleProvider(new ElevatedModificationVisibilityRule())
                 //.StartIndexingEngine(false)
                 .StartWorkflowEngine(false)
@@ -274,7 +363,9 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
         protected void SaveInitialIndexDocuments()
         {
-            var idSet = DataProvider.LoadIdsOfNodesThatDoNotHaveIndexDocument(0, 11000);
+            var idSet = DataStore.Enabled 
+                ? DataStore.LoadNotIndexedNodeIdsAsync(0, 11000).Result
+                : DataProvider.LoadIdsOfNodesThatDoNotHaveIndexDocument(0, 11000); //DB:ok
             var nodes = Node.LoadNodes(idSet);
 
             if (nodes.Count == 0)
@@ -291,6 +382,37 @@ namespace SenseNet.BlobStorage.IntegrationTests
             var populator = SearchManager.GetIndexPopulator();
             populator.NodeIndexed += (o, e) => { /* collect paths if there is any problem */ };
             populator.ClearAndPopulateAll();
+        }
+
+        private static InitialData _initialData;
+        protected static InitialData GetInitialData()
+        {
+            if (_initialData == null)
+            {
+                InitialData initialData;
+                using (var ptr = new IO.StringReader(InitialTestData.PropertyTypes))
+                using (var ntr = new IO.StringReader(InitialTestData.NodeTypes))
+                using (var nr = new IO.StringReader(InitialTestData.Nodes))
+                using (var vr = new IO.StringReader(InitialTestData.Versions))
+                using (var dr = new IO.StringReader(InitialTestData.DynamicData))
+                    initialData = InitialData.Load(ptr, ntr, nr, vr, dr);
+                initialData.ContentTypeDefinitions = InitialTestData.ContentTypeDefinitions;
+                initialData.Blobs = InitialTestData.GeneralBlobs;
+                _initialData = initialData;
+            }
+            return _initialData;
+        }
+
+        private static InMemoryIndex _initialIndex;
+        protected static InMemoryIndex GetInitialIndex()
+        {
+            if (_initialIndex == null)
+            {
+                var index = new InMemoryIndex();
+                index.Load(new IO.StringReader(InitialTestIndex.Index));
+                _initialIndex = index;
+            }
+            return _initialIndex.Clone();
         }
 
         private DbDataReader ExecuteSqlReader(string sql)
@@ -845,7 +967,9 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 var propertyTypeId = PropertyType.GetByName("Binary").Id;
 
                 // action
-                var binaryCacheEntity = DataProvider.Current.LoadBinaryCacheEntity(file.VersionId, propertyTypeId);
+                var binaryCacheEntity = DataStore.Enabled
+                    ? ContentRepository.Storage.Data.BlobStorage.LoadBinaryCacheEntity(file.VersionId, propertyTypeId)
+                    : DataProvider.Current.LoadBinaryCacheEntity(file.VersionId, propertyTypeId); //DB:ok
 
                 // assert
                 Assert.AreEqual(binaryPropertyId, binaryCacheEntity.BinaryPropertyId);
@@ -1003,15 +1127,38 @@ namespace SenseNet.BlobStorage.IntegrationTests
             var propTypeId = ActiveSchema.PropertyTypes[propertyName].Id;
             var sql = $@"SELECT f.* FROM BinaryProperties b JOIN Files f on f.FileId = b.FileId WHERE b.VersionId = {versionId} and b.PropertyTypeId = {propTypeId}";
             var dbFiles = new List<DbFile>();
-            using (var reader = ExecuteSqlReader(sql))
-                while (reader.Read())
-                    dbFiles.Add(GetFileFromReader(reader));
+
+            if (DataStore.Enabled)
+            {
+                using (var ctx = new SnDataContext((MsSqlDataProvider) DataStore.DataProvider))
+                {
+                    var _ = ctx.ExecuteReaderAsync(sql, async reader =>
+                    {
+                        while (await reader.ReadAsync())
+                            dbFiles.Add(GetFileFromReader(reader));
+                        return true;
+                    }).Result;
+                }
+            }
+            else
+            {
+                using (var reader = ExecuteSqlReader(sql))
+                    while (reader.Read())
+                        dbFiles.Add(GetFileFromReader(reader));
+            }
 
             return dbFiles.ToArray();
         }
         protected DbFile LoadDbFile(int fileId)
         {
             var sql = $@"SELECT * FROM Files WHERE FileId = {fileId}";
+            if (DataStore.Enabled)
+            {
+                using (var ctx = new SnDataContext((MsSqlDataProvider)DataStore.DataProvider))
+                    return ctx.ExecuteReaderAsync(sql, async reader => 
+                        await reader.ReadAsync() ? GetFileFromReader(reader) : null).Result;
+            }
+
             using (var reader = ExecuteSqlReader(sql))
                 return reader.Read() ? GetFileFromReader(reader) : null;
         }
@@ -1035,7 +1182,9 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 Stream = reader.GetSafeBytes(reader.GetOrdinal("Stream")),
                 Checksum = reader.GetSafeString(reader.GetOrdinal("Checksum")),
                 RowGuid = reader.GetGuid(reader.GetOrdinal("RowGuid")),
-                Timestamp = DataProvider.GetLongFromBytes((byte[])reader[reader.GetOrdinal("Timestamp")])
+                Timestamp = DataStore.Enabled 
+                    ? reader.GetSafeLongFromBytes("Timestamp")
+                    : DataProvider.GetLongFromBytes((byte[])reader[reader.GetOrdinal("Timestamp")])
             };
             if (reader.FieldCount > 16)
                 file.FileStream = reader.GetSafeBytes(reader.GetOrdinal("FileStream"));
