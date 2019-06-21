@@ -131,37 +131,41 @@ namespace SenseNet.BlobStorage.IntegrationTests
             SnTrace.Test.Write("------------------------------------------------------");
         }
 
-        private string _connectionString;
+        [AssemblyCleanup]
+        public static void FinalizeAllTests()
+        {
+            _commonRepositoryInstance?.Dispose();
+        }
+        public static void TearDown(Type instance)
+        {
+            //UNDONE:DB: delete this method
+        }
+
         private string _connectionStringBackup;
         private string _securityConnectionStringBackup;
-        private RepositoryInstance _repositoryInstance;
-        private RepositoryInstance _commonRepositoryInstance;
+        private static RepositoryInstance _commonRepositoryInstance;
         [TestInitialize]
         public void Initialize()
         {
             if(SqlFsEnabled)
                 Assert.Inconclusive();
 
-            // Test class initialization problem: the test framework
-            // uses brand new instance for each test method.
-
             SnTrace.Test.Enabled = true;
             SnTrace.Test.Write("START test: {0}", TestContext.TestName);
             DataStore.Enabled = true;
 
-            var prepared = Instances.TryGetValue(GetType(), out var instance);
-            if (!prepared)
+            _connectionStringBackup = ConnectionStrings.ConnectionString;
+            _securityConnectionStringBackup = ConnectionStrings.SecurityDatabaseConnectionString;
+            var connectionString = GetConnectionString(DatabaseName);
+            ConnectionStrings.ConnectionString = connectionString;
+            ConnectionStrings.SecurityDatabaseConnectionString = connectionString;
+
+            if (_commonRepositoryInstance == null)
             {
                 using (var op = SnTrace.Test.StartOperation("Initialize {0}", DatabaseName))
                 {
                     ContentTypeManager.Reset();
                     //ActiveSchema.Reset();
-
-                    _connectionStringBackup = ConnectionStrings.ConnectionString;
-                    _securityConnectionStringBackup = ConnectionStrings.SecurityDatabaseConnectionString;
-                    _connectionString = GetConnectionString(DatabaseName);
-                    ConnectionStrings.ConnectionString = _connectionString;
-                    ConnectionStrings.SecurityDatabaseConnectionString = _connectionString;
 
                     PrepareDatabase();
 
@@ -172,7 +176,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                     using (repositoryInstance = Repository.Start(builder))
                     using (new SystemAccount())
                         PrepareRepository();
-                    _repositoryInstance = repositoryInstance;
+                    _commonRepositoryInstance = repositoryInstance;
 
                     new SnMaintenance().Shutdown();
 
@@ -183,9 +187,6 @@ namespace SenseNet.BlobStorage.IntegrationTests
             }
             else
             {
-                ConnectionStrings.ConnectionString = instance._connectionString;
-                ConnectionStrings.SecurityDatabaseConnectionString = instance._connectionString;
-
                 BuiltInBlobProviderSelector.ExternalBlobProvider = ExpectedExternalBlobProviderType == null
                     ? null
                     : (IBlobProvider)Activator.CreateInstance(ExpectedExternalBlobProviderType);
@@ -198,24 +199,14 @@ namespace SenseNet.BlobStorage.IntegrationTests
         [TestCleanup]
         public void CleanupTest()
         {
-            SnTrace.Test.Enabled = true;
-            SnTrace.Test.Write("END test: {0}", TestContext.TestName);
-            SnTrace.Flush();
-        }
-
-        protected static void TearDown(Type type)
-        {
-            Instances.TryGetValue(type, out var instance);
-            instance?.TearDownPrivate();
-        }
-        private void TearDownPrivate()
-        {
             if (_connectionStringBackup != null)
                 ConnectionStrings.ConnectionString = _connectionStringBackup;
             if (_securityConnectionStringBackup != null)
                 ConnectionStrings.SecurityDatabaseConnectionString = _securityConnectionStringBackup;
 
-            _repositoryInstance?.Dispose();
+            SnTrace.Test.Enabled = true;
+            SnTrace.Test.Write("END test: {0}", TestContext.TestName);
+            SnTrace.Flush();
         }
 
         protected void PrepareDatabase()
