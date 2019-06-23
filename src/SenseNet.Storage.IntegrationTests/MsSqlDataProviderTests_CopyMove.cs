@@ -28,390 +28,465 @@ namespace SenseNet.Storage.IntegrationTests
                 CheckContentListItem2(testRoot, "TargetContentList/SourceNode");
             });
         }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_LeafNodeToContentListItem()
+        {
+            MoveTest(testRoot =>
+            {
+                //2: MoveLeafNodeToContentListItem
+                //Create [TestRoot]/SourceNode
+                //Create [TestRoot]/TargetContentList/TargetItemFolder
+                //Move SourceNode, TargetItemFolder
+                //Check: Node => Item
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceNode");
+                EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
+                MoveNode(testRoot, "SourceNode", "TargetContentList/TargetItemFolder");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceNode");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_NodeTreeToContentList()
+        {
+            MoveTest(testRoot =>
+            {
+                //3: MoveNodeTreeToContentList
+                //Create [TestRoot]/SourceFolder/SourceNode
+                //Create [TestRoot]/TargetContentList
+                //Move SourceFolder, TargetContentList
+                //Check: NodeTree => ItemTree
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceFolder/SourceNode");
+                EnsureNode(testRoot, "TargetContentList");
+                MoveNode(testRoot, "SourceFolder", "TargetContentList");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceFolder");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceFolder/SourceNode");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_NodeTreeToContentListItem()
+        {
+            MoveTest(testRoot =>
+            {
+                //4: MoveNodeTreeToContentListItem
+                //Create [TestRoot]/SourceFolder/SourceNode
+                //Create [TestRoot]/TargetContentList/TargetItemFolder
+                //Move SourceFolder, TargetItemFolder
+                //Check: NodeTree => ItemTree
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceFolder/SourceNode");
+                EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
+                MoveNode(testRoot, "SourceFolder", "TargetContentList/TargetItemFolder");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceFolder");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceFolder/SourceNode");
+            });
+        }
         //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_LeafNodeToContentListItem()
+        //public void MsSqlDP_Move_ContentList_NodeWithContentListToNode()
         //{
-        //    //2: MoveLeafNodeToContentListItem
-        //    //Create [TestRoot]/SourceNode
-        //    //Create [TestRoot]/TargetContentList/TargetItemFolder
-        //    //Move SourceNode, TargetItemFolder
-        //    //Check: Node => Item
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceNode");
-        //    EnsureNode("[TestRoot]/TargetContentList/TargetItemFolder");
-        //    MoveNode("[TestRoot]/SourceNode", "[TestRoot]/TargetContentList/TargetItemFolder");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/TargetItemFolder/SourceNode");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_NodeTreeToContentList()
-        //{
-        //    //3: MoveNodeTreeToContentList
-        //    //Create [TestRoot]/SourceFolder/SourceNode
-        //    //Create [TestRoot]/TargetContentList
-        //    //Move SourceFolder, TargetContentList
-        //    //Check: NodeTree => ItemTree
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceFolder/SourceNode");
-        //    EnsureNode("[TestRoot]/TargetContentList");
-        //    MoveNode("[TestRoot]/SourceFolder", "[TestRoot]/TargetContentList");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/SourceFolder");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/SourceFolder/SourceNode");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_NodeTreeToContentListItem()
-        //{
-        //    //4: MoveNodeTreeToContentListItem
-        //    //Create [TestRoot]/SourceFolder/SourceNode
-        //    //Create [TestRoot]/TargetContentList/TargetItemFolder
-        //    //Move SourceFolder, TargetItemFolder
-        //    //Check: NodeTree => ItemTree
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceFolder/SourceNode");
-        //    EnsureNode("[TestRoot]/TargetContentList/TargetItemFolder");
-        //    MoveNode("[TestRoot]/SourceFolder", "[TestRoot]/TargetContentList/TargetItemFolder");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/TargetItemFolder/SourceFolder");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/TargetItemFolder/SourceFolder/SourceNode");
-        //}
-        ////[TestMethod]
-        ////public void MsSqlDP_Move_ContentList_NodeWithContentListToNode()
-        ////{
-        ////    //5: MoveNodeWithContentListToNode
-        ////    //Create [TestRoot]/SourceFolder/SourceContentList/SourceContentListItem
-        ////    //Create [TestRoot]/TargetFolder
-        ////    //Move SourceFolder, TargetFolder
-        ////    //Check: Unchanged contentlist and item
-        ////    PrepareTest();
-        ////    EnsureNode("[TestRoot]/SourceFolder/SourceContentList/SourceContentListItem");
-        ////    EnsureNode("[TestRoot]/TargetFolder");
-        ////    MoveNode("[TestRoot]/SourceFolder", "[TestRoot]/TargetFolder");
-        ////    CheckSimpleNode("[TestRoot]/TargetFolder/SourceFolder");
-        ////    CheckContentList1("[TestRoot]/TargetFolder/SourceFolder/SourceContentList");
-        ////    CheckContentListItem1("[TestRoot]/TargetFolder/SourceFolder/SourceContentList/SourceContentListItem");
-        ////}
-        //[TestMethod]
-        //[ExpectedException(typeof(InvalidOperationException))]
-        //public void MsSqlDP_Move_ContentList_NodeWithContentListToContentList()
-        //{
-        //    //6: MoveNodeWithContentListToContentList
+        //    //5: MoveNodeWithContentListToNode
         //    //Create [TestRoot]/SourceFolder/SourceContentList/SourceContentListItem
-        //    //Create [TestRoot]/TargetContentList
-        //    //Move SourceFolder, TargetContentList
-        //    //Check: exception
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceFolder/SourceContentList/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetContentList");
-        //    MoveNode("[TestRoot]/SourceFolder", "[TestRoot]/TargetContentList");
+        //    //Create [TestRoot]/TargetFolder
+        //    //Move SourceFolder, TargetFolder
+        //    //Check: Unchanged contentlist and item
+        //    PrepareTest();
+        //    EnsureNode(testRoot, "SourceFolder/SourceContentList/SourceContentListItem");
+        //    EnsureNode(testRoot, "TargetFolder");
+        //    MoveNode(testRoot, "SourceFolder", "TargetFolder");
+        //    CheckSimpleNode(testRoot, "TargetFolder/SourceFolder");
+        //    CheckContentList1(testRoot, "TargetFolder/SourceFolder/SourceContentList");
+        //    CheckContentListItem1(testRoot, "TargetFolder/SourceFolder/SourceContentList/SourceContentListItem");
         //}
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_ContentList_NodeWithContentListToContentList()
+        {
+            MoveTest(testRoot =>
+            {
+                //6: MoveNodeWithContentListToContentList
+                //Create [TestRoot]/SourceFolder/SourceContentList/SourceContentListItem
+                //Create [TestRoot]/TargetContentList
+                //Move SourceFolder, TargetContentList
+                //Check: exception
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceFolder/SourceContentList/SourceContentListItem");
+                EnsureNode(testRoot, "TargetContentList");
+                MoveNode(testRoot, "SourceFolder", "TargetContentList");
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_ContentList_NodeWithContentListToContentListItem()
+        {
+            MoveTest(testRoot =>
+            {
+                //7: MoveNodeWithContentListToContentListItem
+                //Create [TestRoot]/SourceFolder/SourceContentList/SourceContentListItem
+                //Create [TestRoot]/TargetContentList/TargetItemFolder
+                //Move SourceFolder, TargetItemFolder
+                //Check: exception
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceFolder/SourceContentList/SourceContentListItem");
+                EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
+                MoveNode(testRoot, "SourceFolder", "TargetContentList/TargetItemFolder");
+            });
+        }
         //[TestMethod]
-        //[ExpectedException(typeof(InvalidOperationException))]
-        //public void MsSqlDP_Move_ContentList_NodeWithContentListToContentListItem()
+        //public void MsSqlDP_Move_ContentList_ContentListToNode()
         //{
-        //    //7: MoveNodeWithContentListToContentListItem
-        //    //Create [TestRoot]/SourceFolder/SourceContentList/SourceContentListItem
-        //    //Create [TestRoot]/TargetContentList/TargetItemFolder
-        //    //Move SourceFolder, TargetItemFolder
-        //    //Check: exception
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceFolder/SourceContentList/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetContentList/TargetItemFolder");
-        //    MoveNode("[TestRoot]/SourceFolder", "[TestRoot]/TargetContentList/TargetItemFolder");
-        //}
-        ////[TestMethod]
-        ////public void MsSqlDP_Move_ContentList_ContentListToNode()
-        ////{
-        ////    //8: MoveContentListToNode
-        ////    //Create [TestRoot]/SourceContentList
-        ////    //Create [TestRoot]/TargetFolder
-        ////    //Move SourceContentList, TargetFolder
-        ////    //Check: ok
-        ////    PrepareTest();
-        ////    EnsureNode("[TestRoot]/SourceContentList");
-        ////    EnsureNode("[TestRoot]/TargetFolder");
-        ////    MoveNode("[TestRoot]/SourceContentList", "[TestRoot]/TargetFolder");
-        ////    CheckContentList1("[TestRoot]/TargetFolder/SourceContentList");
-        ////}
-        //[TestMethod]
-        //[ExpectedException(typeof(InvalidOperationException))]
-        //public void MsSqlDP_Move_ContentList_ContentListToContentList()
-        //{
-        //    //9: MoveContentListToContentList
+        //    //8: MoveContentListToNode
         //    //Create [TestRoot]/SourceContentList
-        //    //Create [TestRoot]/TargetContentList
-        //    //Move SourceContentList, TargetContentList
-        //    //Check: exception
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList");
-        //    EnsureNode("[TestRoot]/TargetContentList");
-        //    MoveNode("[TestRoot]/SourceContentList", "[TestRoot]/TargetContentList");
+        //    //Create [TestRoot]/TargetFolder
+        //    //Move SourceContentList, TargetFolder
+        //    //Check: ok
+        //    PrepareTest();
+        //    EnsureNode(testRoot, "SourceContentList");
+        //    EnsureNode(testRoot, "TargetFolder");
+        //    MoveNode(testRoot, "SourceContentList", "TargetFolder");
+        //    CheckContentList1(testRoot, "TargetFolder/SourceContentList");
         //}
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_ContentList_ContentListToContentList()
+        {
+            MoveTest(testRoot =>
+            {
+                //9: MoveContentListToContentList
+                //Create [TestRoot]/SourceContentList
+                //Create [TestRoot]/TargetContentList
+                //Move SourceContentList, TargetContentList
+                //Check: exception
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList");
+                EnsureNode(testRoot, "TargetContentList");
+                MoveNode(testRoot, "SourceContentList", "TargetContentList");
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_ContentList_ContentListToContentListItem()
+        {
+            MoveTest(testRoot =>
+            {
+                //10: MoveContentListToContentListItem
+                //Create [TestRoot]/SourceContentList
+                //Create [TestRoot]/TargetContentList/TargetItemFolder
+                //Move SourceContentList, TargetItemFolder
+                //Check: exception
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList");
+                EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
+                MoveNode(testRoot, "SourceContentList", "TargetContentList/TargetItemFolder");
+            });
+        }
         //[TestMethod]
-        //[ExpectedException(typeof(InvalidOperationException))]
-        //public void MsSqlDP_Move_ContentList_ContentListToContentListItem()
+        //public void MsSqlDP_Move_ContentList_ContentListTreeToNode()
         //{
-        //    //10: MoveContentListToContentListItem
-        //    //Create [TestRoot]/SourceContentList
-        //    //Create [TestRoot]/TargetContentList/TargetItemFolder
-        //    //Move SourceContentList, TargetItemFolder
-        //    //Check: exception
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList");
-        //    EnsureNode("[TestRoot]/TargetContentList/TargetItemFolder");
-        //    MoveNode("[TestRoot]/SourceContentList", "[TestRoot]/TargetContentList/TargetItemFolder");
-        //}
-        ////[TestMethod]
-        ////public void MsSqlDP_Move_ContentList_ContentListTreeToNode()
-        ////{
-        ////    //11: MoveContentListTreeToNode
-        ////    //Create [TestRoot]/SourceContentList/SourceContentListItem
-        ////    //Create [TestRoot]/TargetFolder
-        ////    //Move SourceContentList, TargetFolder
-        ////    //Check: ok
-        ////    PrepareTest();
-        ////    EnsureNode("[TestRoot]/SourceContentList/SourceContentListItem");
-        ////    EnsureNode("[TestRoot]/TargetFolder");
-        ////    MoveNode("[TestRoot]/SourceContentList", "[TestRoot]/TargetFolder");
-        ////    CheckContentList1("[TestRoot]/TargetFolder/SourceContentList");
-        ////    CheckContentListItem1("[TestRoot]/TargetFolder/SourceContentList/SourceContentListItem");
-        ////}
-        //[TestMethod]
-        //[ExpectedException(typeof(InvalidOperationException))]
-        //public void MsSqlDP_Move_ContentList_ContentListTreeToContentList()
-        //{
-        //    //12: MoveContentListTreeToContentList
-        //    //Create [TestRoot]/SourceContentList/SourceContentListItem
-        //    //Create [TestRoot]/TargetContentList
-        //    //Move SourceContentList, TargetContentList
-        //    //Check: exception
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetContentList");
-        //    MoveNode("[TestRoot]/SourceContentList", "[TestRoot]/TargetContentList");
-        //}
-        //[TestMethod]
-        //[ExpectedException(typeof(InvalidOperationException))]
-        //public void MsSqlDP_Move_ContentList_ContentListTreeToContentListItem()
-        //{
-        //    //13: MoveContentListTreeToContentListItem
-        //    //Create [TestRoot]/SourceContentList/SourceContentListItem
-        //    //Create [TestRoot]/TargetContentList/TargetItemFolder
-        //    //Move SourceContentList, TargetItemFolder
-        //    //Check: exception
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetContentList/TargetItemFolder");
-        //    MoveNode("[TestRoot]/SourceContentList", "[TestRoot]/TargetContentList/TargetItemFolder");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemToNode()
-        //{
-        //    //14: MoveContentListItemToNode
+        //    //11: MoveContentListTreeToNode
         //    //Create [TestRoot]/SourceContentList/SourceContentListItem
         //    //Create [TestRoot]/TargetFolder
-        //    //Move SourceContentListItem, TargetFolder
-        //    //Check: Item => Node
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetFolder");
-        //    MoveNode("[TestRoot]/SourceContentList/SourceContentListItem", "[TestRoot]/TargetFolder");
-        //    CheckSimpleNode("[TestRoot]/TargetFolder/SourceContentListItem");
+        //    //Move SourceContentList, TargetFolder
+        //    //Check: ok
+        //    PrepareTest();
+        //    EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
+        //    EnsureNode(testRoot, "TargetFolder");
+        //    MoveNode(testRoot, "SourceContentList", "TargetFolder");
+        //    CheckContentList1(testRoot, "TargetFolder/SourceContentList");
+        //    CheckContentListItem1(testRoot, "TargetFolder/SourceContentList/SourceContentListItem");
         //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemToContentList()
-        //{
-        //    //15: MoveContentListItemToContentList
-        //    //Create [TestRoot]/SourceContentList/SourceContentListItem
-        //    //Create [TestRoot]/TargetContentList
-        //    //Move SourceContentListItem, TargetContentList
-        //    //Check: Item => Item
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetContentList");
-        //    MoveNode("[TestRoot]/SourceContentList/SourceContentListItem", "[TestRoot]/TargetContentList");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/SourceContentListItem");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemToContentListItem()
-        //{
-        //    //16: MoveContentListItemToContentListItem
-        //    //Create [TestRoot]/SourceContentList/SourceContentListItem
-        //    //Create [TestRoot]/TargetContentList/TargetItemFolder
-        //    //Move SourceContentListItem, TargetItemFolder
-        //    //Check: Item => Item
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetContentList/TargetItemFolder");
-        //    MoveNode("[TestRoot]/SourceContentList/SourceContentListItem", "[TestRoot]/TargetContentList/TargetItemFolder");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/TargetItemFolder/SourceContentListItem");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemTreeToNode()
-        //{
-        //    //17: MoveContentListItemTreeToNode
-        //    //Create [TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem
-        //    //Create [TestRoot]/TargetFolder
-        //    //Move SourceItemFolder, TargetFolder
-        //    //Check: ItemTree => NodeTree
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetFolder");
-        //    MoveNode("[TestRoot]/SourceContentList/SourceItemFolder", "[TestRoot]/TargetFolder");
-        //    CheckSimpleNode("[TestRoot]/TargetFolder/SourceItemFolder");
-        //    CheckSimpleNode("[TestRoot]/TargetFolder/SourceItemFolder/SourceContentListItem");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemTreeToContentList()
-        //{
-        //    //18: MoveContentListItemTreeToContentList
-        //    //Create [TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem
-        //    //Create [TestRoot]/TargetContentList
-        //    //Move SourceItemFolder, TargetContentList
-        //    //Check: ItemTree => ItemTree
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetContentList");
-        //    MoveNode("[TestRoot]/SourceContentList/SourceItemFolder", "[TestRoot]/TargetContentList");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/SourceItemFolder");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/SourceItemFolder/SourceContentListItem");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemTreeToContentListItem()
-        //{
-        //    //19: MoveContentListItemTreeToContentListItem
-        //    //Create [TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem
-        //    //Create [TestRoot]/TargetContentList/TargetItemFolder
-        //    //Move SourceItemFolder, TargetItemFolder
-        //    //Check: ItemTree => ItemTree
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetContentList/TargetItemFolder");
-        //    MoveNode("[TestRoot]/SourceContentList/SourceItemFolder", "[TestRoot]/TargetContentList/TargetItemFolder");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/TargetItemFolder/SourceItemFolder");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/TargetItemFolder/SourceItemFolder/SourceContentListItem");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemTree2ToNode()
-        //{
-        //    //20: MoveContentListItemTree2ToNode
-        //    //Create [TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
-        //    //Create [TestRoot]/TargetFolder
-        //    //Move SourceItemFolder2, TargetFolder
-        //    //Check: ItemTree => NodeTree
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetFolder");
-        //    MoveNode("[TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2", "[TestRoot]/TargetFolder");
-        //    CheckSimpleNode("[TestRoot]/TargetFolder/SourceItemFolder2");
-        //    CheckSimpleNode("[TestRoot]/TargetFolder/SourceItemFolder2/SourceContentListItem");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemTree2ToContentList()
-        //{
-        //    //21: MoveContentListItemTree2ToContentList
-        //    //Create [TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
-        //    //Create [TestRoot]/TargetContentList
-        //    //Move SourceItemFolder2, TargetContentList
-        //    //Check: ItemTree => ItemTree
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetContentList");
-        //    MoveNode("[TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2", "[TestRoot]/TargetContentList");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/SourceItemFolder2");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/SourceItemFolder2/SourceContentListItem");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemTree2ToContentListItem()
-        //{
-        //    //22: MoveContentListItemTree2ToContentListItem
-        //    //Create [TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
-        //    //Create [TestRoot]/TargetContentList/TargetItemFolder
-        //    //Move SourceItemFolder2, TargetItemFolder
-        //    //Check: ItemTree => ItemTree
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/TargetContentList/TargetItemFolder");
-        //    MoveNode("[TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2", "[TestRoot]/TargetContentList/TargetItemFolder");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/TargetItemFolder/SourceItemFolder2");
-        //    CheckContentListItem2("[TestRoot]/TargetContentList/TargetItemFolder/SourceItemFolder2/SourceContentListItem");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemToSameContentList()
-        //{
-        //    //23: MoveContentListItemToSameContentList
-        //    //Create [TestRoot]/ContentList/SourceItemFolder/SourceContentListItem
-        //    //Create [TestRoot]/ContentList
-        //    //Move SourceContentListItem, SourceContentList
-        //    //Check: 
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/ContentList/SourceItemFolder/SourceContentListItem");
-        //    //EnsureNode("[TestRoot]/ContentList");
-        //    MoveNode("[TestRoot]/ContentList/SourceItemFolder/SourceContentListItem", "[TestRoot]/ContentList");
-        //    CheckContentListItem1("[TestRoot]/ContentList/SourceContentListItem");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemToSameContentListItem()
-        //{
-        //    //24: MoveContentListItemToSameContentListItem
-        //    //Create [TestRoot]/ContentList/SourceItemFolder/SourceContentListItem
-        //    //Create [TestRoot]/ContentList/TargetItemFolder
-        //    //Move SourceContentListItem, TargetItemFolder
-        //    //Check: 
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/ContentList/SourceItemFolder/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/ContentList/TargetItemFolder");
-        //    MoveNode("[TestRoot]/ContentList/SourceItemFolder/SourceContentListItem", "[TestRoot]/ContentList/TargetItemFolder");
-        //    CheckContentListItem1("[TestRoot]/ContentList/TargetItemFolder/SourceContentListItem");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemTreeToSameContentList()
-        //{
-        //    //25: MoveContentListItemTreeToSameContentList
-        //    //Create [TestRoot]/ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
-        //    //Create [TestRoot]/ContentList
-        //    //Move SourceItemFolder2, SourceContentList
-        //    //Check: 
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
-        //    //EnsureNode("[TestRoot]/ContentList");
-        //    MoveNode("[TestRoot]/ContentList/SourceItemFolder1/SourceItemFolder2", "[TestRoot]/ContentList");
-        //    CheckContentListItem1("[TestRoot]/ContentList/SourceItemFolder2");
-        //    CheckContentListItem1("[TestRoot]/ContentList/SourceItemFolder2/SourceContentListItem");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_ContentList_ContentListItemTreeToSameContentListItem()
-        //{
-        //    //26: MoveContentListItemTreeToSameContentListItem
-        //    //Create [TestRoot]/ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
-        //    //Create [TestRoot]/ContentList/TargetItemFolder
-        //    //Move SourceItemFolder2, TargetItemFolder
-        //    //Check: 
-        //    //PrepareTest();
-        //    EnsureNode("[TestRoot]/ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
-        //    EnsureNode("[TestRoot]/ContentList/TargetItemFolder");
-        //    MoveNode("[TestRoot]/ContentList/SourceItemFolder1/SourceItemFolder2", "[TestRoot]/ContentList/TargetItemFolder");
-        //    CheckContentListItem1("[TestRoot]/ContentList/TargetItemFolder/SourceItemFolder2");
-        //    CheckContentListItem1("[TestRoot]/ContentList/TargetItemFolder/SourceItemFolder2/SourceContentListItem");
-        //}
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_ContentList_ContentListTreeToContentList()
+        {
+            MoveTest(testRoot =>
+            {
+                //12: MoveContentListTreeToContentList
+                //Create [TestRoot]/SourceContentList/SourceContentListItem
+                //Create [TestRoot]/TargetContentList
+                //Move SourceContentList, TargetContentList
+                //Check: exception
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
+                EnsureNode(testRoot, "TargetContentList");
+                MoveNode(testRoot, "SourceContentList", "TargetContentList");
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_ContentList_ContentListTreeToContentListItem()
+        {
+            MoveTest(testRoot =>
+            {
+                //13: MoveContentListTreeToContentListItem
+                //Create [TestRoot]/SourceContentList/SourceContentListItem
+                //Create [TestRoot]/TargetContentList/TargetItemFolder
+                //Move SourceContentList, TargetItemFolder
+                //Check: exception
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
+                EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
+                MoveNode(testRoot, "SourceContentList", "TargetContentList/TargetItemFolder");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemToNode()
+        {
+            MoveTest(testRoot =>
+            {
+                //14: MoveContentListItemToNode
+                //Create [TestRoot]/SourceContentList/SourceContentListItem
+                //Create [TestRoot]/TargetFolder
+                //Move SourceContentListItem, TargetFolder
+                //Check: Item => Node
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
+                EnsureNode(testRoot, "TargetFolder");
+                MoveNode(testRoot, "SourceContentList/SourceContentListItem", "TargetFolder");
+                CheckSimpleNode(testRoot, "TargetFolder/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemToContentList()
+        {
+            MoveTest(testRoot =>
+            {
+                //15: MoveContentListItemToContentList
+                //Create [TestRoot]/SourceContentList/SourceContentListItem
+                //Create [TestRoot]/TargetContentList
+                //Move SourceContentListItem, TargetContentList
+                //Check: Item => Item
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
+                EnsureNode(testRoot, "TargetContentList");
+                MoveNode(testRoot, "SourceContentList/SourceContentListItem", "TargetContentList");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemToContentListItem()
+        {
+            MoveTest(testRoot =>
+            {
+                //16: MoveContentListItemToContentListItem
+                //Create [TestRoot]/SourceContentList/SourceContentListItem
+                //Create [TestRoot]/TargetContentList/TargetItemFolder
+                //Move SourceContentListItem, TargetItemFolder
+                //Check: Item => Item
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
+                EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
+                MoveNode(testRoot, "SourceContentList/SourceContentListItem", "TargetContentList/TargetItemFolder");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemTreeToNode()
+        {
+            MoveTest(testRoot =>
+            {
+                //17: MoveContentListItemTreeToNode
+                //Create [TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem
+                //Create [TestRoot]/TargetFolder
+                //Move SourceItemFolder, TargetFolder
+                //Check: ItemTree => NodeTree
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList/SourceItemFolder/SourceContentListItem");
+                EnsureNode(testRoot, "TargetFolder");
+                MoveNode(testRoot, "SourceContentList/SourceItemFolder", "TargetFolder");
+                CheckSimpleNode(testRoot, "TargetFolder/SourceItemFolder");
+                CheckSimpleNode(testRoot, "TargetFolder/SourceItemFolder/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemTreeToContentList()
+        {
+            MoveTest(testRoot =>
+            {
+                //18: MoveContentListItemTreeToContentList
+                //Create [TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem
+                //Create [TestRoot]/TargetContentList
+                //Move SourceItemFolder, TargetContentList
+                //Check: ItemTree => ItemTree
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList/SourceItemFolder/SourceContentListItem");
+                EnsureNode(testRoot, "TargetContentList");
+                MoveNode(testRoot, "SourceContentList/SourceItemFolder", "TargetContentList");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemTreeToContentListItem()
+        {
+            MoveTest(testRoot =>
+            {
+                //19: MoveContentListItemTreeToContentListItem
+                //Create [TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem
+                //Create [TestRoot]/TargetContentList/TargetItemFolder
+                //Move SourceItemFolder, TargetItemFolder
+                //Check: ItemTree => ItemTree
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList/SourceItemFolder/SourceContentListItem");
+                EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
+                MoveNode(testRoot, "SourceContentList/SourceItemFolder", "TargetContentList/TargetItemFolder");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemTree2ToNode()
+        {
+            MoveTest(testRoot =>
+            {
+                //20: MoveContentListItemTree2ToNode
+                //Create [TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
+                //Create [TestRoot]/TargetFolder
+                //Move SourceItemFolder2, TargetFolder
+                //Check: ItemTree => NodeTree
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
+                EnsureNode(testRoot, "TargetFolder");
+                MoveNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetFolder");
+                CheckSimpleNode(testRoot, "TargetFolder/SourceItemFolder2");
+                CheckSimpleNode(testRoot, "TargetFolder/SourceItemFolder2/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemTree2ToContentList()
+        {
+            MoveTest(testRoot =>
+            {
+                //21: MoveContentListItemTree2ToContentList
+                //Create [TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
+                //Create [TestRoot]/TargetContentList
+                //Move SourceItemFolder2, TargetContentList
+                //Check: ItemTree => ItemTree
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
+                EnsureNode(testRoot, "TargetContentList");
+                MoveNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetContentList");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder2");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder2/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemTree2ToContentListItem()
+        {
+            MoveTest(testRoot =>
+            {
+                //22: MoveContentListItemTree2ToContentListItem
+                //Create [TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
+                //Create [TestRoot]/TargetContentList/TargetItemFolder
+                //Move SourceItemFolder2, TargetItemFolder
+                //Check: ItemTree => ItemTree
+                //PrepareTest();
+                EnsureNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
+                EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
+                MoveNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetContentList/TargetItemFolder");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder2");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder2/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemToSameContentList()
+        {
+            MoveTest(testRoot =>
+            {
+                //23: MoveContentListItemToSameContentList
+                //Create [TestRoot]/ContentList/SourceItemFolder/SourceContentListItem
+                //Create [TestRoot]/ContentList
+                //Move SourceContentListItem, SourceContentList
+                //Check: 
+                //PrepareTest();
+                EnsureNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem");
+                //EnsureNode(testRoot, "ContentList");
+                MoveNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem", "ContentList");
+                CheckContentListItem1(testRoot, "ContentList/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemToSameContentListItem()
+        {
+            MoveTest(testRoot =>
+            {
+                //24: MoveContentListItemToSameContentListItem
+                //Create [TestRoot]/ContentList/SourceItemFolder/SourceContentListItem
+                //Create [TestRoot]/ContentList/TargetItemFolder
+                //Move SourceContentListItem, TargetItemFolder
+                //Check: 
+                //PrepareTest();
+                EnsureNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem");
+                EnsureNode(testRoot, "ContentList/TargetItemFolder");
+                MoveNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem", "ContentList/TargetItemFolder");
+                CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemTreeToSameContentList()
+        {
+            MoveTest(testRoot =>
+            {
+                //25: MoveContentListItemTreeToSameContentList
+                //Create [TestRoot]/ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
+                //Create [TestRoot]/ContentList
+                //Move SourceItemFolder2, SourceContentList
+                //Check: 
+                //PrepareTest();
+                EnsureNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
+                //EnsureNode(testRoot, "ContentList");
+                MoveNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2", "ContentList");
+                CheckContentListItem1(testRoot, "ContentList/SourceItemFolder2");
+                CheckContentListItem1(testRoot, "ContentList/SourceItemFolder2/SourceContentListItem");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_ContentList_ContentListItemTreeToSameContentListItem()
+        {
+            MoveTest(testRoot =>
+            {
+                //26: MoveContentListItemTreeToSameContentListItem
+                //Create [TestRoot]/ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
+                //Create [TestRoot]/ContentList/TargetItemFolder
+                //Move SourceItemFolder2, TargetItemFolder
+                //Check: 
+                //PrepareTest();
+                EnsureNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
+                EnsureNode(testRoot, "ContentList/TargetItemFolder");
+                MoveNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2", "ContentList/TargetItemFolder");
+                CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceItemFolder2");
+                CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceItemFolder2/SourceContentListItem");
+            });
+        }
         #endregion
 
         /* ============================================================================================== Tools */
 
         private void MoveTest(Action<SystemFolder> callback)
         {
-            StorageTest(() =>
+            try
             {
-                if (ContentType.GetByName("Car") == null)
-                    InstallCarContentType();
-                var testRoot = CreateTestRoot();
-                try
+                StorageTest(() =>
                 {
-                    callback(testRoot);
-                }
-                finally
-                {
-                    
-                }
-                return Task.CompletedTask;
-            }).Wait();
+                    if (ContentType.GetByName("Car") == null)
+                        InstallCarContentType();
+                    var testRoot = CreateTestRoot();
+                    try
+                    {
+                        callback(testRoot);
+                    }
+                    finally
+                    {
+
+                    }
+                    return Task.CompletedTask;
+                }).Wait();
+            }
+            catch (AggregateException e)
+            {
+                if (e.InnerException == null)
+                    throw;
+                throw e.InnerException;
+            }
         }
 
         #region Tools
