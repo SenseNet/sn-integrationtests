@@ -55,7 +55,6 @@ namespace SenseNet.IntegrationTests.Common
         {
             return StorageTest(true, callback);
         }
-
         private async System.Threading.Tasks.Task StorageTest(bool isolated, Func<System.Threading.Tasks.Task> callback)
         {
             SnTrace.Test.Enabled = true;
