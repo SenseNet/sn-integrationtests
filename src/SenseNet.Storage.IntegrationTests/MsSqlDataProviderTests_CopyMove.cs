@@ -152,12 +152,12 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "Source/N1");
                 EnsureNode(testRoot, "Source/N2");
                 EnsureNode(testRoot, "Target");
-                var lockedNode = LoadNode(testRoot, "Source");
+                var lockedNode = (GenericContent)LoadNode(testRoot, "Source");
 
                 AccessProvider.Current.SetCurrentUser(visitor);
                 try
                 {
-                    lockedNode.Lock.Lock();
+                    lockedNode.CheckOut();
                 }
                 finally
                 {
@@ -185,7 +185,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 lockedNode.Reload();
                 AccessProvider.Current.SetCurrentUser(visitor);
-                lockedNode.Lock.Unlock(VersionStatus.Approved, VersionRaising.None);
+                lockedNode.UndoCheckOut();
                 AccessProvider.Current.SetCurrentUser(originalUser);
 
                 Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
@@ -203,22 +203,18 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "Source/N1");
                 EnsureNode(testRoot, "Source/N2");
                 EnsureNode(testRoot, "Target");
-                var lockedNode = LoadNode(testRoot, "Source");
-                IUser originalUser = AccessProvider.Current.GetCurrentUser();
-                AccessProvider.Current.SetCurrentUser(User.Administrator);
+                var lockedNode = (GenericContent)LoadNode(testRoot, "Source");
                 try
                 {
-                    lockedNode.Lock.Lock();
+                    lockedNode.CheckOut();
                     MoveNode("Source", "Target", testRoot);
                 }
                 finally
                 {
-                    AccessProvider.Current.SetCurrentUser(originalUser);
-                    lockedNode = Node.LoadNode(lockedNode.Id);
+                    lockedNode = (GenericContent)Node.LoadNode(lockedNode.Id);
                     if (lockedNode.Lock.Locked)
-                        lockedNode.Lock.Unlock(VersionStatus.Approved, VersionRaising.None);
+                        lockedNode.UndoCheckOut();
                 }
-//nem jo az sql hibakod, es nem tudom, hogy kell-e egyaltalan hibat dobni
             });
         }
         [TestMethod]
@@ -233,22 +229,18 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "Source/N1/N2/N3");
                 EnsureNode(testRoot, "Source/N1/N4/N5");
                 EnsureNode(testRoot, "Target/N6");
-                var lockedNode = LoadNode(testRoot, "Source/N1/N4");
-                IUser originalUser = AccessProvider.Current.GetCurrentUser();
-                AccessProvider.Current.SetCurrentUser(User.Administrator);
+                var lockedNode = (GenericContent)LoadNode(testRoot, "Source/N1/N4");
                 try
                 {
-                    lockedNode.Lock.Lock();
+                    lockedNode.CheckOut();
                     MoveNode("Source", "Target", testRoot, true);
                 }
                 finally
                 {
-                    AccessProvider.Current.SetCurrentUser(originalUser);
-                    lockedNode = Node.LoadNode(lockedNode.Id);
+                    lockedNode = (GenericContent)Node.LoadNode(lockedNode.Id);
                     if (lockedNode.Lock.Locked)
-                        lockedNode.Lock.Unlock(VersionStatus.Approved, VersionRaising.None);
+                        lockedNode.UndoCheckOut();
                 }
-//nem jo az sql hibakod, es nem tudom, hogy kell-e egyaltalan hibat dobni
             });
         }
         [TestMethod]
