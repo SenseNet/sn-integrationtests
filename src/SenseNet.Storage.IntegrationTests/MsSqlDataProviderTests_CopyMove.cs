@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository;
+using SenseNet.ContentRepository.Fields;
 using SenseNet.ContentRepository.Schema;
 using SenseNet.ContentRepository.Search;
 using SenseNet.ContentRepository.Storage;
@@ -444,7 +445,7 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "SourceNode");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceNode", "TargetContentList", testRoot);
-                CheckContentListItem2(testRoot, "TargetContentList/SourceNode");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceNode", true);
             });
         }
         [TestMethod]
@@ -456,7 +457,7 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "SourceNode");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceNode", "TargetContentList/TargetItemFolder", testRoot);
-                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceNode");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceNode", true);
             });
         }
         [TestMethod]
@@ -468,8 +469,8 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "SourceFolder/SourceNode");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceFolder", "TargetContentList", testRoot);
-                CheckContentListItem2(testRoot, "TargetContentList/SourceFolder");
-                CheckContentListItem2(testRoot, "TargetContentList/SourceFolder/SourceNode");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceFolder", true);
+                CheckContentListItem2(testRoot, "TargetContentList/SourceFolder/SourceNode", true);
             });
         }
         [TestMethod]
@@ -481,8 +482,8 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "SourceFolder/SourceNode");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceFolder", "TargetContentList/TargetItemFolder", testRoot);
-                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceFolder");
-                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceFolder/SourceNode");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceFolder", true);
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceFolder/SourceNode", true);
             });
         }
         [TestMethod]
@@ -496,7 +497,7 @@ namespace SenseNet.Storage.IntegrationTests
                 MoveNode("SourceFolder", "TargetFolder", testRoot);
                 CheckSimpleNode(testRoot, "TargetFolder/SourceFolder");
                 CheckContentList1(testRoot, "TargetFolder/SourceFolder/SourceContentList");
-                CheckContentListItem1(testRoot, "TargetFolder/SourceFolder/SourceContentList/SourceContentListItem");
+                CheckContentListItem1(testRoot, "TargetFolder/SourceFolder/SourceContentList/SourceContentListItem", false);
             });
         }
         [TestMethod]
@@ -569,7 +570,7 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "TargetFolder");
                 MoveNode("SourceContentList", "TargetFolder", testRoot);
                 CheckContentList1(testRoot, "TargetFolder/SourceContentList");
-                CheckContentListItem1(testRoot, "TargetFolder/SourceContentList/SourceContentListItem");
+                CheckContentListItem1(testRoot, "TargetFolder/SourceContentList/SourceContentListItem", false);
             });
         }
         [TestMethod]
@@ -617,7 +618,7 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceContentList/SourceContentListItem", "TargetContentList", testRoot);
-                CheckContentListItem2(testRoot, "TargetContentList/SourceContentListItem");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceContentListItem", true);
             });
         }
         [TestMethod]
@@ -629,7 +630,7 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceContentList/SourceContentListItem", "TargetContentList/TargetItemFolder", testRoot);
-                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceContentListItem");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceContentListItem", true);
             });
         }
         [TestMethod]
@@ -654,8 +655,8 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceContentList/SourceItemFolder", "TargetContentList", testRoot);
-                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder");
-                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder/SourceContentListItem");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder", true);
+                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder/SourceContentListItem", true);
             });
         }
         [TestMethod]
@@ -667,8 +668,8 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceContentList/SourceItemFolder", "TargetContentList/TargetItemFolder", testRoot);
-                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder");
-                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder/SourceContentListItem");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder", true);
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder/SourceContentListItem", true);
             });
         }
         [TestMethod]
@@ -693,8 +694,8 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetContentList", testRoot);
-                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder2");
-                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder2/SourceContentListItem");
+                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder2", true);
+                CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder2/SourceContentListItem", true);
             });
         }
         [TestMethod]
@@ -706,8 +707,8 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetContentList/TargetItemFolder", testRoot);
-                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder2");
-                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder2/SourceContentListItem");
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder2", true);
+                CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder2/SourceContentListItem", true);
             });
         }
         [TestMethod]
@@ -718,7 +719,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //23: MoveContentListItemToSameContentList
                 EnsureNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem");
                 MoveNode("ContentList/SourceItemFolder/SourceContentListItem", "ContentList", testRoot);
-                CheckContentListItem1(testRoot, "ContentList/SourceContentListItem");
+                CheckContentListItem1(testRoot, "ContentList/SourceContentListItem", false);
             });
         }
         [TestMethod]
@@ -730,7 +731,7 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem");
                 EnsureNode(testRoot, "ContentList/TargetItemFolder");
                 MoveNode("ContentList/SourceItemFolder/SourceContentListItem", "ContentList/TargetItemFolder", testRoot);
-                CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceContentListItem");
+                CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceContentListItem", false);
             });
         }
         [TestMethod]
@@ -741,8 +742,8 @@ namespace SenseNet.Storage.IntegrationTests
                 //25: MoveContentListItemTreeToSameContentList
                 EnsureNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 MoveNode("ContentList/SourceItemFolder1/SourceItemFolder2", "ContentList", testRoot);
-                CheckContentListItem1(testRoot, "ContentList/SourceItemFolder2");
-                CheckContentListItem1(testRoot, "ContentList/SourceItemFolder2/SourceContentListItem");
+                CheckContentListItem1(testRoot, "ContentList/SourceItemFolder2", false);
+                CheckContentListItem1(testRoot, "ContentList/SourceItemFolder2/SourceContentListItem", false);
             });
         }
         [TestMethod]
@@ -754,8 +755,8 @@ namespace SenseNet.Storage.IntegrationTests
                 EnsureNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 EnsureNode(testRoot, "ContentList/TargetItemFolder");
                 MoveNode("ContentList/SourceItemFolder1/SourceItemFolder2", "ContentList/TargetItemFolder", testRoot);
-                CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceItemFolder2");
-                CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceItemFolder2/SourceContentListItem");
+                CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceItemFolder2", false);
+                CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceItemFolder2/SourceContentListItem", false);
             });
         }
         #endregion
@@ -841,16 +842,20 @@ namespace SenseNet.Storage.IntegrationTests
             Assert.IsNotNull(contentlist.ContentListType, "ContentListType is null");
             Assert.IsTrue(contentlist.ContentListDefinition == _listDef2);
         }
-        private void CheckContentListItem1(SystemFolder testRoot, string relativePath)
+        private void CheckContentListItem1(SystemFolder testRoot, string relativePath, bool cleared)
         {
             Node node = LoadNode(testRoot, relativePath);
             Assert.IsTrue(node.HasProperty("#String_0"), "ContentListItem has not property: #String_0");
+            Assert.AreEqual(cleared ? (string)null : "TestValue", node["#String_0"]);
+            Assert.IsTrue(node.HasProperty("#String_1"), "ContentListItem has not property: #String_1");
             Assert.IsNotNull(node.ContentListType, "ContentListItem ContentListType == null");
             Assert.IsTrue(node.ContentListId > 0, "ContentListItem ContentListId == 0");
         }
-        private void CheckContentListItem2(SystemFolder testRoot, string relativePath)
+        private void CheckContentListItem2(SystemFolder testRoot, string relativePath, bool cleared)
         {
             Node node = LoadNode(testRoot, relativePath);
+            Assert.IsTrue(node.HasProperty("#String_0"), "ContentListItem has not property: #String_0");
+            Assert.AreEqual(cleared ? (string)null : "TestValue", node["#String_0"]);
             Assert.IsTrue(node.HasProperty("#Int_0"), "ContentListItem has not property: #Int_0");
             Assert.IsNotNull(node.ContentListType, "ContentListItem ContentListType == null");
             Assert.IsTrue(node.ContentListId > 0, "ContentListItem ContentListId == 0");
@@ -898,6 +903,8 @@ namespace SenseNet.Storage.IntegrationTests
                     break;
 
                 case "SourceContentListItem":
+                    CreateContentListItem(parentPath, name, "Car");
+                    break;
                 case "SourceNode":
                     CreateNode(parentPath, name, "Car");
                     break;
@@ -918,6 +925,15 @@ namespace SenseNet.Storage.IntegrationTests
             contentlist.ContentListDefinition = listDef;
             contentlist.AllowChildTypes(new[] { "Folder", "Car" });
             contentlist.Save();
+        }
+        private void CreateContentListItem(string parentPath, string name, string typeName)
+        {
+            Content parent = Content.Load(parentPath);
+            Content content = Content.CreateNew(typeName, parent.ContentHandler, name);
+            if (typeName != "SystemFolder" && typeName != "Folder" && typeName != "Page")
+                ((GenericContent)content.ContentHandler).AllowChildTypes(new[] { "Folder", "ContentList", "Car" });
+            content["#TestField"] = "TestValue";
+            content.Save();
         }
         private void CreateNode(string parentPath, string name, string typeName)
         {
@@ -956,6 +972,7 @@ namespace SenseNet.Storage.IntegrationTests
 	<Description>Cars description</Description>
 	<Icon>automobile.gif</Icon>
 	<Fields>
+		<ContentListField name='#TestField' type='ShortText' />
 		<ContentListField name='#ContentListField1' type='ShortText'>
 			<DisplayName>ContentListField1</DisplayName>
 			<Description>ContentListField1 Description</Description>
@@ -988,8 +1005,8 @@ namespace SenseNet.Storage.IntegrationTests
 	<Description>Trucks description</Description>
 	<Icon>automobile.gif</Icon>
 	<Fields>
+		<ContentListField name='#TestField' type='ShortText' />
 		<ContentListField name='#ContentListField1' type='Integer' />
-		<!--<ContentListField name='#ContentListField2' type='Number' />-->
 	</Fields>
 </ContentListDefinition>
 ";
