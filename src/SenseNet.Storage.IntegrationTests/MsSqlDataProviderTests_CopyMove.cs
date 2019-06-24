@@ -273,9 +273,9 @@ namespace SenseNet.Storage.IntegrationTests
             {
                 IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
                 EnsureNode(testRoot, "Source");
-                EnsureNode(testRoot, "Target");
+                EnsureNode(testRoot, "TargetFolder");
                 Node sourceNode = LoadNode(testRoot, "Source");
-                Node targetNode = LoadNode(testRoot, "Target");
+                Node targetNode = LoadNode(testRoot, "TargetFolder");
                 SecurityHandler.CreateAclEditor()
                     .Allow(sourceNode.Id, visitor.Id, false, PermissionType.OpenMinor, PermissionType.Delete)
                     .Allow(targetNode.Id, visitor.Id, false, PermissionType.AddNew)
@@ -285,6 +285,7 @@ namespace SenseNet.Storage.IntegrationTests
                 try
                 {
                     AccessProvider.Current.SetCurrentUser(visitor);
+                    MoveNode("Source", "TargetFolder", testRoot);
                 }
                 finally
                 {
@@ -292,153 +293,75 @@ namespace SenseNet.Storage.IntegrationTests
                 }
             });
         }
-        //[TestMethod]
-        //public void MsSqlDP_Move_SourceWithoutOpenMinorPermission()
-        //{
-        //    IUser originalUser = AccessProvider.Current.GetCurrentUser();
-        //    IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
-        //    EnsureNode(testRoot, "Source");
-        //    EnsureNode(testRoot, "Target");
-        //    Node sourceNode = LoadNode(testRoot, "Source");
-        //    Node targetNode = LoadNode(testRoot, "Target");
-        //    sourceNode.Security.SetPermission(visitor, PermissionType.Delete, PermissionValue.Allowed);
-        //    targetNode.Security.SetPermission(visitor, PermissionType.AddNew, PermissionValue.Allowed);
-        //    bool expectedExceptionWasThrown = false;
-        //    try
-        //    {
-        //        AccessProvider.Current.SetCurrentUser(visitor);
-        //        MoveNode("Source", "Target", testRoot);
-        //    }
-        //    catch (LockedNodeException)
-        //    {
-        //        expectedExceptionWasThrown = true;
-        //    }
-        //    finally
-        //    {
-        //        AccessProvider.Current.SetCurrentUser(originalUser);
-        //    }
-        //    Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_SourceWithoutDeletePermission()
-        //{
-        //    IUser originalUser = AccessProvider.Current.GetCurrentUser();
-        //    IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
-        //    EnsureNode(testRoot, "Source");
-        //    EnsureNode(testRoot, "Target");
-        //    Node sourceNode = LoadNode(testRoot, "Source");
-        //    Node targetNode = LoadNode(testRoot, "Target");
-        //    sourceNode.Security.SetPermission(visitor, PermissionType.OpenMinor, PermissionValue.Allowed);
-        //    targetNode.Security.SetPermission(visitor, PermissionType.AddNew, PermissionValue.Allowed);
-        //    bool expectedExceptionWasThrown = false;
-        //    try
-        //    {
-        //        AccessProvider.Current.SetCurrentUser(visitor);
-        //        MoveNode("Source", "Target", testRoot);
-        //    }
-        //    catch (LockedNodeException)
-        //    {
-        //        expectedExceptionWasThrown = true;
-        //    }
-        //    finally
-        //    {
-        //        AccessProvider.Current.SetCurrentUser(originalUser);
-        //    }
-        //    Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_TargetWithoutAddNewPermission()
-        //{
-        //    IUser originalUser = AccessProvider.Current.GetCurrentUser();
-        //    IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
-        //    EnsureNode(testRoot, "Source");
-        //    EnsureNode(testRoot, "Target");
-        //    Node sourceNode = LoadNode(testRoot, "Source");
-        //    Node targetNode = LoadNode(testRoot, "Target");
-        //    sourceNode.Security.SetPermission(visitor, PermissionType.OpenMinor, PermissionValue.Allowed);
-        //    sourceNode.Security.SetPermission(visitor, PermissionType.Delete, PermissionValue.Allowed);
-        //    bool expectedExceptionWasThrown = false;
-        //    try
-        //    {
-        //        AccessProvider.Current.SetCurrentUser(visitor);
-        //        MoveNode("Source", "Target", testRoot);
-        //    }
-        //    catch (LockedNodeException)
-        //    {
-        //        expectedExceptionWasThrown = true;
-        //    }
-        //    finally
-        //    {
-        //        AccessProvider.Current.SetCurrentUser(originalUser);
-        //    }
-        //    Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_SourceTreeWithPartialOpenMinorPermission()
-        //{
-        //    IUser originalUser = AccessProvider.Current.GetCurrentUser();
-        //    IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
-        //    EnsureNode(testRoot, "Source/N1/N2");
-        //    EnsureNode(testRoot, "Source/N1/N3");
-        //    EnsureNode(testRoot, "Source/N4");
-        //    EnsureNode(testRoot, "Target");
-        //    Node source = LoadNode(testRoot, "Source");
-        //    Node target = LoadNode(testRoot, "Target");
-        //    source.Security.SetPermission(visitor, PermissionType.OpenMinor, PermissionValue.Allowed);
-        //    source.Security.SetPermission(visitor, PermissionType.Delete, PermissionValue.Allowed);
-        //    target.Security.SetPermission(visitor, PermissionType.AddNew, PermissionValue.Allowed);
-        //    Node blockedNode = LoadNode(testRoot, "Source/N1/N3");
-        //    blockedNode.Security.SetPermission(visitor, PermissionType.OpenMinor, PermissionValue.Undefined);
-        //    bool expectedExceptionWasThrown = false;
-        //    try
-        //    {
-        //        AccessProvider.Current.SetCurrentUser(visitor);
-        //        MoveNode("Source", "Target", testRoot);
-        //    }
-        //    catch (LockedNodeException)
-        //    {
-        //        expectedExceptionWasThrown = true;
-        //    }
-        //    finally
-        //    {
-        //        AccessProvider.Current.SetCurrentUser(originalUser);
-        //    }
-        //    Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
-        //}
-        //[TestMethod]
-        //public void MsSqlDP_Move_SourceTreeWithPartialDeletePermission()
-        //{
-        //    IUser originalUser = AccessProvider.Current.GetCurrentUser();
-        //    IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
-        //    EnsureNode(testRoot, "Source/N1/N2");
-        //    EnsureNode(testRoot, "Source/N1/N3");
-        //    EnsureNode(testRoot, "Source/N4");
-        //    EnsureNode(testRoot, "Target");
-        //    Node source = LoadNode(testRoot, "Source");
-        //    Node target = LoadNode(testRoot, "Target");
-        //    source.Security.SetPermission(visitor, PermissionType.OpenMinor, PermissionValue.Allowed);
-        //    source.Security.SetPermission(visitor, PermissionType.Delete, PermissionValue.Allowed);
-        //    target.Security.SetPermission(visitor, PermissionType.AddNew, PermissionValue.Allowed);
-        //    Node blockedNode = LoadNode(testRoot, "Source/N1/N3");
-        //    blockedNode.Security.SetPermission(visitor, PermissionType.Delete, PermissionValue.Undefined);
-        //    bool expectedExceptionWasThrown = false;
-        //    try
-        //    {
-        //        AccessProvider.Current.SetCurrentUser(visitor);
-        //        MoveNode("Source", "Target", testRoot);
-        //    }
-        //    catch (LockedNodeException)
-        //    {
-        //        expectedExceptionWasThrown = true;
-        //    }
-        //    finally
-        //    {
-        //        AccessProvider.Current.SetCurrentUser(originalUser);
-        //    }
-        //    Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
-        //}
-
-        #endregion
+        [TestMethod]
+        public void MsSqlDP_Move_SourceWithoutDeletePermission()
+        {
+            MoveTest(testRoot =>
+            {
+                IUser originalUser = AccessProvider.Current.GetCurrentUser();
+                IUser visitor = Node.LoadNode(Identifiers.VisitorUserId) as IUser;
+                EnsureNode(testRoot, "Source");
+                EnsureNode(testRoot, "TargetFolder");
+                Node sourceNode = LoadNode(testRoot, "Source");
+                Node targetNode = LoadNode(testRoot, "TargetFolder");
+                AclEditor.Create(new SecurityContext(User.Current))
+                    .Allow(Identifiers.PortalRootId, Identifiers.AdministratorUserId, false, PermissionType.PermissionTypes)
+                    .Allow(Identifiers.VisitorUserId, Identifiers.VisitorUserId, false, PermissionType.PermissionTypes)
+                    .Allow(sourceNode.Id, Identifiers.VisitorUserId, false, PermissionType.OpenMinor)
+                    .Allow(targetNode.Id, Identifiers.VisitorUserId, false, PermissionType.AddNew)
+                    .Apply();
+                bool expectedExceptionWasThrown = false;
+                try
+                {
+                    AccessProvider.Current.SetCurrentUser(visitor);
+                    MoveNode("Source", "TargetFolder", testRoot);
+                }
+                catch (SenseNetSecurityException)
+                {
+                    expectedExceptionWasThrown = true;
+                }
+                finally
+                {
+                    AccessProvider.Current.SetCurrentUser(originalUser);
+                }
+                Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_TargetWithoutAddNewPermission()
+        {
+            MoveTest(testRoot =>
+            {
+                IUser originalUser = AccessProvider.Current.GetCurrentUser();
+                IUser visitor = Node.LoadNode(Identifiers.VisitorUserId) as IUser;
+                EnsureNode(testRoot, "Source");
+                EnsureNode(testRoot, "TargetFolder");
+                Node sourceNode = LoadNode(testRoot, "Source");
+                Node targetNode = LoadNode(testRoot, "TargetFolder");
+                AclEditor.Create(new SecurityContext(User.Current))
+                    .Allow(Identifiers.PortalRootId, Identifiers.AdministratorUserId, false,
+                        PermissionType.PermissionTypes)
+                    .Allow(Identifiers.VisitorUserId, Identifiers.VisitorUserId, false, PermissionType.PermissionTypes)
+                    .Allow(sourceNode.Id, Identifiers.VisitorUserId, false, PermissionType.OpenMinor)
+                    .Allow(targetNode.Id, Identifiers.VisitorUserId, false, PermissionType.Delete)
+                    .Apply();
+                bool expectedExceptionWasThrown = false;
+                try
+                {
+                    AccessProvider.Current.SetCurrentUser(visitor);
+                    MoveNode("Source", "TargetFolder", testRoot);
+                }
+                catch (SenseNetSecurityException)
+                {
+                    expectedExceptionWasThrown = true;
+                }
+                finally
+                {
+                    AccessProvider.Current.SetCurrentUser(originalUser);
+                }
+                Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
+            });
+        }
 
         [TestMethod]
         public void MsSqlDP_Move_MoreVersion()
@@ -473,16 +396,10 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.IsTrue(lastMajorVer == "V1.0.A", String.Concat("LastMajor version is ", lastMajorVer, ", expected: V1.0.A"));
                 Assert.IsTrue(lastMinorVer == "V1.1.L", String.Concat("LastMinor version is ", lastMinorVer, ", expected: V1.1.L"));
 
-                var versionDump = GetVersionDumpByNodeId(m1NodeId);
+                var versionDump = string.Join(", ",
+                    NodeHead.Get(m1NodeId).Versions.Select(x => x.VersionNumber.ToString()));
                 Assert.AreEqual("V0.1.D, V0.2.D, V1.0.A, V1.1.L", versionDump);
             });
-        }
-        private string GetVersionDumpByNodeId(int nodeId)
-        {
-            var head = NodeHead.Get(nodeId);
-            return string.Join(", ", head.Versions.Select(x=>x.VersionNumber.ToString()));
-            //var docs = SenseNet.Search.Indexing.LuceneManager.GetDocumentsByNodeId(nodeId);
-            //return String.Join(", ", docs.Select(d => d.Get(LucObject.FieldName.Version)).ToArray());
         }
 
         [TestMethod]
@@ -515,6 +432,7 @@ namespace SenseNet.Storage.IntegrationTests
                 // EXPECTATION: executed without any exception
             });
         }
+        #endregion
 
         #region ContentList Move Tests
         [TestMethod]
