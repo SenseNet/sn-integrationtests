@@ -523,11 +523,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //1: MoveLeafNodeToContentList
-                //Create [TestRoot]/SourceNode
-                //Create [TestRoot]/TargetContentList
-                //Move SourceNode, TargetContentList
-                //Check: Node => Item
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceNode");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceNode", "TargetContentList", testRoot);
@@ -540,11 +535,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //2: MoveLeafNodeToContentListItem
-                //Create [TestRoot]/SourceNode
-                //Create [TestRoot]/TargetContentList/TargetItemFolder
-                //Move SourceNode, TargetItemFolder
-                //Check: Node => Item
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceNode");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceNode", "TargetContentList/TargetItemFolder", testRoot);
@@ -557,11 +547,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //3: MoveNodeTreeToContentList
-                //Create [TestRoot]/SourceFolder/SourceNode
-                //Create [TestRoot]/TargetContentList
-                //Move SourceFolder, TargetContentList
-                //Check: NodeTree => ItemTree
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceFolder/SourceNode");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceFolder", "TargetContentList", testRoot);
@@ -575,11 +560,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //4: MoveNodeTreeToContentListItem
-                //Create [TestRoot]/SourceFolder/SourceNode
-                //Create [TestRoot]/TargetContentList/TargetItemFolder
-                //Move SourceFolder, TargetItemFolder
-                //Check: NodeTree => ItemTree
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceFolder/SourceNode");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceFolder", "TargetContentList/TargetItemFolder", testRoot);
@@ -593,10 +573,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //5: MoveNodeWithContentListToNode
-                //Create [TestRoot]/SourceFolder/SourceContentList/SourceContentListItem
-                //Create [TestRoot]/TargetFolder
-                //Move SourceFolder, TargetFolder
-                //Check: Unchanged contentlist and item
                 EnsureNode(testRoot, "SourceFolder/SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetFolder");
                 MoveNode("SourceFolder", "TargetFolder", testRoot);
@@ -612,11 +588,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //6: MoveNodeWithContentListToContentList
-                //Create [TestRoot]/SourceFolder/SourceContentList/SourceContentListItem
-                //Create [TestRoot]/TargetContentList
-                //Move SourceFolder, TargetContentList
-                //Check: exception
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceFolder/SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceFolder", "TargetContentList", testRoot);
@@ -629,11 +600,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //7: MoveNodeWithContentListToContentListItem
-                //Create [TestRoot]/SourceFolder/SourceContentList/SourceContentListItem
-                //Create [TestRoot]/TargetContentList/TargetItemFolder
-                //Move SourceFolder, TargetItemFolder
-                //Check: exception
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceFolder/SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceFolder", "TargetContentList/TargetItemFolder", testRoot);
@@ -645,10 +611,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //8: MoveContentListToNode
-                //Create [TestRoot]/SourceContentList
-                //Create [TestRoot]/TargetFolder
-                //Move SourceContentList, TargetFolder
-                //Check: ok
                 EnsureNode(testRoot, "SourceContentList");
                 EnsureNode(testRoot, "TargetFolder");
                 MoveNode("SourceContentList", "TargetFolder", testRoot);
@@ -662,11 +624,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //9: MoveContentListToContentList
-                //Create [TestRoot]/SourceContentList
-                //Create [TestRoot]/TargetContentList
-                //Move SourceContentList, TargetContentList
-                //Check: exception
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceContentList", "TargetContentList", testRoot);
@@ -679,11 +636,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //10: MoveContentListToContentListItem
-                //Create [TestRoot]/SourceContentList
-                //Create [TestRoot]/TargetContentList/TargetItemFolder
-                //Move SourceContentList, TargetItemFolder
-                //Check: exception
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceContentList", "TargetContentList/TargetItemFolder", testRoot);
@@ -695,10 +647,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //11: MoveContentListTreeToNode
-                //Create [TestRoot]/SourceContentList/SourceContentListItem
-                //Create [TestRoot]/TargetFolder
-                //Move SourceContentList, TargetFolder
-                //Check: ok
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetFolder");
                 MoveNode("SourceContentList", "TargetFolder", testRoot);
@@ -713,11 +661,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //12: MoveContentListTreeToContentList
-                //Create [TestRoot]/SourceContentList/SourceContentListItem
-                //Create [TestRoot]/TargetContentList
-                //Move SourceContentList, TargetContentList
-                //Check: exception
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceContentList", "TargetContentList", testRoot);
@@ -730,11 +673,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //13: MoveContentListTreeToContentListItem
-                //Create [TestRoot]/SourceContentList/SourceContentListItem
-                //Create [TestRoot]/TargetContentList/TargetItemFolder
-                //Move SourceContentList, TargetItemFolder
-                //Check: exception
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceContentList", "TargetContentList/TargetItemFolder", testRoot);
@@ -746,11 +684,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //14: MoveContentListItemToNode
-                //Create [TestRoot]/SourceContentList/SourceContentListItem
-                //Create [TestRoot]/TargetFolder
-                //Move SourceContentListItem, TargetFolder
-                //Check: Item => Node
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetFolder");
                 MoveNode("SourceContentList/SourceContentListItem", "TargetFolder", testRoot);
@@ -763,11 +696,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //15: MoveContentListItemToContentList
-                //Create [TestRoot]/SourceContentList/SourceContentListItem
-                //Create [TestRoot]/TargetContentList
-                //Move SourceContentListItem, TargetContentList
-                //Check: Item => Item
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceContentList/SourceContentListItem", "TargetContentList", testRoot);
@@ -780,11 +708,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //16: MoveContentListItemToContentListItem
-                //Create [TestRoot]/SourceContentList/SourceContentListItem
-                //Create [TestRoot]/TargetContentList/TargetItemFolder
-                //Move SourceContentListItem, TargetItemFolder
-                //Check: Item => Item
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceContentList/SourceContentListItem", "TargetContentList/TargetItemFolder", testRoot);
@@ -797,11 +720,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //17: MoveContentListItemTreeToNode
-                //Create [TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem
-                //Create [TestRoot]/TargetFolder
-                //Move SourceItemFolder, TargetFolder
-                //Check: ItemTree => NodeTree
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder/SourceContentListItem");
                 EnsureNode(testRoot, "TargetFolder");
                 MoveNode("SourceContentList/SourceItemFolder", "TargetFolder", testRoot);
@@ -815,11 +733,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //18: MoveContentListItemTreeToContentList
-                //Create [TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem
-                //Create [TestRoot]/TargetContentList
-                //Move SourceItemFolder, TargetContentList
-                //Check: ItemTree => ItemTree
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceContentList/SourceItemFolder", "TargetContentList", testRoot);
@@ -833,11 +746,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //19: MoveContentListItemTreeToContentListItem
-                //Create [TestRoot]/SourceContentList/SourceItemFolder/SourceContentListItem
-                //Create [TestRoot]/TargetContentList/TargetItemFolder
-                //Move SourceItemFolder, TargetItemFolder
-                //Check: ItemTree => ItemTree
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceContentList/SourceItemFolder", "TargetContentList/TargetItemFolder", testRoot);
@@ -851,11 +759,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //20: MoveContentListItemTree2ToNode
-                //Create [TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
-                //Create [TestRoot]/TargetFolder
-                //Move SourceItemFolder2, TargetFolder
-                //Check: ItemTree => NodeTree
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 EnsureNode(testRoot, "TargetFolder");
                 MoveNode("SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetFolder", testRoot);
@@ -869,11 +772,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //21: MoveContentListItemTree2ToContentList
-                //Create [TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
-                //Create [TestRoot]/TargetContentList
-                //Move SourceItemFolder2, TargetContentList
-                //Check: ItemTree => ItemTree
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
                 MoveNode("SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetContentList", testRoot);
@@ -887,11 +785,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //22: MoveContentListItemTree2ToContentListItem
-                //Create [TestRoot]/SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
-                //Create [TestRoot]/TargetContentList/TargetItemFolder
-                //Move SourceItemFolder2, TargetItemFolder
-                //Check: ItemTree => ItemTree
-                //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
                 MoveNode("SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetContentList/TargetItemFolder", testRoot);
@@ -905,13 +798,7 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //23: MoveContentListItemToSameContentList
-                //Create [TestRoot]/ContentList/SourceItemFolder/SourceContentListItem
-                //Create [TestRoot]/ContentList
-                //Move SourceContentListItem, SourceContentList
-                //Check: 
-                //PrepareTest();
                 EnsureNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem");
-                //EnsureNode(testRoot, "ContentList");
                 MoveNode("ContentList/SourceItemFolder/SourceContentListItem", "ContentList", testRoot);
                 CheckContentListItem1(testRoot, "ContentList/SourceContentListItem");
             });
@@ -922,11 +809,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //24: MoveContentListItemToSameContentListItem
-                //Create [TestRoot]/ContentList/SourceItemFolder/SourceContentListItem
-                //Create [TestRoot]/ContentList/TargetItemFolder
-                //Move SourceContentListItem, TargetItemFolder
-                //Check: 
-                //PrepareTest();
                 EnsureNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem");
                 EnsureNode(testRoot, "ContentList/TargetItemFolder");
                 MoveNode("ContentList/SourceItemFolder/SourceContentListItem", "ContentList/TargetItemFolder", testRoot);
@@ -939,13 +821,7 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //25: MoveContentListItemTreeToSameContentList
-                //Create [TestRoot]/ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
-                //Create [TestRoot]/ContentList
-                //Move SourceItemFolder2, SourceContentList
-                //Check: 
-                //PrepareTest();
                 EnsureNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
-                //EnsureNode(testRoot, "ContentList");
                 MoveNode("ContentList/SourceItemFolder1/SourceItemFolder2", "ContentList", testRoot);
                 CheckContentListItem1(testRoot, "ContentList/SourceItemFolder2");
                 CheckContentListItem1(testRoot, "ContentList/SourceItemFolder2/SourceContentListItem");
@@ -957,11 +833,6 @@ namespace SenseNet.Storage.IntegrationTests
             MoveTest(testRoot =>
             {
                 //26: MoveContentListItemTreeToSameContentListItem
-                //Create [TestRoot]/ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem
-                //Create [TestRoot]/ContentList/TargetItemFolder
-                //Move SourceItemFolder2, TargetItemFolder
-                //Check: 
-                //PrepareTest();
                 EnsureNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 EnsureNode(testRoot, "ContentList/TargetItemFolder");
                 MoveNode("ContentList/SourceItemFolder1/SourceItemFolder2", "ContentList/TargetItemFolder", testRoot);
