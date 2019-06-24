@@ -476,12 +476,14 @@ namespace SenseNet.Storage.IntegrationTests
                 var f2 = new SystemFolder(source) { Name = "F2" }; f2.Save();
                 var f3 = new SystemFolder(f1) { Name = "F3" }; f3.Save();
                 var f4 = new SystemFolder(f1) { Name = "F4" }; f4.Save();
+                var sourceTimestampBefore = source.NodeTimestamp;
 
                 // ACTION: Node.Move(source.Path, target.Path);
                 var srcNodeHeadData = source.Data.GetNodeHeadData();
                 await DP.MoveNodeAsync(srcNodeHeadData, target.Id, target.NodeTimestamp);
 
                 // ASSERT
+                //Assert.AreNotEqual(sourceTimestampBefore, source.NodeTimestamp); //UNDONE:DB: Do need refresh the NodeTimestamp or not?
                 DistributedApplication.Cache.Reset(); //UNDONE:DB: Need to work without explicite clear.
                 target = Node.Load<SystemFolder>(target.Id);
                 source = Node.Load<SystemFolder>(source.Id);

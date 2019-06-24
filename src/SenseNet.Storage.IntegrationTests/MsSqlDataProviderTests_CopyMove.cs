@@ -1,14 +1,568 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.Configuration;
 using SenseNet.ContentRepository;
 using SenseNet.ContentRepository.Schema;
+using SenseNet.ContentRepository.Search;
 using SenseNet.ContentRepository.Storage;
+using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.ContentRepository.Storage.Security;
+using SenseNet.Search;
+using SenseNet.Security;
 using Task = System.Threading.Tasks.Task;
 
 namespace SenseNet.Storage.IntegrationTests
 {
     public partial class MsSqlDataProviderTests
     {
+        #region General Move tests
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_SourceIsNotExist()
+        {
+            MoveTest(testRoot =>
+            {
+                Node.Move("/Root/osiejfvchxcidoklg6464783930020398473/iygfevfbvjvdkbu9867513125615", testRoot.Path);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_TargetIsNotExist()
+        {
+            MoveTest(testRoot =>
+            {
+                Node.Move(testRoot.Path, "/Root/fdgdffgfccxdxdsffcv31945581316942/udjkcmdkeieoeoodoc542364737827");
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void MsSqlDP_Move_MoveTo_Null()
+        {
+            MoveTest(testRoot =>
+            {
+                testRoot.MoveTo(null);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void MsSqlDP_Move_NullSourcePath()
+        {
+            MoveTest(testRoot =>
+            {
+                Node.Move(null, testRoot.Path);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_InvalidSourcePath()
+        {
+            MoveTest(testRoot =>
+            {
+                Node.Move(string.Empty, testRoot.Path);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void MsSqlDP_Move_NullTargetPath()
+        {
+            MoveTest(testRoot =>
+            {
+                Node.Move(testRoot.Path, null);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_InvalidTargetPath()
+        {
+            MoveTest(testRoot =>
+            {
+                Node.Move(testRoot.Path, string.Empty);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_ToItsParent()
+        {
+            MoveTest(testRoot =>
+            {
+                MoveNode(testRoot.Path, testRoot.ParentPath, testRoot);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_ToItself()
+        {
+            MoveTest(testRoot =>
+            {
+                Node.Move(testRoot.Path, testRoot.Path);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void MsSqlDP_Move_ToUnderItself()
+        {
+            MoveTest(testRoot =>
+            {
+                EnsureNode(testRoot, "Source/N3");
+                MoveNode("Source", "Source/N3", testRoot);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(NodeAlreadyExistsException))]
+        public void MsSqlDP_Move_TargetHasSameName()
+        {
+            MoveTest(testRoot =>
+            {
+                EnsureNode(testRoot, "Source");
+                EnsureNode(testRoot, "Target/Source");
+                MoveNode("Source", "Target", testRoot);
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_NodeTreeToNode()
+        {
+            MoveTest(testRoot =>
+            {
+                EnsureNode(testRoot, "Source/N1/N2");
+                EnsureNode(testRoot, "Source/N3");
+                EnsureNode(testRoot, "Target");
+                MoveNode("Source", "Target", testRoot, true);
+                Assert.IsNotNull(LoadNode(testRoot, "Target/Source/N1"), "#1");
+                Assert.IsNotNull(LoadNode(testRoot, "Target/Source/N1/N2"), "#2");
+                Assert.IsNotNull(LoadNode(testRoot, "Target/Source/N3"), "#3");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_SourceIsLockedByAnother()
+        {
+            MoveTest(testRoot =>
+            {
+                AclEditor.Create(new SecurityContext(User.Current))
+                    .Allow(Identifiers.PortalRootId, Identifiers.AdministratorUserId, false, PermissionType.PermissionTypes)
+                    .Allow(Identifiers.VisitorUserId, Identifiers.VisitorUserId, false, PermissionType.PermissionTypes)
+                    .Allow(testRoot.Id, Identifiers.VisitorUserId, false, PermissionType.PermissionTypes)
+                    .Apply();
+
+                IUser originalUser = AccessProvider.Current.GetCurrentUser();
+                IUser visitor = Node.LoadNode(Identifiers.VisitorUserId) as IUser;
+                SecurityHandler.CreateAclEditor().Allow(testRoot.Id, visitor.Id, false, PermissionType.Save, PermissionType.Delete).Apply();
+
+                EnsureNode(testRoot, "Source/N1");
+                EnsureNode(testRoot, "Source/N2");
+                EnsureNode(testRoot, "Target");
+                var lockedNode = LoadNode(testRoot, "Source");
+
+                AccessProvider.Current.SetCurrentUser(visitor);
+                try
+                {
+                    lockedNode.Lock.Lock();
+                }
+                finally
+                {
+                    AccessProvider.Current.SetCurrentUser(originalUser);
+                }
+
+                AccessProvider.Current.SetCurrentUser(User.Administrator);
+                bool expectedExceptionWasThrown = false;
+                Exception thrownException = null;
+                try
+                {
+                    MoveNode("Source", "Target", testRoot);
+                }
+                catch (Exception e)
+                {
+                    if (e is LockedNodeException || e.InnerException is LockedNodeException)
+                        expectedExceptionWasThrown = true;
+                    else
+                        thrownException = e;
+                }
+                finally
+                {
+                    AccessProvider.Current.SetCurrentUser(originalUser);
+                }
+
+                lockedNode.Reload();
+                AccessProvider.Current.SetCurrentUser(visitor);
+                lockedNode.Lock.Unlock(VersionStatus.Approved, VersionRaising.None);
+                AccessProvider.Current.SetCurrentUser(originalUser);
+
+                Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_SourceChildIsLockedByAnother()
+        {
+            Assert.Inconclusive(); //UNDONE:DB: Delete this test if the real line (see below) doesn't need to throw any exception.
+            MoveTest(testRoot =>
+            {
+                AclEditor.Create(new SecurityContext(User.Current))
+                    .Allow(Identifiers.PortalRootId, Identifiers.AdministratorUserId, false, PermissionType.PermissionTypes)
+                    .Allow(Identifiers.VisitorUserId, Identifiers.VisitorUserId, false, PermissionType.PermissionTypes)
+                    .Allow(testRoot.Id, Identifiers.VisitorUserId, false, PermissionType.PermissionTypes)
+                    .Apply();
+
+                IUser originalUser = AccessProvider.Current.GetCurrentUser();
+                IUser visitor = Node.LoadNode(Identifiers.VisitorUserId) as IUser;
+                SecurityHandler.CreateAclEditor().Allow(testRoot.Id, visitor.Id, false, PermissionType.Save, PermissionType.Delete).Apply();
+
+                EnsureNode(testRoot, "Source/N1/N2/N3");
+                EnsureNode(testRoot, "Source/N1/N4/N5");
+                Node lockedNode = LoadNode(testRoot, "Source/N1/N4");
+
+                AccessProvider.Current.SetCurrentUser(visitor);
+                try
+                {
+                    lockedNode.Lock.Lock();
+                }
+                finally
+                {
+                    AccessProvider.Current.SetCurrentUser(originalUser);
+                }
+
+                AccessProvider.Current.SetCurrentUser(User.Administrator);
+                bool expectedExceptionWasThrown = false;
+                try
+                {
+                    //lockedNode.MoveTo(testRoot);                 // original line (illogical)
+                    MoveNode("Source", testRoot.Path, testRoot);   // real line (does not throw)
+                }
+                catch (Exception e)
+                {
+                    if (e is LockedNodeException || e.InnerException is LockedNodeException)
+                        expectedExceptionWasThrown = true;
+                }
+                finally
+                {
+                    AccessProvider.Current.SetCurrentUser(originalUser);
+                }
+
+                AccessProvider.Current.SetCurrentUser(visitor);
+                lockedNode.Lock.Unlock(VersionStatus.Approved, VersionRaising.None);
+                AccessProvider.Current.SetCurrentUser(originalUser);
+
+                Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_SourceIsLockedByCurrent()
+        {
+            MoveTest(testRoot =>
+            {
+                EnsureNode(testRoot, "Source/N1");
+                EnsureNode(testRoot, "Source/N2");
+                EnsureNode(testRoot, "Target");
+                var lockedNode = LoadNode(testRoot, "Source");
+                try
+                {
+                    lockedNode.Lock.Lock();
+                    MoveNode("Source", "Target", testRoot);
+                }
+                finally
+                {
+                    lockedNode = Node.LoadNode(lockedNode.Id);
+                    if (lockedNode.Lock.Locked)
+                        lockedNode.Lock.Unlock(VersionStatus.Approved, VersionRaising.None);
+                }
+//nem jo az sql hibakod, es nem tudom, hogy kell-e egyaltalan hibat dobni
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_LockedTarget_SameUser()
+        {
+            MoveTest(testRoot =>
+            {
+                EnsureNode(testRoot, "Source/N1/N2/N3");
+                EnsureNode(testRoot, "Source/N1/N4/N5");
+                EnsureNode(testRoot, "Target/N6");
+                var lockedNode = LoadNode(testRoot, "Source/N1/N4");
+                try
+                {
+                    lockedNode.Lock.Lock();
+                    MoveNode("Source", "Target", testRoot, true);
+                }
+                finally
+                {
+                    lockedNode = Node.LoadNode(lockedNode.Id);
+                    if (lockedNode.Lock.Locked)
+                        lockedNode.Lock.Unlock(VersionStatus.Approved, VersionRaising.None);
+                }
+//nem jo az sql hibakod, es nem tudom, hogy kell-e egyaltalan hibat dobni
+            });
+        }
+        [TestMethod]
+        public void MsSqlDP_Move_PathBeforeAfter()
+        {
+            MoveTest(testRoot =>
+            {
+                EnsureNode(testRoot, "Source/N1/N2");
+                EnsureNode(testRoot, "Source/N1/N3");
+                EnsureNode(testRoot, "Target");
+                var n1 = LoadNode(testRoot, "Source/N1");
+                var pathBefore = n1.Path;
+
+                n1.MoveTo(Node.LoadNode(DecodePath(testRoot, "Target")));
+
+                var pathAfter = n1.Path;
+
+                var n2 = LoadNode(testRoot, "Target/N1");
+
+                Assert.IsNotNull(n2, "#1");
+                Assert.IsTrue(pathBefore != pathAfter, "#2");
+                Assert.IsTrue(pathAfter == n2.Path, "#3");
+            });
+        }
+
+        [TestMethod]
+        public void MsSqlDP_Move_MinimalPermissions()
+        {
+            MoveTest(testRoot =>
+            {
+                IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
+                EnsureNode(testRoot, "Source");
+                EnsureNode(testRoot, "Target");
+                Node sourceNode = LoadNode(testRoot, "Source");
+                Node targetNode = LoadNode(testRoot, "Target");
+                SecurityHandler.CreateAclEditor()
+                    .Allow(sourceNode.Id, visitor.Id, false, PermissionType.OpenMinor, PermissionType.Delete)
+                    .Allow(targetNode.Id, visitor.Id, false, PermissionType.AddNew)
+                    .Apply();
+
+                IUser originalUser = AccessProvider.Current.GetCurrentUser();
+                try
+                {
+                    AccessProvider.Current.SetCurrentUser(visitor);
+                }
+                finally
+                {
+                    AccessProvider.Current.SetCurrentUser(originalUser);
+                }
+            });
+        }
+        //[TestMethod]
+        //public void MsSqlDP_Move_SourceWithoutOpenMinorPermission()
+        //{
+        //    IUser originalUser = AccessProvider.Current.GetCurrentUser();
+        //    IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
+        //    EnsureNode(testRoot, "Source");
+        //    EnsureNode(testRoot, "Target");
+        //    Node sourceNode = LoadNode(testRoot, "Source");
+        //    Node targetNode = LoadNode(testRoot, "Target");
+        //    sourceNode.Security.SetPermission(visitor, PermissionType.Delete, PermissionValue.Allowed);
+        //    targetNode.Security.SetPermission(visitor, PermissionType.AddNew, PermissionValue.Allowed);
+        //    bool expectedExceptionWasThrown = false;
+        //    try
+        //    {
+        //        AccessProvider.Current.SetCurrentUser(visitor);
+        //        MoveNode("Source", "Target", testRoot);
+        //    }
+        //    catch (LockedNodeException)
+        //    {
+        //        expectedExceptionWasThrown = true;
+        //    }
+        //    finally
+        //    {
+        //        AccessProvider.Current.SetCurrentUser(originalUser);
+        //    }
+        //    Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
+        //}
+        //[TestMethod]
+        //public void MsSqlDP_Move_SourceWithoutDeletePermission()
+        //{
+        //    IUser originalUser = AccessProvider.Current.GetCurrentUser();
+        //    IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
+        //    EnsureNode(testRoot, "Source");
+        //    EnsureNode(testRoot, "Target");
+        //    Node sourceNode = LoadNode(testRoot, "Source");
+        //    Node targetNode = LoadNode(testRoot, "Target");
+        //    sourceNode.Security.SetPermission(visitor, PermissionType.OpenMinor, PermissionValue.Allowed);
+        //    targetNode.Security.SetPermission(visitor, PermissionType.AddNew, PermissionValue.Allowed);
+        //    bool expectedExceptionWasThrown = false;
+        //    try
+        //    {
+        //        AccessProvider.Current.SetCurrentUser(visitor);
+        //        MoveNode("Source", "Target", testRoot);
+        //    }
+        //    catch (LockedNodeException)
+        //    {
+        //        expectedExceptionWasThrown = true;
+        //    }
+        //    finally
+        //    {
+        //        AccessProvider.Current.SetCurrentUser(originalUser);
+        //    }
+        //    Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
+        //}
+        //[TestMethod]
+        //public void MsSqlDP_Move_TargetWithoutAddNewPermission()
+        //{
+        //    IUser originalUser = AccessProvider.Current.GetCurrentUser();
+        //    IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
+        //    EnsureNode(testRoot, "Source");
+        //    EnsureNode(testRoot, "Target");
+        //    Node sourceNode = LoadNode(testRoot, "Source");
+        //    Node targetNode = LoadNode(testRoot, "Target");
+        //    sourceNode.Security.SetPermission(visitor, PermissionType.OpenMinor, PermissionValue.Allowed);
+        //    sourceNode.Security.SetPermission(visitor, PermissionType.Delete, PermissionValue.Allowed);
+        //    bool expectedExceptionWasThrown = false;
+        //    try
+        //    {
+        //        AccessProvider.Current.SetCurrentUser(visitor);
+        //        MoveNode("Source", "Target", testRoot);
+        //    }
+        //    catch (LockedNodeException)
+        //    {
+        //        expectedExceptionWasThrown = true;
+        //    }
+        //    finally
+        //    {
+        //        AccessProvider.Current.SetCurrentUser(originalUser);
+        //    }
+        //    Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
+        //}
+        //[TestMethod]
+        //public void MsSqlDP_Move_SourceTreeWithPartialOpenMinorPermission()
+        //{
+        //    IUser originalUser = AccessProvider.Current.GetCurrentUser();
+        //    IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
+        //    EnsureNode(testRoot, "Source/N1/N2");
+        //    EnsureNode(testRoot, "Source/N1/N3");
+        //    EnsureNode(testRoot, "Source/N4");
+        //    EnsureNode(testRoot, "Target");
+        //    Node source = LoadNode(testRoot, "Source");
+        //    Node target = LoadNode(testRoot, "Target");
+        //    source.Security.SetPermission(visitor, PermissionType.OpenMinor, PermissionValue.Allowed);
+        //    source.Security.SetPermission(visitor, PermissionType.Delete, PermissionValue.Allowed);
+        //    target.Security.SetPermission(visitor, PermissionType.AddNew, PermissionValue.Allowed);
+        //    Node blockedNode = LoadNode(testRoot, "Source/N1/N3");
+        //    blockedNode.Security.SetPermission(visitor, PermissionType.OpenMinor, PermissionValue.Undefined);
+        //    bool expectedExceptionWasThrown = false;
+        //    try
+        //    {
+        //        AccessProvider.Current.SetCurrentUser(visitor);
+        //        MoveNode("Source", "Target", testRoot);
+        //    }
+        //    catch (LockedNodeException)
+        //    {
+        //        expectedExceptionWasThrown = true;
+        //    }
+        //    finally
+        //    {
+        //        AccessProvider.Current.SetCurrentUser(originalUser);
+        //    }
+        //    Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
+        //}
+        //[TestMethod]
+        //public void MsSqlDP_Move_SourceTreeWithPartialDeletePermission()
+        //{
+        //    IUser originalUser = AccessProvider.Current.GetCurrentUser();
+        //    IUser visitor = Node.LoadNode(RepositoryConfiguration.VisitorUserId) as IUser;
+        //    EnsureNode(testRoot, "Source/N1/N2");
+        //    EnsureNode(testRoot, "Source/N1/N3");
+        //    EnsureNode(testRoot, "Source/N4");
+        //    EnsureNode(testRoot, "Target");
+        //    Node source = LoadNode(testRoot, "Source");
+        //    Node target = LoadNode(testRoot, "Target");
+        //    source.Security.SetPermission(visitor, PermissionType.OpenMinor, PermissionValue.Allowed);
+        //    source.Security.SetPermission(visitor, PermissionType.Delete, PermissionValue.Allowed);
+        //    target.Security.SetPermission(visitor, PermissionType.AddNew, PermissionValue.Allowed);
+        //    Node blockedNode = LoadNode(testRoot, "Source/N1/N3");
+        //    blockedNode.Security.SetPermission(visitor, PermissionType.Delete, PermissionValue.Undefined);
+        //    bool expectedExceptionWasThrown = false;
+        //    try
+        //    {
+        //        AccessProvider.Current.SetCurrentUser(visitor);
+        //        MoveNode("Source", "Target", testRoot);
+        //    }
+        //    catch (LockedNodeException)
+        //    {
+        //        expectedExceptionWasThrown = true;
+        //    }
+        //    finally
+        //    {
+        //        AccessProvider.Current.SetCurrentUser(originalUser);
+        //    }
+        //    Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
+        //}
+
+        #endregion
+
+        [TestMethod]
+        public void MsSqlDP_Move_MoreVersion()
+        {
+            MoveTest(testRoot =>
+            {
+                EnsureNode(testRoot, "Source");
+                var node = (GenericContent)LoadNode(testRoot, "Source");
+                node.InheritableVersioningMode = ContentRepository.Versioning.InheritableVersioningType.MajorAndMinor;
+                node.Save();
+                EnsureNode(testRoot, "Source/M1");
+                node = (GenericContent)LoadNode(testRoot, "Source/M1");
+                var m1NodeId = node.Id;
+                node.Index++;
+                node.Save();
+                node = (GenericContent)LoadNode(testRoot, "Source/M1");
+                node.Index++;
+                node.Save();
+                ((GenericContent)LoadNode(testRoot, "Source/M1")).Publish();
+                ((GenericContent)LoadNode(testRoot, "Source/M1")).CheckOut();
+                EnsureNode(testRoot, "Target");
+
+                MoveNode("Source", "Target", testRoot, true);
+
+                var result = CreateSafeContentQuery($"InTree:'{DecodePath(testRoot, "Target")}' .AUTOFILTERS:OFF").Execute();
+                var paths = result.Nodes.Select(n => n.Path).ToArray();
+                Assert.IsTrue(paths.Length == 3, $"Count of paths is {paths.Length}, expected {3}");
+
+                var lastMajorVer = Node.LoadNode(DecodePath(testRoot, "Target/Source/M1"), VersionNumber.LastMajor).Version.ToString();
+                var lastMinorVer = Node.LoadNode(DecodePath(testRoot, "Target/Source/M1"), VersionNumber.LastMinor).Version.ToString();
+
+                Assert.IsTrue(lastMajorVer == "V1.0.A", String.Concat("LastMajor version is ", lastMajorVer, ", expected: V1.0.A"));
+                Assert.IsTrue(lastMinorVer == "V1.1.L", String.Concat("LastMinor version is ", lastMinorVer, ", expected: V1.1.L"));
+
+                var versionDump = GetVersionDumpByNodeId(m1NodeId);
+                Assert.AreEqual("V0.1.D, V0.2.D, V1.0.A, V1.1.L", versionDump);
+            });
+        }
+        private string GetVersionDumpByNodeId(int nodeId)
+        {
+            var head = NodeHead.Get(nodeId);
+            return string.Join(", ", head.Versions.Select(x=>x.VersionNumber.ToString()));
+            //var docs = SenseNet.Search.Indexing.LuceneManager.GetDocumentsByNodeId(nodeId);
+            //return String.Join(", ", docs.Select(d => d.Get(LucObject.FieldName.Version)).ToArray());
+        }
+
+        [TestMethod]
+        public void MsSqlDP_Move_WithAspect()
+        {
+            MoveTest(testRoot =>
+            {
+                // create an aspect
+                var aspect1 = EnsureAspect("CopyMoveTest_Move_WithAspect");
+                aspect1.AddFields(new FieldInfo { Name = "Field1", Type = "ShortText" });
+
+                // create structure
+                EnsureNode(testRoot, "Source");
+                EnsureNode(testRoot, "Source/Child");
+                var content = Content.Create(LoadNode(testRoot, "Source/Child"));
+                content.AddAspects(aspect1);
+                content["CopyMoveTest_Move_WithAspect.Field1"] = "value1";
+                content.Save();
+                var contentId = content.Id;
+
+                // remove aspect from cache
+                var cacheKey = "SN_AspectCacheByName_" + aspect1.Name;
+                DistributedApplication.Cache.Remove(cacheKey);
+
+                // ACTION: rename
+                var node = LoadNode(testRoot, "Source");
+                node.Name = Guid.NewGuid().ToString();
+                node.Save();
+
+                // EXPECTATION: executed without any exception
+            });
+        }
 
         #region ContentList Move Tests
         [TestMethod]
@@ -24,7 +578,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceNode");
                 EnsureNode(testRoot, "TargetContentList");
-                MoveNode(testRoot, "SourceNode", "TargetContentList");
+                MoveNode("SourceNode", "TargetContentList", testRoot);
                 CheckContentListItem2(testRoot, "TargetContentList/SourceNode");
             });
         }
@@ -41,7 +595,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceNode");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
-                MoveNode(testRoot, "SourceNode", "TargetContentList/TargetItemFolder");
+                MoveNode("SourceNode", "TargetContentList/TargetItemFolder", testRoot);
                 CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceNode");
             });
         }
@@ -58,7 +612,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceFolder/SourceNode");
                 EnsureNode(testRoot, "TargetContentList");
-                MoveNode(testRoot, "SourceFolder", "TargetContentList");
+                MoveNode("SourceFolder", "TargetContentList", testRoot);
                 CheckContentListItem2(testRoot, "TargetContentList/SourceFolder");
                 CheckContentListItem2(testRoot, "TargetContentList/SourceFolder/SourceNode");
             });
@@ -76,7 +630,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceFolder/SourceNode");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
-                MoveNode(testRoot, "SourceFolder", "TargetContentList/TargetItemFolder");
+                MoveNode("SourceFolder", "TargetContentList/TargetItemFolder", testRoot);
                 CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceFolder");
                 CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceFolder/SourceNode");
             });
@@ -93,7 +647,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //Check: Unchanged contentlist and item
                 EnsureNode(testRoot, "SourceFolder/SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetFolder");
-                MoveNode(testRoot, "SourceFolder", "TargetFolder");
+                MoveNode("SourceFolder", "TargetFolder", testRoot);
                 CheckSimpleNode(testRoot, "TargetFolder/SourceFolder");
                 CheckContentList1(testRoot, "TargetFolder/SourceFolder/SourceContentList");
                 CheckContentListItem1(testRoot, "TargetFolder/SourceFolder/SourceContentList/SourceContentListItem");
@@ -113,7 +667,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceFolder/SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
-                MoveNode(testRoot, "SourceFolder", "TargetContentList");
+                MoveNode("SourceFolder", "TargetContentList", testRoot);
             });
         }
         [TestMethod]
@@ -130,7 +684,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceFolder/SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
-                MoveNode(testRoot, "SourceFolder", "TargetContentList/TargetItemFolder");
+                MoveNode("SourceFolder", "TargetContentList/TargetItemFolder", testRoot);
             });
         }
         [TestMethod]
@@ -145,7 +699,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //Check: ok
                 EnsureNode(testRoot, "SourceContentList");
                 EnsureNode(testRoot, "TargetFolder");
-                MoveNode(testRoot, "SourceContentList", "TargetFolder");
+                MoveNode("SourceContentList", "TargetFolder", testRoot);
                 CheckContentList1(testRoot, "TargetFolder/SourceContentList");
             });
         }
@@ -163,7 +717,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList");
                 EnsureNode(testRoot, "TargetContentList");
-                MoveNode(testRoot, "SourceContentList", "TargetContentList");
+                MoveNode("SourceContentList", "TargetContentList", testRoot);
             });
         }
         [TestMethod]
@@ -180,7 +734,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
-                MoveNode(testRoot, "SourceContentList", "TargetContentList/TargetItemFolder");
+                MoveNode("SourceContentList", "TargetContentList/TargetItemFolder", testRoot);
             });
         }
         [TestMethod]
@@ -195,7 +749,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //Check: ok
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetFolder");
-                MoveNode(testRoot, "SourceContentList", "TargetFolder");
+                MoveNode("SourceContentList", "TargetFolder", testRoot);
                 CheckContentList1(testRoot, "TargetFolder/SourceContentList");
                 CheckContentListItem1(testRoot, "TargetFolder/SourceContentList/SourceContentListItem");
             });
@@ -214,7 +768,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
-                MoveNode(testRoot, "SourceContentList", "TargetContentList");
+                MoveNode("SourceContentList", "TargetContentList", testRoot);
             });
         }
         [TestMethod]
@@ -231,7 +785,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
-                MoveNode(testRoot, "SourceContentList", "TargetContentList/TargetItemFolder");
+                MoveNode("SourceContentList", "TargetContentList/TargetItemFolder", testRoot);
             });
         }
         [TestMethod]
@@ -247,7 +801,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetFolder");
-                MoveNode(testRoot, "SourceContentList/SourceContentListItem", "TargetFolder");
+                MoveNode("SourceContentList/SourceContentListItem", "TargetFolder", testRoot);
                 CheckSimpleNode(testRoot, "TargetFolder/SourceContentListItem");
             });
         }
@@ -264,7 +818,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
-                MoveNode(testRoot, "SourceContentList/SourceContentListItem", "TargetContentList");
+                MoveNode("SourceContentList/SourceContentListItem", "TargetContentList", testRoot);
                 CheckContentListItem2(testRoot, "TargetContentList/SourceContentListItem");
             });
         }
@@ -281,7 +835,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
-                MoveNode(testRoot, "SourceContentList/SourceContentListItem", "TargetContentList/TargetItemFolder");
+                MoveNode("SourceContentList/SourceContentListItem", "TargetContentList/TargetItemFolder", testRoot);
                 CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceContentListItem");
             });
         }
@@ -298,7 +852,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder/SourceContentListItem");
                 EnsureNode(testRoot, "TargetFolder");
-                MoveNode(testRoot, "SourceContentList/SourceItemFolder", "TargetFolder");
+                MoveNode("SourceContentList/SourceItemFolder", "TargetFolder", testRoot);
                 CheckSimpleNode(testRoot, "TargetFolder/SourceItemFolder");
                 CheckSimpleNode(testRoot, "TargetFolder/SourceItemFolder/SourceContentListItem");
             });
@@ -316,7 +870,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
-                MoveNode(testRoot, "SourceContentList/SourceItemFolder", "TargetContentList");
+                MoveNode("SourceContentList/SourceItemFolder", "TargetContentList", testRoot);
                 CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder");
                 CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder/SourceContentListItem");
             });
@@ -334,7 +888,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
-                MoveNode(testRoot, "SourceContentList/SourceItemFolder", "TargetContentList/TargetItemFolder");
+                MoveNode("SourceContentList/SourceItemFolder", "TargetContentList/TargetItemFolder", testRoot);
                 CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder");
                 CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder/SourceContentListItem");
             });
@@ -352,7 +906,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 EnsureNode(testRoot, "TargetFolder");
-                MoveNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetFolder");
+                MoveNode("SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetFolder", testRoot);
                 CheckSimpleNode(testRoot, "TargetFolder/SourceItemFolder2");
                 CheckSimpleNode(testRoot, "TargetFolder/SourceItemFolder2/SourceContentListItem");
             });
@@ -370,7 +924,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList");
-                MoveNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetContentList");
+                MoveNode("SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetContentList", testRoot);
                 CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder2");
                 CheckContentListItem2(testRoot, "TargetContentList/SourceItemFolder2/SourceContentListItem");
             });
@@ -388,7 +942,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 EnsureNode(testRoot, "TargetContentList/TargetItemFolder");
-                MoveNode(testRoot, "SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetContentList/TargetItemFolder");
+                MoveNode("SourceContentList/SourceItemFolder1/SourceItemFolder2", "TargetContentList/TargetItemFolder", testRoot);
                 CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder2");
                 CheckContentListItem2(testRoot, "TargetContentList/TargetItemFolder/SourceItemFolder2/SourceContentListItem");
             });
@@ -406,7 +960,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem");
                 //EnsureNode(testRoot, "ContentList");
-                MoveNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem", "ContentList");
+                MoveNode("ContentList/SourceItemFolder/SourceContentListItem", "ContentList", testRoot);
                 CheckContentListItem1(testRoot, "ContentList/SourceContentListItem");
             });
         }
@@ -423,7 +977,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem");
                 EnsureNode(testRoot, "ContentList/TargetItemFolder");
-                MoveNode(testRoot, "ContentList/SourceItemFolder/SourceContentListItem", "ContentList/TargetItemFolder");
+                MoveNode("ContentList/SourceItemFolder/SourceContentListItem", "ContentList/TargetItemFolder", testRoot);
                 CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceContentListItem");
             });
         }
@@ -440,7 +994,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 //EnsureNode(testRoot, "ContentList");
-                MoveNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2", "ContentList");
+                MoveNode("ContentList/SourceItemFolder1/SourceItemFolder2", "ContentList", testRoot);
                 CheckContentListItem1(testRoot, "ContentList/SourceItemFolder2");
                 CheckContentListItem1(testRoot, "ContentList/SourceItemFolder2/SourceContentListItem");
             });
@@ -458,7 +1012,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //PrepareTest();
                 EnsureNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2/SourceContentListItem");
                 EnsureNode(testRoot, "ContentList/TargetItemFolder");
-                MoveNode(testRoot, "ContentList/SourceItemFolder1/SourceItemFolder2", "ContentList/TargetItemFolder");
+                MoveNode("ContentList/SourceItemFolder1/SourceItemFolder2", "ContentList/TargetItemFolder", testRoot);
                 CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceItemFolder2");
                 CheckContentListItem1(testRoot, "ContentList/TargetItemFolder/SourceItemFolder2/SourceContentListItem");
             });
@@ -475,7 +1029,11 @@ namespace SenseNet.Storage.IntegrationTests
                 {
                     if (ContentType.GetByName("Car") == null)
                         InstallCarContentType();
-                    var testRoot = CreateTestRoot();
+                    var nextId = TDP.GetLastNodeId() + 1;
+
+                    var testRoot = new SystemFolder(Repository.Root) {Name = "MoveTestRoot-" + nextId};
+                    testRoot.Save();
+
                     try
                     {
                         callback(testRoot);
@@ -496,7 +1054,7 @@ namespace SenseNet.Storage.IntegrationTests
         }
 
         #region Tools
-        private void MoveNode(SystemFolder testRoot, string encodedSourcePath, string encodedTargetPath, bool clearTarget = false)
+        private void MoveNode(string encodedSourcePath, string encodedTargetPath, SystemFolder testRoot, bool clearTarget = false)
         {
             string sourcePath = DecodePath(testRoot, encodedSourcePath);
             string targetPath = DecodePath(testRoot, encodedTargetPath);
@@ -635,6 +1193,16 @@ namespace SenseNet.Storage.IntegrationTests
             if(relativePath.StartsWith("[TestRoot]"))
                 Assert.Fail("[TestRoot] is not allowed. Use relative path instead.");
             return RepositoryPath.Combine(testRoot.Path, relativePath);
+        }
+
+        private Aspect EnsureAspect(string name)
+        {
+            var existing = Aspect.LoadAspectByName(name);
+            if (existing != null)
+                return existing;
+            var aspectContent = Content.CreateNew("Aspect", Repository.AspectsFolder, name);
+            aspectContent.Save();
+            return (Aspect)aspectContent.ContentHandler;
         }
         #endregion
 
