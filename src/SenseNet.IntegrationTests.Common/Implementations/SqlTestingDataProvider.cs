@@ -122,9 +122,11 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             throw new NotImplementedException();
         }
 
-        public int GetLastNodeId()
+        public async Task<int> GetLastNodeIdAsync()
         {
-            throw new NotImplementedException();
+            using (var ctx = new SnDataContext(MainProvider))
+                return (int)await ctx.ExecuteScalarAsync(
+                    "SELECT i.last_value FROM sys.identity_columns i JOIN sys.tables t ON i.object_id = t.object_id WHERE t.name = 'Nodes'");
         }
 
         public void SetContentHandler(string contentTypeName, string handler)

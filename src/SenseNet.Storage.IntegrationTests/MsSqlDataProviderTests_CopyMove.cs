@@ -192,68 +192,20 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
         [TestMethod]
-        public void MsSqlDP_Move_SourceChildIsLockedByAnother()
-        {
-            Assert.Inconclusive(); //UNDONE:DB: Delete this test if the real line (see below) doesn't need to throw any exception.
-            MoveTest(testRoot =>
-            {
-                AclEditor.Create(new SecurityContext(User.Current))
-                    .Allow(Identifiers.PortalRootId, Identifiers.AdministratorUserId, false, PermissionType.PermissionTypes)
-                    .Allow(Identifiers.VisitorUserId, Identifiers.VisitorUserId, false, PermissionType.PermissionTypes)
-                    .Allow(testRoot.Id, Identifiers.VisitorUserId, false, PermissionType.PermissionTypes)
-                    .Apply();
-
-                IUser originalUser = AccessProvider.Current.GetCurrentUser();
-                IUser visitor = Node.LoadNode(Identifiers.VisitorUserId) as IUser;
-                SecurityHandler.CreateAclEditor().Allow(testRoot.Id, visitor.Id, false, PermissionType.Save, PermissionType.Delete).Apply();
-
-                EnsureNode(testRoot, "Source/N1/N2/N3");
-                EnsureNode(testRoot, "Source/N1/N4/N5");
-                Node lockedNode = LoadNode(testRoot, "Source/N1/N4");
-
-                AccessProvider.Current.SetCurrentUser(visitor);
-                try
-                {
-                    lockedNode.Lock.Lock();
-                }
-                finally
-                {
-                    AccessProvider.Current.SetCurrentUser(originalUser);
-                }
-
-                AccessProvider.Current.SetCurrentUser(User.Administrator);
-                bool expectedExceptionWasThrown = false;
-                try
-                {
-                    //lockedNode.MoveTo(testRoot);                 // original line (illogical)
-                    MoveNode("Source", testRoot.Path, testRoot);   // real line (does not throw)
-                }
-                catch (Exception e)
-                {
-                    if (e is LockedNodeException || e.InnerException is LockedNodeException)
-                        expectedExceptionWasThrown = true;
-                }
-                finally
-                {
-                    AccessProvider.Current.SetCurrentUser(originalUser);
-                }
-
-                AccessProvider.Current.SetCurrentUser(visitor);
-                lockedNode.Lock.Unlock(VersionStatus.Approved, VersionRaising.None);
-                AccessProvider.Current.SetCurrentUser(originalUser);
-
-                Assert.IsTrue(expectedExceptionWasThrown, "The expected exception was not thrown.");
-            });
-        }
-        [TestMethod]
         public void MsSqlDP_Move_SourceIsLockedByCurrent()
         {
             MoveTest(testRoot =>
             {
+                AclEditor.Create(new SecurityContext(User.Current))
+                    .Allow(Identifiers.PortalRootId, Identifiers.AdministratorUserId, false, PermissionType.PermissionTypes)
+                    .Apply();
+
                 EnsureNode(testRoot, "Source/N1");
                 EnsureNode(testRoot, "Source/N2");
                 EnsureNode(testRoot, "Target");
                 var lockedNode = LoadNode(testRoot, "Source");
+                IUser originalUser = AccessProvider.Current.GetCurrentUser();
+                AccessProvider.Current.SetCurrentUser(User.Administrator);
                 try
                 {
                     lockedNode.Lock.Lock();
@@ -261,6 +213,7 @@ namespace SenseNet.Storage.IntegrationTests
                 }
                 finally
                 {
+                    AccessProvider.Current.SetCurrentUser(originalUser);
                     lockedNode = Node.LoadNode(lockedNode.Id);
                     if (lockedNode.Lock.Locked)
                         lockedNode.Lock.Unlock(VersionStatus.Approved, VersionRaising.None);
@@ -273,10 +226,16 @@ namespace SenseNet.Storage.IntegrationTests
         {
             MoveTest(testRoot =>
             {
+                AclEditor.Create(new SecurityContext(User.Current))
+                    .Allow(Identifiers.PortalRootId, Identifiers.AdministratorUserId, false, PermissionType.PermissionTypes)
+                    .Apply();
+
                 EnsureNode(testRoot, "Source/N1/N2/N3");
                 EnsureNode(testRoot, "Source/N1/N4/N5");
                 EnsureNode(testRoot, "Target/N6");
                 var lockedNode = LoadNode(testRoot, "Source/N1/N4");
+                IUser originalUser = AccessProvider.Current.GetCurrentUser();
+                AccessProvider.Current.SetCurrentUser(User.Administrator);
                 try
                 {
                     lockedNode.Lock.Lock();
@@ -284,6 +243,7 @@ namespace SenseNet.Storage.IntegrationTests
                 }
                 finally
                 {
+                    AccessProvider.Current.SetCurrentUser(originalUser);
                     lockedNode = Node.LoadNode(lockedNode.Id);
                     if (lockedNode.Lock.Locked)
                         lockedNode.Lock.Unlock(VersionStatus.Approved, VersionRaising.None);
@@ -1029,9 +989,9 @@ namespace SenseNet.Storage.IntegrationTests
                 {
                     if (ContentType.GetByName("Car") == null)
                         InstallCarContentType();
-                    var nextId = TDP.GetLastNodeId() + 1;
+                    var nextId = TDP.GetLastNodeIdAsync().Result + 1;
 
-                    var testRoot = new SystemFolder(Repository.Root) {Name = "MoveTestRoot-" + nextId};
+                    var testRoot = new SystemFolder(Repository.Root) {Name = "MoveTest-" + nextId};
                     testRoot.Save();
 
                     try
@@ -1188,9 +1148,9 @@ namespace SenseNet.Storage.IntegrationTests
         }
         private string DecodePath(SystemFolder testRoot, string relativePath)
         {
-            if (relativePath.StartsWith("/Root/"))
+            if (relativePath == "/Root" || relativePath.StartsWith("/Root/"))
                 return relativePath;
-            if(relativePath.StartsWith("[TestRoot]"))
+            if (relativePath.StartsWith("[TestRoot]"))
                 Assert.Fail("[TestRoot] is not allowed. Use relative path instead.");
             return RepositoryPath.Combine(testRoot.Path, relativePath);
         }
