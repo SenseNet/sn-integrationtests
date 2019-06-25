@@ -132,7 +132,8 @@ namespace SenseNet.Storage.IntegrationTests
                 DataStore.Enabled = true;
 
                 var root = CreateTestRoot();
-                var created = new File(root) { Name = "File1", VersioningMode = VersioningType.MajorAndMinor };
+                var refNode = Node.LoadNode("/Root/(apps)/File/GetPreviewsFolder");
+                var created = new File(root) { Name = "File1", VersioningMode = VersioningType.MajorAndMinor, BrowseApplication = refNode };
                 created.Binary.SetStream(RepositoryTools.GetStreamFromString("File1 Content"));
                 created.Save();
 
@@ -147,7 +148,7 @@ namespace SenseNet.Storage.IntegrationTests
                 nodeData.Version = VersionNumber.Parse("V0.2.D");
 
                 // Update dynamic properties
-                GenerateTestData(nodeData);
+                GenerateTestData(nodeData, "BrowseApplication");
                 var versionIdBefore = nodeData.VersionId;
                 var modificationDateBefore = nodeData.ModificationDate;
                 var nodeTimestampBefore = nodeData.NodeTimestamp;
@@ -171,10 +172,11 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreNotEqual(nodeTimestampBefore, loaded.NodeTimestamp);
                 Assert.AreNotEqual(modificationDateBefore, loaded.ModificationDate);
                 Assert.AreEqual("File1 Content UPDATED", RepositoryTools.GetStreamString(loaded.Binary.GetStream()));
+                Assert.AreEqual(refNode.Id, loaded.BrowseApplication.Id);
 
                 foreach (var propType in loaded.Data.PropertyTypes)
                     loaded.Data.GetDynamicRawData(propType);
-                DataProviderChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data);
+                DataProviderChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data, "BrowseApplication");
             });
         }
         [TestMethod]
@@ -185,7 +187,8 @@ namespace SenseNet.Storage.IntegrationTests
                 DataStore.Enabled = true;
 
                 var root = CreateTestRoot();
-                var created = new File(root) { Name = "File1" };
+                var refNode = Node.LoadNode("/Root/(apps)/File/GetPreviewsFolder");
+                var created = new File(root) { Name = "File1", BrowseApplication = refNode };
                 created.Binary.SetStream(RepositoryTools.GetStreamFromString("File1 Content"));
                 created.Save();
                 var versionIdBefore = created.VersionId;
@@ -203,7 +206,7 @@ namespace SenseNet.Storage.IntegrationTests
                 nodeData.Version = VersionNumber.Parse("V1.0.A");
 
                 // Update dynamic properties
-                GenerateTestData(nodeData);
+                GenerateTestData(nodeData, "BrowseApplication");
                 var modificationDateBefore = nodeData.ModificationDate;
                 var nodeTimestampBefore = nodeData.NodeTimestamp;
 
@@ -232,7 +235,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 foreach (var propType in loaded.Data.PropertyTypes)
                     loaded.Data.GetDynamicRawData(propType);
-                DataProviderChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data);
+                DataProviderChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data, "BrowseApplication");
             });
         }
         [TestMethod]
@@ -2675,9 +2678,9 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         /* ================================================================================================== */
 
-        private void GenerateTestData(NodeData nodeData)
+        private void GenerateTestData(NodeData nodeData, params string[] excludedProperties)
         {
-            foreach (var propType in nodeData.PropertyTypes)
+            foreach (var propType in nodeData.PropertyTypes.Where(x => !excludedProperties.Contains(x.Name)))
             {
                 var data = GetTestData(propType);
                 if (data != null)
