@@ -846,7 +846,7 @@ namespace SenseNet.Storage.IntegrationTests
         {
             Node node = LoadNode(testRoot, relativePath);
             Assert.IsTrue(node.HasProperty("#String_0"), "ContentListItem has not property: #String_0");
-            Assert.AreEqual(cleared ? (string)null : "TestValue", node["#String_0"]);
+            Assert.AreEqual(cleared ? null : "TestValue", node["#String_0"]);
             Assert.IsTrue(node.HasProperty("#String_1"), "ContentListItem has not property: #String_1");
             Assert.IsNotNull(node.ContentListType, "ContentListItem ContentListType == null");
             Assert.IsTrue(node.ContentListId > 0, "ContentListItem ContentListId == 0");
@@ -855,7 +855,7 @@ namespace SenseNet.Storage.IntegrationTests
         {
             Node node = LoadNode(testRoot, relativePath);
             Assert.IsTrue(node.HasProperty("#String_0"), "ContentListItem has not property: #String_0");
-            Assert.AreEqual(cleared ? (string)null : "TestValue", node["#String_0"]);
+            Assert.AreEqual(cleared ? null : "TestValue", node["#String_0"]);
             Assert.IsTrue(node.HasProperty("#Int_0"), "ContentListItem has not property: #Int_0");
             Assert.IsNotNull(node.ContentListType, "ContentListItem ContentListType == null");
             Assert.IsTrue(node.ContentListId > 0, "ContentListItem ContentListId == 0");
@@ -941,6 +941,8 @@ namespace SenseNet.Storage.IntegrationTests
             Content content = Content.CreateNew(typeName, parent.ContentHandler, name);
             if (typeName != "SystemFolder" && typeName != "Folder" && typeName != "Page")
                 ((GenericContent)content.ContentHandler).AllowChildTypes(new[] { "Folder", "ContentList", "Car" });
+            if(content.Fields.ContainsKey("#TestField"))
+                content["#TestField"] = "TestValue";
             content.Save();
         }
         private string DecodePath(SystemFolder testRoot, string relativePath)

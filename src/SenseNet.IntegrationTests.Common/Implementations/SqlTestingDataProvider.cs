@@ -308,7 +308,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
                         cmd.Parameters.Add(ctx.CreateParameter("@VersionId", DbType.Int32, versionId));
                     });
 
-                var properties = MainProvider.DeserializeDynamiProperties(result);
+                var properties = MainProvider.DeserializeDynamicProperties(result);
                 if (properties.TryGetValue(propertyType, out var value))
                     return value;
                 return null;
