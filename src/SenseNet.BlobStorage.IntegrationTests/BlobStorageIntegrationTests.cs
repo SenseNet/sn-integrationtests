@@ -152,7 +152,6 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
             SnTrace.Test.Enabled = true;
             SnTrace.Test.Write("START test: {0}", TestContext.TestName);
-            DataStore.Enabled = true;
 
             _connectionStringBackup = ConnectionStrings.ConnectionString;
             _securityConnectionStringBackup = ConnectionStrings.SecurityDatabaseConnectionString;
@@ -311,10 +310,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
             using (var op = SnTrace.Test.StartOperation("Install initial data."))
             {
-                var backup = DataStore.Enabled;
-                DataStore.Enabled = true;
                 DataStore.InstallInitialDataAsync(GetInitialData()).Wait();
-                DataStore.Enabled = backup;
                 op.Successful = true;
             }
             var inMemoryIndex = GetInitialIndex();

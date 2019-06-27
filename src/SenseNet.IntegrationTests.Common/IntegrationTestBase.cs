@@ -62,8 +62,6 @@ namespace SenseNet.IntegrationTests.Common
             //if(SnTrace.SnTracers.Count == 1)
             //    SnTrace.SnTracers.Add(new SnDebugViewTracer());
 
-            DataStore.Enabled = true;
-
             if (isolated)
                 _instance = null;
 
@@ -112,8 +110,6 @@ namespace SenseNet.IntegrationTests.Common
             SnTrace.Test.Write("START test: {0}", TestContext.TestName);
             //if(SnTrace.SnTracers.Count == 1)
             //    SnTrace.SnTracers.Add(new SnDebugViewTracer());
-
-            DataStore.Enabled = true;
 
             var brandNew = EnsureDatabase();
             if (brandNew)
@@ -171,10 +167,7 @@ namespace SenseNet.IntegrationTests.Common
 
             using (var op = SnTrace.Test.StartOperation("Install initial data."))
             {
-                var backup = DataStore.Enabled;
-                DataStore.Enabled = true;
                 DataStore.InstallInitialDataAsync(GetInitialData()).Wait();
-                DataStore.Enabled = backup;
                 op.Successful = true;
             }
             var inMemoryIndex = GetInitialIndex();
