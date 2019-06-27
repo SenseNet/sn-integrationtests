@@ -224,7 +224,7 @@ namespace SenseNet.Search.IntegrationTests
 
             Configuration.Indexing.IsOuterSearchEngineEnabled = true;
             CommonComponents.TransactionFactory = dataProvider;
-            DistributedApplication.Cache.Reset();
+            Cache.Reset();
 
             var indxManConsole = new StringWriter();
             var repoBuilder = new RepositoryBuilder()

@@ -69,7 +69,7 @@ namespace SenseNet.IntegrationTests.Common
 
             var brandNew = EnsureDatabase();
 
-            DistributedApplication.Cache.Reset();
+            Cache.Reset();
             ContentTypeManager.Reset();
             Providers.Instance.NodeTypeManeger = null;
 
@@ -86,7 +86,7 @@ namespace SenseNet.IntegrationTests.Common
 
                 Indexing.IsOuterSearchEngineEnabled = true;
 
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 ContentTypeManager.Reset();
                 _repositoryInstance = Repository.Start(builder);
                 PrepareRepository();

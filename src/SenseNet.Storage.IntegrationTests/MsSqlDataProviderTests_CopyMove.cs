@@ -423,7 +423,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 // remove aspect from cache
                 var cacheKey = "SN_AspectCacheByName_" + aspect1.Name;
-                DistributedApplication.Cache.Remove(cacheKey);
+                Cache.Remove(cacheKey);
 
                 // ACTION: rename
                 var node = LoadNode(testRoot, "Source");

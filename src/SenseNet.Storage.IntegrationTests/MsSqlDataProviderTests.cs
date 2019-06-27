@@ -66,7 +66,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.IsTrue(nodeHeadData.LastMajorVersionId == versionData.VersionId);
                 Assert.IsTrue(nodeHeadData.LastMajorVersionId == nodeHeadData.LastMinorVersionId);
 
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 var loaded = Node.Load<File>(nodeHeadData.NodeId);
                 Assert.IsNotNull(loaded);
                 Assert.AreEqual("File1", loaded.Name);
@@ -111,7 +111,7 @@ namespace SenseNet.Storage.IntegrationTests
                 // ASSERT
                 Assert.IsTrue(nodeHeadData.Timestamp > created.NodeTimestamp);
 
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 var loaded = Node.Load<File>(nodeHeadData.NodeId);
                 Assert.IsNotNull(loaded);
                 Assert.AreEqual("File1", loaded.Name);
@@ -164,7 +164,7 @@ namespace SenseNet.Storage.IntegrationTests
                 // ASSERT
                 Assert.AreNotEqual(versionIdBefore, versionData.VersionId);
 
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 var loaded = Node.Load<File>(nodeHeadData.NodeId);
                 Assert.IsNotNull(loaded);
                 Assert.AreEqual("File1", loaded.Name);
@@ -222,7 +222,7 @@ namespace SenseNet.Storage.IntegrationTests
                 // ASSERT
                 Assert.AreEqual(versionIdBefore, versionData.VersionId);
 
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 var loaded = Node.Load<File>(nodeHeadData.NodeId);
                 Assert.IsNotNull(loaded);
                 Assert.AreEqual("File1", loaded.Name);
@@ -289,7 +289,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 // ASSERT: the original state is restored after the UndoCheckOut operation
                 Assert.IsTrue(oldTimestamp < nodeHeadData.Timestamp);
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 var reloaded = Node.Load<File>(created.Id);
                 Assert.AreEqual(expectedVersion, reloaded.Version);
                 Assert.AreEqual(expectedVersionId, reloaded.VersionId);
@@ -424,7 +424,7 @@ namespace SenseNet.Storage.IntegrationTests
                 await DP.UpdateNodeAsync(nodeHeadData, versionData, dynamicData, versionIdsToDelete, originalPath);
 
                 // ASSERT
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 f1 = Node.Load<SystemFolder>(f1.Id);
                 f2 = Node.Load<SystemFolder>(f2.Id);
                 f3 = Node.Load<SystemFolder>(f3.Id);
@@ -444,7 +444,7 @@ namespace SenseNet.Storage.IntegrationTests
             {
                 DataStore.Enabled = true;
 
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 var loaded = Repository.Root.Children.Select(x => x.Id.ToString()).ToArray();
 
                 int[] expected;
@@ -487,7 +487,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 // ASSERT
                 //Assert.AreNotEqual(sourceTimestampBefore, source.NodeTimestamp); //UNDONE:DB: Do need refresh the NodeTimestamp or not?
-                DistributedApplication.Cache.Reset(); //UNDONE:DB: Need to work without explicite clear.
+                Cache.Reset(); //UNDONE:DB: Need to work without explicite clear.
                 target = Node.Load<SystemFolder>(target.Id);
                 source = Node.Load<SystemFolder>(source.Id);
                 f1 = Node.Load<SystemFolder>(f1.Id);
@@ -520,7 +520,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 // ASSERT-1: NodeData is in cache after creation
                 var cacheKey1 = DataStore.GenerateNodeDataVersionIdCacheKey(root.VersionId);
-                var item1 = DistributedApplication.Cache[cacheKey1];
+                var item1 = Cache.Get(cacheKey1);
                 Assert.IsNotNull(item1);
                 var cachedNodeData1 = item1 as NodeData;
                 Assert.IsNotNull(cachedNodeData1);
@@ -539,7 +539,7 @@ namespace SenseNet.Storage.IntegrationTests
                 var cacheKey2 = DataStore.GenerateNodeDataVersionIdCacheKey(root.VersionId);
                 if (cacheKey1 != cacheKey2)
                     Assert.Inconclusive("The test is invalid because the cache keys are not equal.");
-                var item2 = DistributedApplication.Cache[cacheKey2];
+                var item2 = Cache.Get(cacheKey2);
                 Assert.IsNotNull(item2);
                 var cachedNodeData2 = item2 as NodeData;
                 Assert.IsNotNull(cachedNodeData2);
@@ -583,7 +583,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(0, longTextProps.Count);
 
                 // ACTION-3: Load the property value
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 root = Node.Load<SystemFolder>(root.Id);
                 var lazyLoadedDescription = root.Description; // Loads the property value
 
@@ -612,7 +612,7 @@ namespace SenseNet.Storage.IntegrationTests
                 var cacheKey = DataStore.GenerateNodeDataVersionIdCacheKey(root.VersionId);
 
                 // ASSERT-1: text property is in cache
-                var cachedNodeData = (NodeData)DistributedApplication.Cache[cacheKey];
+                var cachedNodeData = (NodeData)Cache.Get(cacheKey);
                 Assert.IsTrue(cachedNodeData.IsShared);
                 var longTextProperties = cachedNodeData.GetDynamicData(false).LongTextProperties;
                 Assert.IsTrue(longTextProperties.ContainsKey(descriptionPropertyType));
@@ -624,7 +624,7 @@ namespace SenseNet.Storage.IntegrationTests
                 root.Save();
 
                 // ASSERT-2: text property is in cache
-                cachedNodeData = (NodeData)DistributedApplication.Cache[cacheKey];
+                cachedNodeData = (NodeData)Cache.Get(cacheKey);
                 Assert.IsTrue(cachedNodeData.IsShared);
                 longTextProperties = cachedNodeData.GetDynamicData(false).LongTextProperties;
                 Assert.IsTrue(longTextProperties.ContainsKey(descriptionPropertyType));
@@ -636,7 +636,7 @@ namespace SenseNet.Storage.IntegrationTests
                 root.Save();
 
                 // ASSERT-3: text property is not in the cache
-                cachedNodeData = (NodeData)DistributedApplication.Cache[cacheKey];
+                cachedNodeData = (NodeData)Cache.Get(cacheKey);
                 Assert.IsTrue(cachedNodeData.IsShared);
                 longTextProperties = cachedNodeData.GetDynamicData(false).LongTextProperties;
                 Assert.IsFalse(longTextProperties.ContainsKey(descriptionPropertyType));
@@ -646,7 +646,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 // ASSERT-4: Property is loaded and is in cache
                 Assert.AreEqual(longText, loadedValue);
-                cachedNodeData = (NodeData)DistributedApplication.Cache[cacheKey];
+                cachedNodeData = (NodeData)Cache.Get(cacheKey);
                 Assert.IsTrue(cachedNodeData.IsShared);
                 longTextProperties = cachedNodeData.GetDynamicData(false).LongTextProperties;
                 Assert.IsTrue(longTextProperties.ContainsKey(descriptionPropertyType));
@@ -1789,7 +1789,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                         expectedVersionId, originalPath);
 
                 // ASSERT
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 var reloaded = Node.Load<SystemFolder>(node.Id);
                 Assert.AreEqual(expectedName, reloaded.Name);
                 reloaded = Node.Load<SystemFolder>(childNode.Id);
@@ -2344,7 +2344,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 }
 
                 // ASSERT (all operation need to be rolled back)
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 var reloaded = Node.Load<SystemFolder>(newNode.Id);
                 var nodeTimeStampAfter = reloaded.NodeTimestamp;
                 var versionTimeStampAfter = reloaded.VersionTimestamp;
@@ -2395,7 +2395,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
                 // ASSERT (all operation need to be rolled back)
                 var countsAfter = await GetDbObjectCountsAsync(null, DP, TDP);
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 var reloaded = Node.Load<SystemFolder>(newNode.Id);
                 Assert.AreEqual(countsBefore.AllCounts, countsAfter.AllCounts);
                 Assert.AreEqual(version2, reloaded.Version.ToString());
@@ -2444,7 +2444,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
                 // ASSERT (all operation need to be rolled back)
                 var countsAfter = await GetDbObjectCountsAsync(null, DP, TDP);
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 var reloaded = Node.Load<SystemFolder>(newNode.Id);
                 Assert.AreEqual(countsBefore.AllCounts, countsAfter.AllCounts);
                 Assert.AreEqual(version2, reloaded.Version.ToString());
@@ -2484,7 +2484,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 }
 
                 // ASSERT
-                DistributedApplication.Cache.Reset();
+                Cache.Reset();
                 target = Node.Load<SystemFolder>(target.Id);
                 source = Node.Load<SystemFolder>(source.Id);
                 f1 = Node.Load<SystemFolder>(f1.Id);
