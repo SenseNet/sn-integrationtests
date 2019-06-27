@@ -37,8 +37,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var root = CreateTestRoot();
 
                 // Create a file but do not save.
@@ -85,8 +83,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var root = CreateTestRoot();
 
                 var created = new File(root) { Name = "File1", Index = 42 };
@@ -129,8 +125,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var root = CreateTestRoot();
                 var refNode = Node.LoadNode("/Root/(apps)/File/GetPreviewsFolder");
                 var created = new File(root) { Name = "File1", VersioningMode = VersioningType.MajorAndMinor, BrowseApplication = refNode };
@@ -184,8 +178,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var root = CreateTestRoot();
                 var refNode = Node.LoadNode("/Root/(apps)/File/GetPreviewsFolder");
                 var created = new File(root) { Name = "File1", BrowseApplication = refNode };
@@ -243,8 +235,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 // Create a file under the test root
                 var root = CreateTestRoot();
                 var created = new File(root) { Name = "File1" };
@@ -323,8 +313,6 @@ namespace SenseNet.Storage.IntegrationTests
                 Node node = null;
                 try
                 {
-                    DataStore.Enabled = true;
-
                     ContentTypeInstaller.InstallContentType(ctd);
                     var unused = ContentType.GetByName(contentTypeName); // preload schema
 
@@ -401,8 +389,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 // Create a small subtree
                 var root = CreateTestRoot();
                 var f1 = new SystemFolder(root) {Name = "F1"}; f1.Save();
@@ -442,8 +428,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 Cache.Reset();
                 var loaded = Repository.Root.Children.Select(x => x.Id.ToString()).ToArray();
 
@@ -468,8 +452,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 // Create a small subtree
                 var root = CreateTestRoot();
                 var rootPath = root.Path;
@@ -509,8 +491,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(() =>
             {
-                DataStore.Enabled = true;
-
                 var root = new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString() };
 
                 // ACTION-1: Create
@@ -555,8 +535,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var nearlyLongText = new string('a', DataStore.TextAlternationSizeLimit - 10);
                 var longText = new string('c', DataStore.TextAlternationSizeLimit + 10);
                 var descriptionPropertyType = ActiveSchema.PropertyTypes["Description"];
@@ -596,7 +574,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(() =>
             {
-                DataStore.Enabled = true;
                 var nearlyLongText1 = new string('a', DataStore.TextAlternationSizeLimit - 10);
                 var nearlyLongText2 = new string('b', DataStore.TextAlternationSizeLimit - 10);
                 var longText = new string('c', DataStore.TextAlternationSizeLimit + 10);
@@ -660,8 +637,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 // Create a small subtree
                 var root = CreateTestRoot();
                 var site1 = new Site(root) { Name = "Site1" }; site1.Save();
@@ -692,7 +667,6 @@ namespace SenseNet.Storage.IntegrationTests
             await StorageTest(async () =>
             {
                 // ALIGN-1
-                DataStore.Enabled = true;
                 ActiveSchema.Reset();
                 var contentLlistTypeCountBefore = ActiveSchema.ContentListTypes.Count;
                 var root = CreateTestRoot();
@@ -726,8 +700,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var countsBefore = await GetDbObjectCountsAsync(null, DP, TDP);
 
                 // Create a small subtree
@@ -761,8 +733,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var folder = new SystemFolder(Repository.Root) { Name = "Folder1" };
                 folder.Save();
                 folder = Node.Load<SystemFolder>(folder.Id);
@@ -782,8 +752,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(() =>
             {
-                DataStore.Enabled = true;
-
                 var folderB = new SystemFolder(Repository.Root)
                 {
                     Name = Guid.NewGuid().ToString(),
@@ -819,8 +787,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 // ACTION
                 var result = await DP.GetVersionNumbersAsync("/Root/Deleted");
 
@@ -834,8 +800,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var root = CreateFolder(Repository.Root, "TestRoot");
                 var file = CreateFile(root, "File-1.txt", "File content.");
 
@@ -877,8 +841,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(() =>
             {
-                DataStore.Enabled = true;
-
                 // Create a small subtree
                 var root = CreateTestRoot();
                 var f1 = new SystemFolder(root) { Name = "F1" }; f1.Save();
@@ -906,8 +868,6 @@ namespace SenseNet.Storage.IntegrationTests
         {
             await StorageTest(() =>
             {
-                DataStore.Enabled = true;
-
                 // Create a small subtree
                 var root = CreateTestRoot();
                 var f1 = new SystemFolder(root) { Name = "folder(42)" }; f1.Save();
@@ -979,8 +939,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await IsolatedStorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var expectedFolderCount = CreateSafeContentQuery("+Type:Folder .COUNTONLY").Execute().Count;
                 var expectedSystemFolderCount = CreateSafeContentQuery("+Type:SystemFolder .COUNTONLY").Execute().Count;
                 var expectedAggregated = expectedFolderCount + expectedSystemFolderCount;
@@ -1019,8 +977,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await IsolatedStorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var expected = CreateSafeContentQuery("+InFolder:/Root").Execute().Identifiers;
 
                 // ACTION
@@ -1036,8 +992,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await IsolatedStorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var r = new SystemFolder(Repository.Root) { Name = "R" }; r.Save();
                 var ra = new Folder(r) { Name = "A" }; ra.Save();
                 var raf = new Folder(ra) { Name = "F" }; raf.Save();
@@ -1135,8 +1089,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             {
                 try
                 {
-                    DataStore.Enabled = true;
-
                     ContentTypeInstaller.InstallContentType(ctd1, ctd2);
                     var unused = ContentType.GetByName(contentType1); // preload schema
 
@@ -1259,8 +1211,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             {
                 try
                 {
-                    DataStore.Enabled = true;
-
                     ContentTypeInstaller.InstallContentType(ctd1, ctd2);
                     var unused = ContentType.GetByName(contentType1); // preload schema
 
@@ -1335,8 +1285,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await IsolatedStorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var path = "/Root/Folder-1";
                 var childPath = "/root/folder-1/folder-2";
                 var anotherPath = "/Root/Folder-2";
@@ -1416,7 +1364,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 var systemFolderType = ActiveSchema.NodeTypes["SystemFolder"];
 
                 // ARRANGE
-                DataStore.Enabled = true;
                 CreateStructure();
                 var testRoot = Node.Load<SystemFolder>(testRootPath);
                 var testRootChildren = testRoot.Children.ToArray();
@@ -1441,7 +1388,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var node = CreateTestRoot();
                 var versionIds = new[] { node.VersionId };
                 var loadResult = await DP.LoadIndexDocumentsAsync(versionIds);
@@ -1651,8 +1597,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 await DP.DeleteAllIndexingActivitiesAsync();
                 var node = CreateFolder(Repository.Root, "Folder-1");
 
@@ -1670,8 +1614,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 await DP.DeleteAllIndexingActivitiesAsync();
 
                 var now = DateTime.UtcNow;
@@ -1760,7 +1702,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var node = new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Index = 42 };
                 node.Save();
                 var childNode = CreateFolder(node, "Folder-2");
@@ -1802,8 +1743,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var expected = new[] { Repository.Root.VersionId, User.Administrator.VersionId };
                 var versionIds = new[] { Repository.Root.VersionId, 999999, User.Administrator.VersionId };
 
@@ -1821,8 +1760,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 // ACTION
                 var result = await DP.LoadNodeHeadByVersionIdAsync(99999);
 
@@ -1836,8 +1773,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 // ACTIONS
                 var allNodeCountBefore = await DP.GetNodeCountAsync(null);
                 var allVersionCountBefore = await DP.GetVersionCountAsync(null);
@@ -1872,7 +1807,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var newNode = CreateTestRoot();
                 try
                 {
@@ -1899,8 +1833,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 try
                 {
                     var node = Node.LoadNode(Identifiers.PortalRootId);
@@ -1927,7 +1859,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var newNode =
                     new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Index = 42 };
                 newNode.Save();
@@ -1958,7 +1889,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var newNode =
                     new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Index = 42 };
                 newNode.Save();
@@ -1990,7 +1920,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var newNode = new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Index = 42 };
                 newNode.Save();
 
@@ -2020,7 +1949,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var newNode = new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Index = 42 };
                 newNode.Save();
 
@@ -2050,7 +1978,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var newNode = new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Index = 42 };
                 newNode.Save();
 
@@ -2081,7 +2008,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var newNode = CreateTestRoot();
 
                 try
@@ -2107,7 +2033,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var newNode = CreateTestRoot();
 
                 try
@@ -2134,8 +2059,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 // Create a small subtree
                 var root = CreateTestRoot();
 
@@ -2161,8 +2084,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var root = CreateTestRoot();
                 var source = new SystemFolder(root) { Name = "Source" }; source.Save();
                 var target = new SystemFolder(root) { Name = "Target" }; target.Save();
@@ -2188,8 +2109,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var root = CreateTestRoot();
                 var source = new SystemFolder(root) { Name = "Source" }; source.Save();
                 var target = new SystemFolder(root) { Name = "Target" }; target.Save();
@@ -2214,8 +2133,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var root = CreateTestRoot();
                 var source = new SystemFolder(root) { Name = "Source" }; source.Save();
                 var target = new SystemFolder(root) { Name = "Target" }; target.Save();
@@ -2242,8 +2159,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 try
                 {
                     await DP.QueryNodesByReferenceAndTypeAsync(null, 1, new[] { 1 });
@@ -2280,7 +2195,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var countsBefore = (await GetDbObjectCountsAsync(null, DP, TDP)).AllCounts;
 
                 // ACTION
@@ -2316,7 +2230,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var newNode =
                     new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Description = "Description-1", Index = 42 };
                 newNode.Save();
@@ -2359,8 +2272,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var newNode =
                     new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Description = "Description-1", Index = 42 };
                 newNode.Save();
@@ -2407,8 +2318,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 var newNode =
                     new SystemFolder(Repository.Root) { Name = "Folder1", Description = "Description-1", Index = 42 };
                 newNode.Save();
@@ -2456,8 +2365,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 // Create a small subtree
                 var rootName = Guid.NewGuid().ToString();
                 var root = new SystemFolder(Repository.Root) { Name = rootName }; root.Save();
@@ -2505,7 +2412,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 var root = CreateFolder(Repository.Root, "F");
                 var f1 = CreateFolder(root, "F1");
                 var f11 = CreateFolder(f1, "F11");
@@ -2550,8 +2456,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
-
                 // Create a small subtree
                 var root = new SystemFolder(Repository.Root) { Name = Guid.NewGuid().ToString(), Description = "Test root" };
                 root.Save();
@@ -2621,7 +2525,6 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             await StorageTest(async () =>
             {
-                DataStore.Enabled = true;
                 await TDP.EnsureOneUnlockedSchemaLockAsync();
 
                 var ed = new SchemaEditor();

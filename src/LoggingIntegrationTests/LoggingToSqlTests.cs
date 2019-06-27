@@ -1,7 +1,9 @@
 ﻿using System.Linq;
 using LoggingIntegrationTests.Implementations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.Configuration;
 using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.Diagnostics;
 
 namespace LoggingIntegrationTests
@@ -9,12 +11,22 @@ namespace LoggingIntegrationTests
     [TestClass]
     public class LoggingToSqlTests : LoggerTestBase
     {
+        private MsSqlDataProvider Dp
+        {
+            get
+            {
+                if (DataStore.DataProvider is MsSqlDataProvider dp && ConnectionStrings.ConnectionString == SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests)
+                    return dp;
+                ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests;
+                Providers.Instance.DataProvider2 = (dp = new MsSqlDataProvider());
+                return dp;
+            }
+        }
+
         [TestMethod]
         public void Logging_Audit_ToSql_ViaDirectAuditWriter()
         {
-            var provider = DataProvider.Current;
-            Assert.AreEqual("SqlProvider" ,provider.GetType().Name);
-            InitializeLogEntriesTable();
+            InitializeLogEntriesTable(Dp);
 
             SnLog.AuditEventWriter = new DatabaseAuditEventWriter();
 
@@ -24,7 +36,7 @@ namespace LoggingIntegrationTests
             SnLog.WriteAudit(new TestAuditEvent(testMessage));
 
             // assert
-            var auditEvent = DataProvider.Current.LoadLastAuditLogEntries(1).FirstOrDefault();
+            var auditEvent = Dp.LoadLastAuditEventsAsync(1).Result.FirstOrDefault();
             Assert.IsNotNull(auditEvent);
             Assert.AreEqual(testMessage, auditEvent.Message);
         }

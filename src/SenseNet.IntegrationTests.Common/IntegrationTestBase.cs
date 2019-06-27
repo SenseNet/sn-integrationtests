@@ -183,17 +183,12 @@ namespace SenseNet.IntegrationTests.Common
             return new RepositoryBuilder()
                 .UseAccessProvider(new DesktopAccessProvider())
                 .UseDataProvider(dataProvider)
-                .UseSharedLockDataProviderExtension(new InMemorySharedLockDataProvider())
-                .UseBlobMetaDataProvider(DataStore.Enabled
-                    ? BlobStorageMetaDataProvider
-                    : new InMemoryBlobStorageMetaDataProvider(dataProvider))
+                .UseBlobMetaDataProvider(BlobStorageMetaDataProvider)
                 .UseBlobProviderSelector(new InMemoryBlobProviderSelector())
                 .UseAccessTokenDataProviderExtension(AccessTokenDataProvider)
                 .UseSearchEngine(new InMemorySearchEngine(inMemoryIndex))
                 .UseSecurityDataProvider(securityDataProvider)
-                .UseTestingDataProviderExtension(DataStore.Enabled
-                    ? TestingDataProvider
-                    : new InMemoryTestingDataProvider()) //DB:ok
+                .UseTestingDataProviderExtension(TestingDataProvider)
                 .UseElevatedModificationVisibilityRuleProvider(new ElevatedModificationVisibilityRule())
                 .StartWorkflowEngine(false)
                 .DisableNodeObservers()

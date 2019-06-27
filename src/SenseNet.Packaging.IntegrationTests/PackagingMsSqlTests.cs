@@ -11,6 +11,7 @@ using SenseNet.Packaging.Steps;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 using SenseNet.Common.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
@@ -31,41 +32,17 @@ namespace SenseNet.Packaging.IntegrationTests
     [TestClass]
     public class PackagingMsSqlTests : TestBase
     {
-        private static readonly string DropPackagesTableSql = @"
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Packages]') AND type in (N'U'))
-DROP TABLE [dbo].[Packages]
-";
-
-
-        private static readonly string InstallPackagesTableSql = @"
-CREATE TABLE [dbo].[Packages](
-	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[PackageType] [varchar](50) NOT NULL,
-	[ComponentId] [nvarchar](450) NULL,
-	[ComponentVersion] [varchar](50) NULL,
-	[ReleaseDate] [datetime] NOT NULL,
-	[ExecutionDate] [datetime] NOT NULL,
-	[ExecutionResult] [varchar](50) NOT NULL,
-	[ExecutionError] [nvarchar](max) NULL,
-	[Description] [nvarchar](1000) NULL,
-	[Manifest] [nvarchar](max) NULL,
- CONSTRAINT [PK_Packages] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY]
-";
-
         private static StringBuilder _log;
+        private static MsSqlDataProvider Db => (MsSqlDataProvider) Providers.Instance.DataProvider2;
 
         [ClassInitialize]
         public static void InitializeDatabase(TestContext context)
         {
-            DropPackagesTable();
-            InstallPackagesTable();
+            //DropPackagesTable();
+            //InstallPackagesTable();
         }
         [TestInitialize]
-        public async Task InitializePackagingTest()
+        public void InitializePackagingTest()
         {
             // preparing logger
             _log = new StringBuilder();
@@ -86,8 +63,10 @@ CREATE TABLE [dbo].[Packages](
             
             using (var ctx = new SnDataContext(sqlDb))
             {
-                await ctx.ExecuteNonQueryAsync("DELETE FROM [Packages]");
-                await ctx.ExecuteNonQueryAsync("DBCC CHECKIDENT ('[Packages]', RESEED, 1)");
+                DropPackagesTable(ctx);
+                InstallPackagesTable(ctx);
+                //await ctx.ExecuteNonQueryAsync("DELETE FROM [Packages]");
+                //await ctx.ExecuteNonQueryAsync("DBCC CHECKIDENT ('[Packages]', RESEED, 1)");
             }
 
             RepositoryVersionInfo.Reset();
@@ -971,20 +950,44 @@ CREATE TABLE [dbo].[Packages](
 
         /*================================================= tools */
 
-        internal static void DropPackagesTable()
-        {
-            ExecuteSqlCommand(DropPackagesTableSql);
+        internal static void DropPackagesTable(SnDataContext ctx = null)
+        {        
+            var sql = @"
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Packages]') AND type in (N'U'))
+DROP TABLE [dbo].[Packages]
+";
+            ExecuteSqlCommand(sql, ctx);
         }
-        internal static void InstallPackagesTable()
+        internal static void InstallPackagesTable(SnDataContext ctx = null)
         {
-            ExecuteSqlCommand(InstallPackagesTableSql);
+            var sql = @"
+CREATE TABLE [dbo].[Packages](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[PackageType] [varchar](50) NOT NULL,
+	[ComponentId] [nvarchar](450) NULL,
+	[ComponentVersion] [varchar](50) NULL,
+	[ReleaseDate] [datetime] NOT NULL,
+	[ExecutionDate] [datetime] NOT NULL,
+	[ExecutionResult] [varchar](50) NOT NULL,
+	[ExecutionError] [nvarchar](max) NULL,
+	[Description] [nvarchar](1000) NULL,
+	[Manifest] [nvarchar](max) NULL,
+ CONSTRAINT [PK_Packages] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+";
+
+        ExecuteSqlCommand(sql, ctx);
         }
-        private static void ExecuteSqlCommand(string sql)
+        private static void ExecuteSqlCommand(string sql, SnDataContext ctx)
         {
-            ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
-            var proc = DataProvider.Instance.CreateDataProcedure(sql);
-            proc.CommandType = CommandType.Text;
-            proc.ExecuteNonQuery();
+            if (ctx == null)
+                using(ctx=new SnDataContext(Db))
+                    ctx.ExecuteNonQueryAsync(sql).Wait();
+            else
+                ctx.ExecuteNonQueryAsync(sql).Wait();
         }
 
         /*--------------------------------------------------------*/

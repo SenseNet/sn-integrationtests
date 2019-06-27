@@ -18,27 +18,12 @@ namespace SenseNet.IntegrationTests.Common.Implementations
     [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     public class SqlTestingDataProvider : ITestingDataProviderExtension
     {
-        private DataProvider __mainProvider;
-        private DataProvider MainProvider_OLD
-        {
-            get
-            {
-                if (DataStore.Enabled)
-                    throw new PlatformNotSupportedException();
-                return __mainProvider ?? (__mainProvider = DataProvider.Instance);
-            }
-        }
+        //UNDONE:DB: Refactor: reuse required code from *_OLD
+        private DataProvider MainProvider_OLD => throw new PlatformNotSupportedException();
 
+        // ReSharper disable once InconsistentNaming
         private RelationalDataProviderBase __dataProvider;
-        private RelationalDataProviderBase MainProvider
-        {
-            get
-            {
-                if (!DataStore.Enabled)
-                    throw new PlatformNotSupportedException();
-                return __dataProvider ?? (__dataProvider = (RelationalDataProviderBase) DataStore.DataProvider);
-            }
-        }
+        private RelationalDataProviderBase MainProvider => __dataProvider ?? (__dataProvider = (RelationalDataProviderBase) DataStore.DataProvider);
 
         public void InitializeForTests()
         {
