@@ -13,7 +13,7 @@ namespace SenseNet.Search.IntegrationTests
         protected override ISharedLockDataProviderExtension SharedLockDataProvider => new InMemorySharedLockDataProvider();
         protected override IAccessTokenDataProviderExtension AccessTokenDataProvider => new InMemoryAccessTokenDataProvider2();
         protected override IBlobStorageMetaDataProvider BlobStorageMetaDataProvider => new InMemoryBlobStorageMetaDataProvider2();
-        protected override ITestingDataProviderExtension TestingDataProvider => new InMemoryTestingDataProvider();
+        protected override ITestingDataProviderExtension TestingDataProvider => new InMemoryTestingDataProvider2();
 
         [TestMethod, TestCategory("IR")]
         public async Task Indexing_Centralized_InMemory_RegisterAndReload()
