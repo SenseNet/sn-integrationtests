@@ -19,6 +19,7 @@ using SenseNet.ContentRepository.Search.Indexing.Activities;
 using SenseNet.Search.Querying;
 using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
+using SenseNet.Tests.Implementations2;
 
 namespace SenseNet.Search.IntegrationTests
 {
@@ -216,20 +217,19 @@ namespace SenseNet.Search.IntegrationTests
 
         /* ============================================================================================== */
 
-        protected void ActivityQueueSelectorTest(ISearchEngine searchEngine, InMemoryDataProvider dataProvider, Action<string> callback, [CallerMemberName]string memberName = "")
+        protected void ActivityQueueSelectorTest(ISearchEngine searchEngine, InMemoryDataProvider2 dataProvider, Action<string> callback, [CallerMemberName]string memberName = "")
         {
             if(dataProvider == null)
-                dataProvider = new InMemoryDataProvider();
+                dataProvider = new InMemoryDataProvider2();
             var securityDataProvider = GetSecurityDataProvider(dataProvider);
 
             Configuration.Indexing.IsOuterSearchEngineEnabled = true;
-            CommonComponents.TransactionFactory = dataProvider;
             Cache.Reset();
 
             var indxManConsole = new StringWriter();
             var repoBuilder = new RepositoryBuilder()
-                .UseDataProvider(dataProvider)
-                .UseBlobMetaDataProvider(new InMemoryBlobStorageMetaDataProvider(dataProvider))
+                .UseDataProvider2(dataProvider)
+                .UseBlobMetaDataProvider(new InMemoryBlobStorageMetaDataProvider2(dataProvider))
                 .UseBlobProviderSelector(new InMemoryBlobProviderSelector())
                 .UseAccessProvider(new DesktopAccessProvider())
                 .UsePermissionFilterFactory(new EverythingAllowedPermissionFilterFactory())

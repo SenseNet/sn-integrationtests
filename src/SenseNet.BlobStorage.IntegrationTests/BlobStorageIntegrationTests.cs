@@ -351,13 +351,6 @@ namespace SenseNet.BlobStorage.IntegrationTests
             return _initialIndex.Clone();
         }
 
-        private DbDataReader ExecuteSqlReader(string sql)
-        {
-            var proc = DataProvider.Instance.CreateDataProcedure(sql);
-            proc.CommandType = CommandType.Text;
-            return proc.ExecuteReader();
-        }
-
         #endregion
 
         public void TestCase_CreateFileSmall()

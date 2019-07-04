@@ -24,6 +24,7 @@ using SenseNet.Security;
 using SenseNet.Security.Data;
 using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
+using SenseNet.Tests.Implementations2;
 
 namespace SenseNet.IntegrationTests.Common
 {
@@ -162,8 +163,8 @@ namespace SenseNet.IntegrationTests.Common
 
         protected RepositoryBuilder CreateRepositoryBuilderForStorageTest()
         {
-            var dp2 = DataProvider;
-            Providers.Instance.DataProvider2 = dp2;
+            var dataProvider2 = DataProvider;
+            Providers.Instance.DataProvider2 = dataProvider2;
 
             using (var op = SnTrace.Test.StartOperation("Install initial data."))
             {
@@ -172,17 +173,16 @@ namespace SenseNet.IntegrationTests.Common
             }
             var inMemoryIndex = GetInitialIndex();
 
-            dp2.SetExtension(typeof(ISharedLockDataProviderExtension), SharedLockDataProvider);
-            dp2.SetExtension(typeof(IAccessTokenDataProviderExtension), AccessTokenDataProvider);
+            dataProvider2.SetExtension(typeof(ISharedLockDataProviderExtension), SharedLockDataProvider);
+            dataProvider2.SetExtension(typeof(IAccessTokenDataProviderExtension), AccessTokenDataProvider);
 
             Providers.Instance.BlobMetaDataProvider2 = BlobStorageMetaDataProvider;
 
-            var dataProvider = new InMemoryDataProvider();
-            var securityDataProvider = GetSecurityDataProvider(dataProvider);
+            var securityDataProvider = GetSecurityDataProvider(dataProvider2);
 
             return new RepositoryBuilder()
                 .UseAccessProvider(new DesktopAccessProvider())
-                .UseDataProvider(dataProvider)
+                .UseDataProvider2(dataProvider2)
                 .UseBlobMetaDataProvider(BlobStorageMetaDataProvider)
                 .UseBlobProviderSelector(new InMemoryBlobProviderSelector())
                 .UseAccessTokenDataProviderExtension(AccessTokenDataProvider)
@@ -195,7 +195,8 @@ namespace SenseNet.IntegrationTests.Common
                 .EnableNodeObservers(typeof(SettingsCache))
                 .UseTraceCategories("Test", "Event", "Custom") as RepositoryBuilder;
         }
-        protected static ISecurityDataProvider GetSecurityDataProvider(InMemoryDataProvider repo)
+
+        protected static ISecurityDataProvider GetSecurityDataProvider(DataProvider2 repo)
         {
             return new MemoryDataProvider(new DatabaseStorage
             {
@@ -203,7 +204,14 @@ namespace SenseNet.IntegrationTests.Common
                 {
                     new StoredAce {EntityId = 2, IdentityId = 1, LocalOnly = false, AllowBits = 0x0EF, DenyBits = 0x000}
                 },
-                Entities = repo.GetSecurityEntities().ToDictionary(e => e.Id, e => e),
+                Entities = repo.LoadEntityTreeAsync().Result.ToDictionary(x => x.Id, x => new StoredSecurityEntity
+                {
+                    Id = x.Id,
+                    OwnerId = x.OwnerId,
+                    ParentId = x.ParentId,
+                    IsInherited = true,
+                    HasExplicitEntry = x.Id == 2
+                }),
                 Memberships = new List<Membership>
                 {
                     new Membership

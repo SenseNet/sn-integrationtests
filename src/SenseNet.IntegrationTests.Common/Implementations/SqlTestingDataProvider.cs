@@ -18,16 +18,15 @@ namespace SenseNet.IntegrationTests.Common.Implementations
     [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     public class SqlTestingDataProvider : ITestingDataProviderExtension
     {
-        //UNDONE:DB: Refactor: reuse required code from *_OLD
-        private DataProvider MainProvider_OLD => throw new PlatformNotSupportedException();
-
         // ReSharper disable once InconsistentNaming
         private RelationalDataProviderBase __dataProvider;
         private RelationalDataProviderBase MainProvider => __dataProvider ?? (__dataProvider = (RelationalDataProviderBase) DataStore.DataProvider);
 
         public void InitializeForTests()
         {
-            using (var proc = MainProvider_OLD.CreateDataProcedure(@"
+            using (var ctx = new SnDataContext(MainProvider))
+            {
+                ctx.ExecuteNonQueryAsync(@"
 ALTER TABLE [BinaryProperties] CHECK CONSTRAINT ALL
 ALTER TABLE [FlatProperties] CHECK CONSTRAINT ALL
 ALTER TABLE [Nodes] CHECK CONSTRAINT ALL
@@ -35,21 +34,19 @@ ALTER TABLE [ReferenceProperties] CHECK CONSTRAINT ALL
 ALTER TABLE [TextPropertiesNText] CHECK CONSTRAINT ALL
 ALTER TABLE [TextPropertiesNVarchar] CHECK CONSTRAINT ALL
 ALTER TABLE [Versions] CHECK CONSTRAINT ALL
-"))
-            {
-                proc.CommandType = CommandType.Text;
-                proc.ExecuteNonQuery();
+").Wait();
             }
         }
 
         public string GetSecurityControlStringForTests()
         {
+            var sql = "SELECT NodeId, ParentNodeId, [OwnerId] FROM Nodes ORDER BY NodeId";
             var securityEntitiesArray = new List<object>();
-            using (var cmd = new SqlProcedure { CommandText = "SELECT NodeId, ParentNodeId, [OwnerId] FROM Nodes ORDER BY NodeId", CommandType = CommandType.Text })
+            using (var ctx = new SnDataContext(MainProvider))
             {
-                using (var reader = cmd.ExecuteReader())
+                ctx.ExecuteReaderAsync(sql, reader =>
                 {
-                    int count = 0;
+                    var count = 0;
                     while (reader.Read())
                     {
                         securityEntitiesArray.Add(new
@@ -64,26 +61,27 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
                         if (count > 200000)
                             throw new ArgumentOutOfRangeException("number of Nodes");
                     }
-                }
+                    return Task.FromResult(0);
+                }).Wait();
             }
             return JsonConvert.SerializeObject(securityEntitiesArray);
         }
 
         public int GetPermissionLogEntriesCountAfterMoment(DateTime moment)
         {
-            var count = 0;
-            var sql =
-                $"SELECT COUNT(1) FROM LogEntries WHERE Title = 'PermissionChanged' AND LogDate>='{moment.ToString("yyyy-MM-dd HH:mm:ss")}'";
-            var proc = MainProvider_OLD.CreateDataProcedure(sql);
-            proc.CommandType = System.Data.CommandType.Text;
-            using (var reader = proc.ExecuteReader())
+            var sql = $"SELECT COUNT(1) FROM LogEntries WHERE Title = 'PermissionChanged' AND" +
+                        $" LogDate>='{moment:yyyy-MM-dd HH:mm:ss}'";
+
+            using (var ctx = new SnDataContext(MainProvider))
             {
-                while (reader.Read())
+                return ctx.ExecuteReaderAsync(sql, reader =>
                 {
-                    count = reader.GetSafeInt32(0);
-                }
+                    var count = 0;
+                    if (reader.ReadAsync().Result)
+                        count = reader.GetSafeInt32(0);
+                    return Task.FromResult(count);
+                }).Result;
             }
-            return count;
         }
 
         public AuditLogEntry[] LoadLastAuditLogEntries(int count)
