@@ -14,17 +14,15 @@ using SenseNet.ContentRepository.Search.Querying;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
-using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.ContentRepository.Versioning;
 using SenseNet.IntegrationTests.Common;
-using SenseNet.IntegrationTests.Common.Implementations;
 using SenseNet.Portal;
 using SenseNet.Search.Indexing;
 using SenseNet.Search.Querying;
+using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
-using SenseNet.Tests.Implementations2;
 using Task = System.Threading.Tasks.Task;
 
 namespace SenseNet.Storage.IntegrationTests
@@ -74,7 +72,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 foreach (var propType in loaded.Data.PropertyTypes)
                     loaded.Data.GetDynamicRawData(propType);
-                DataProviderChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data);
+                NodeDataChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data);
 
             });
         }
@@ -117,7 +115,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 foreach (var propType in loaded.Data.PropertyTypes)
                     loaded.Data.GetDynamicRawData(propType);
-                DataProviderChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data);
+                NodeDataChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data);
             });
         }
         [TestMethod]
@@ -170,7 +168,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 foreach (var propType in loaded.Data.PropertyTypes)
                     loaded.Data.GetDynamicRawData(propType);
-                DataProviderChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data, "BrowseApplication");
+                NodeDataChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data, "BrowseApplication");
             });
         }
         [TestMethod]
@@ -227,7 +225,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 foreach (var propType in loaded.Data.PropertyTypes)
                     loaded.Data.GetDynamicRawData(propType);
-                DataProviderChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data, "BrowseApplication");
+                NodeDataChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data, "BrowseApplication");
             });
         }
         [TestMethod]
