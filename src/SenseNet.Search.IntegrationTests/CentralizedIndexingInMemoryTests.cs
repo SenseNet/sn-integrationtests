@@ -10,10 +10,10 @@ namespace SenseNet.Search.IntegrationTests
     public class CentralizedIndexingInMemorylTests : CentralizedIndexingTestCases
     {
         protected override DataProvider DataProvider => new InMemoryDataProvider();
-        protected override ISharedLockDataProviderExtension SharedLockDataProvider => new InMemorySharedLockDataProvider2();
+        protected override ISharedLockDataProviderExtension SharedLockDataProvider => new InMemorySharedLockDataProvider();
         protected override IAccessTokenDataProviderExtension AccessTokenDataProvider => new InMemoryAccessTokenDataProvider2();
         protected override IBlobStorageMetaDataProvider BlobStorageMetaDataProvider => new InMemoryBlobStorageMetaDataProvider();
-        protected override ITestingDataProviderExtension TestingDataProvider => new InMemoryTestingDataProvider2();
+        protected override ITestingDataProviderExtension TestingDataProvider => new InMemoryTestingDataProvider();
 
         [TestMethod, TestCategory("IR")]
         public async Task Indexing_Centralized_InMemory_RegisterAndReload()
