@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using SenseNet.Common.Storage.Data;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
-using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.Diagnostics;
@@ -16,7 +15,7 @@ using SenseNet.Tests.Implementations;
 namespace SenseNet.IntegrationTests.Common.Implementations
 {
     [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
-    public class SqlTestingDataProvider : ITestingDataProviderExtension
+    public class MsSqlTestingDataProvider : ITestingDataProviderExtension
     {
         // ReSharper disable once InconsistentNaming
         private RelationalDataProviderBase __dataProvider;

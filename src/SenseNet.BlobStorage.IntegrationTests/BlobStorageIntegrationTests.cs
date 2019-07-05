@@ -266,8 +266,8 @@ namespace SenseNet.BlobStorage.IntegrationTests
             }
             var inMemoryIndex = GetInitialIndex();
 
-            dp2.SetExtension(typeof(ISharedLockDataProviderExtension), new SqlSharedLockDataProvider());
-            dp2.SetExtension(typeof(IAccessTokenDataProviderExtension), new SqlAccessTokenDataProvider());
+            dp2.SetExtension(typeof(ISharedLockDataProviderExtension), new MsSqlSharedLockDataProvider());
+            dp2.SetExtension(typeof(IAccessTokenDataProviderExtension), new MsSqlAccessTokenDataProvider());
 
             /* ------------------------------------------------------------------------ */
 

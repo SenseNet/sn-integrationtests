@@ -56,7 +56,7 @@ namespace SenseNet.Packaging.IntegrationTests
 
             // build database
             var builder = new RepositoryBuilder();
-            builder.UsePackagingDataProviderExtension(new SqlPackagingDataProvider());
+            builder.UsePackagingDataProviderExtension(new MsSqlPackagingDataProvider());
 
             // preparing database
             ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;

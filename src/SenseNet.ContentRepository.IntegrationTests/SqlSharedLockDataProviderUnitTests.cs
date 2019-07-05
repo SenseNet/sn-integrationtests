@@ -4,7 +4,6 @@ using SenseNet.Configuration;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
-using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.ContentRepository.Storage.Security;
 using SenseNet.IntegrationTests.Common;
 using STT = System.Threading.Tasks;
@@ -14,7 +13,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
     [TestClass]
     public class SqlSharedLockDataProviderUnitTests : MsSqlIntegrationTestBase
     {
-        private SqlSharedLockDataProvider Provider => (SqlSharedLockDataProvider)DataStore.GetDataProviderExtension<ISharedLockDataProviderExtension>();
+        private MsSqlSharedLockDataProvider Provider => (MsSqlSharedLockDataProvider)DataStore.GetDataProviderExtension<ISharedLockDataProviderExtension>();
 
         /* ====================================================================== */
 
@@ -335,14 +334,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
         private void SetSharedLockCreationDate(int nodeId, DateTime value)
         {
-            if (!(Provider is SqlSharedLockDataProvider dataProvider))
+            if (!(Provider is MsSqlSharedLockDataProvider dataProvider))
                 throw new InvalidOperationException("InMemorySharedLockDataProvider not configured.");
 
             dataProvider.SetCreationDate(nodeId, value);
         }
         private DateTime GetSharedLockCreationDate(int nodeId)
         {
-            if (!(Provider is SqlSharedLockDataProvider dataProvider))
+            if (!(Provider is MsSqlSharedLockDataProvider dataProvider))
                 throw new InvalidOperationException("InMemorySharedLockDataProvider not configured.");
 
             return dataProvider.GetCreationDate(nodeId);

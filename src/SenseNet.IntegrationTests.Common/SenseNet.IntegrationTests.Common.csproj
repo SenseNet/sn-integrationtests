@@ -77,7 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionStrings.cs" />
-    <Compile Include="Implementations\SqlTestingDataProvider.cs" />
+    <Compile Include="Implementations\MsSqlTestingDataProvider.cs" />
     <Compile Include="IntegrationTestBase.cs" />
     <Compile Include="MsSqlIntegrationTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
