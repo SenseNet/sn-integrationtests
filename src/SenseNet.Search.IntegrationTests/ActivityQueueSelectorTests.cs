@@ -217,10 +217,10 @@ namespace SenseNet.Search.IntegrationTests
 
         /* ============================================================================================== */
 
-        protected void ActivityQueueSelectorTest(ISearchEngine searchEngine, InMemoryDataProvider2 dataProvider, Action<string> callback, [CallerMemberName]string memberName = "")
+        protected void ActivityQueueSelectorTest(ISearchEngine searchEngine, InMemoryDataProvider dataProvider, Action<string> callback, [CallerMemberName]string memberName = "")
         {
             if(dataProvider == null)
-                dataProvider = new InMemoryDataProvider2();
+                dataProvider = new InMemoryDataProvider();
             var securityDataProvider = GetSecurityDataProvider(dataProvider);
 
             Configuration.Indexing.IsOuterSearchEngineEnabled = true;

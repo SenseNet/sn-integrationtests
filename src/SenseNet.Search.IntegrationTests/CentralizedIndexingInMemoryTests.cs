@@ -9,7 +9,7 @@ namespace SenseNet.Search.IntegrationTests
     [TestClass]
     public class CentralizedIndexingInMemorylTests : CentralizedIndexingTestCases
     {
-        protected override DataProvider DataProvider => new InMemoryDataProvider2();
+        protected override DataProvider DataProvider => new InMemoryDataProvider();
         protected override ISharedLockDataProviderExtension SharedLockDataProvider => new InMemorySharedLockDataProvider2();
         protected override IAccessTokenDataProviderExtension AccessTokenDataProvider => new InMemoryAccessTokenDataProvider2();
         protected override IBlobStorageMetaDataProvider BlobStorageMetaDataProvider => new InMemoryBlobStorageMetaDataProvider2();
