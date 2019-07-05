@@ -12,7 +12,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
-using SenseNet.Common.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.Packaging.IntegrationTests.Implementations;

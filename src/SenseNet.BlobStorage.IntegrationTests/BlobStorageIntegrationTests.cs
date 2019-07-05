@@ -6,8 +6,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using IO = System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SenseNet.Common.Storage.Data;
-using SenseNet.Common.Storage.Data.MsSqlClient;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository;
 using SenseNet.ContentRepository.Schema;

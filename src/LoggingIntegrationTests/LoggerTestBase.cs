@@ -7,7 +7,6 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SenseNet.Common.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.Diagnostics;
 
