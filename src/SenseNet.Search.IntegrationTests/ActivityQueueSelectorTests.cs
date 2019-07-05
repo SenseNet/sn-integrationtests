@@ -189,10 +189,10 @@ namespace SenseNet.Search.IntegrationTests
             SnTrace.Test.Write("Indexing_Centralized_InMemory_ExecuteUnprocessed ACTION");
             searchEngine = new SearchEngineForActivityQueueSelectorTests(true);
 
-            var dp2 = Providers.Instance.DataProvider2;
+            var dp2 = Providers.Instance.DataProvider;
             Test(builder =>
             {
-                Providers.Instance.DataProvider2 = dp2;
+                Providers.Instance.DataProvider = dp2;
 
                 DataStore.DataProvider.DeleteAllIndexingActivitiesAsync().Wait();
                 RegisterActivity(IndexingActivityType.AddDocument, IndexingActivityRunningState.Waiting, nodeId, versionId, path);
@@ -228,7 +228,7 @@ namespace SenseNet.Search.IntegrationTests
 
             var indxManConsole = new StringWriter();
             var repoBuilder = new RepositoryBuilder()
-                .UseDataProvider2(dataProvider)
+                .UseDataProvider(dataProvider)
                 .UseBlobMetaDataProvider(new InMemoryBlobStorageMetaDataProvider2(dataProvider))
                 .UseBlobProviderSelector(new InMemoryBlobProviderSelector())
                 .UseAccessProvider(new DesktopAccessProvider())

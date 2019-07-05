@@ -8,7 +8,7 @@ namespace SenseNet.IntegrationTests.Common
 {
     public abstract class MsSqlIntegrationTestBase : IntegrationTestBase
     {
-        protected override DataProvider2 DataProvider => new MsSqlDataProvider();
+        protected override DataProvider DataProvider => new MsSqlDataProvider();
         protected override ISharedLockDataProviderExtension SharedLockDataProvider => new SqlSharedLockDataProvider();
         protected override IAccessTokenDataProviderExtension AccessTokenDataProvider => new SqlAccessTokenDataProvider();
         protected override IBlobStorageMetaDataProvider BlobStorageMetaDataProvider => new MsSqlBlobMetaDataProvider();

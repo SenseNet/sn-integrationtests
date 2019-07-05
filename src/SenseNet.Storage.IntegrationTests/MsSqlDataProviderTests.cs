@@ -2631,7 +2631,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             return file;
         }
 
-        private async Task<(int Nodes, int Versions, int Binaries, int Files, int LongTexts, string AllCounts, string AllCountsExceptFiles)> GetDbObjectCountsAsync(string path, DataProvider2 DP, ITestingDataProviderExtension tdp)
+        private async Task<(int Nodes, int Versions, int Binaries, int Files, int LongTexts, string AllCounts, string AllCountsExceptFiles)> GetDbObjectCountsAsync(string path, DataProvider DP, ITestingDataProviderExtension tdp)
         {
             var nodes = await DP.GetNodeCountAsync(path);
             var versions = await DP.GetVersionCountAsync(path);

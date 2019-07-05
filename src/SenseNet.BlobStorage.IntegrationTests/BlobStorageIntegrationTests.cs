@@ -257,7 +257,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
             /* ------------------------------------------------------------------------ */
             var dp2 = new MsSqlDataProvider();
-            Providers.Instance.DataProvider2 = dp2;
+            Providers.Instance.DataProvider = dp2;
 
             using (var op = SnTrace.Test.StartOperation("Install initial data."))
             {
@@ -269,7 +269,6 @@ namespace SenseNet.BlobStorage.IntegrationTests
             dp2.SetExtension(typeof(ISharedLockDataProviderExtension), new SqlSharedLockDataProvider());
             dp2.SetExtension(typeof(IAccessTokenDataProviderExtension), new SqlAccessTokenDataProvider());
 
-            Providers.Instance.BlobMetaDataProvider2 = blobMetaDataProvider;
             /* ------------------------------------------------------------------------ */
 
             var builder = new RepositoryBuilder()

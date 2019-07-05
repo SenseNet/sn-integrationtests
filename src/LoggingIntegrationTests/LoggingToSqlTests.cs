@@ -18,7 +18,7 @@ namespace LoggingIntegrationTests
                 if (DataStore.DataProvider is MsSqlDataProvider dp && ConnectionStrings.ConnectionString == SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests)
                     return dp;
                 ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests;
-                Providers.Instance.DataProvider2 = (dp = new MsSqlDataProvider());
+                Providers.Instance.DataProvider = (dp = new MsSqlDataProvider());
                 return dp;
             }
         }

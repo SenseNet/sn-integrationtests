@@ -33,7 +33,7 @@ namespace SenseNet.Packaging.IntegrationTests
     public class PackagingMsSqlTests : TestBase
     {
         private static StringBuilder _log;
-        private static MsSqlDataProvider Db => (MsSqlDataProvider) Providers.Instance.DataProvider2;
+        private static MsSqlDataProvider Db => (MsSqlDataProvider) Providers.Instance.DataProvider;
 
         [ClassInitialize]
         public static void InitializeDatabase(TestContext context)
@@ -52,7 +52,7 @@ namespace SenseNet.Packaging.IntegrationTests
 
             // set default implementation directly
             var sqlDb =  new MsSqlDataProvider();
-            Providers.Instance.DataProvider2 = sqlDb;
+            Providers.Instance.DataProvider = sqlDb;
 
             // build database
             var builder = new RepositoryBuilder();

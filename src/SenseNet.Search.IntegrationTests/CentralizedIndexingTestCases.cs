@@ -13,7 +13,7 @@ namespace SenseNet.Search.IntegrationTests
     public abstract class CentralizedIndexingTestCases : IntegrationTestBase
     {
         // ReSharper disable once InconsistentNaming
-        private static DataProvider2 DP => DataStore.DataProvider;
+        private static DataProvider DP => DataStore.DataProvider;
 
         protected async Task Indexing_Centralized_RegisterAndReload()
         {

@@ -155,7 +155,7 @@ namespace SenseNet.IntegrationTests.Common
             //RebuildIndex();
         }
 
-        protected abstract DataProvider2 DataProvider { get; }
+        protected abstract DataProvider DataProvider { get; }
         protected abstract ISharedLockDataProviderExtension SharedLockDataProvider { get; }
         protected abstract IAccessTokenDataProviderExtension AccessTokenDataProvider { get; }
         protected abstract IBlobStorageMetaDataProvider BlobStorageMetaDataProvider { get; }
@@ -164,7 +164,7 @@ namespace SenseNet.IntegrationTests.Common
         protected RepositoryBuilder CreateRepositoryBuilderForStorageTest()
         {
             var dataProvider2 = DataProvider;
-            Providers.Instance.DataProvider2 = dataProvider2;
+            Providers.Instance.DataProvider = dataProvider2;
 
             using (var op = SnTrace.Test.StartOperation("Install initial data."))
             {
@@ -176,13 +176,11 @@ namespace SenseNet.IntegrationTests.Common
             dataProvider2.SetExtension(typeof(ISharedLockDataProviderExtension), SharedLockDataProvider);
             dataProvider2.SetExtension(typeof(IAccessTokenDataProviderExtension), AccessTokenDataProvider);
 
-            Providers.Instance.BlobMetaDataProvider2 = BlobStorageMetaDataProvider;
-
             var securityDataProvider = GetSecurityDataProvider(dataProvider2);
 
             return new RepositoryBuilder()
                 .UseAccessProvider(new DesktopAccessProvider())
-                .UseDataProvider2(dataProvider2)
+                .UseDataProvider(dataProvider2)
                 .UseBlobMetaDataProvider(BlobStorageMetaDataProvider)
                 .UseBlobProviderSelector(new InMemoryBlobProviderSelector())
                 .UseAccessTokenDataProviderExtension(AccessTokenDataProvider)
@@ -196,7 +194,7 @@ namespace SenseNet.IntegrationTests.Common
                 .UseTraceCategories("Test", "Event", "Custom") as RepositoryBuilder;
         }
 
-        protected static ISecurityDataProvider GetSecurityDataProvider(DataProvider2 repo)
+        protected static ISecurityDataProvider GetSecurityDataProvider(DataProvider repo)
         {
             return new MemoryDataProvider(new DatabaseStorage
             {
