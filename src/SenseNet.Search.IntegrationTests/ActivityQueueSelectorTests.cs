@@ -19,7 +19,6 @@ using SenseNet.ContentRepository.Search.Indexing.Activities;
 using SenseNet.Search.Querying;
 using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
-using SenseNet.Tests.Implementations2;
 
 namespace SenseNet.Search.IntegrationTests
 {

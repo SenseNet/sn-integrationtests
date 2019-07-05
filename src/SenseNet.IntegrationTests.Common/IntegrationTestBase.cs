@@ -24,7 +24,6 @@ using SenseNet.Security;
 using SenseNet.Security.Data;
 using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
-using SenseNet.Tests.Implementations2;
 
 namespace SenseNet.IntegrationTests.Common
 {
