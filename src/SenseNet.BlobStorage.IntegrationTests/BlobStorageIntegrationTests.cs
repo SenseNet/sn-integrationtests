@@ -306,7 +306,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             foreach (var node in nodes)
             {
                 // ReSharper disable once UnusedVariable
-                DataBackingStore.SaveIndexDocument(node, false, false, out var hasBinary);
+                DataStore.SaveIndexDocumentAsync(node, false, false).Wait();
             }
         }
         protected void RebuildIndex()
