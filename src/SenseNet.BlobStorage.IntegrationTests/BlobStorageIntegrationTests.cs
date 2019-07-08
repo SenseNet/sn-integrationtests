@@ -19,7 +19,6 @@ using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.ContentRepository.Storage.Security;
 using SenseNet.Diagnostics;
-using SenseNet.MsSqlFsBlobProvider;
 using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
 // ReSharper disable AccessToDisposedClosure
@@ -390,7 +389,8 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 Assert.AreEqual(dbFile.Size, dbFile.FileStream.Length);
                 Assert.AreEqual(expectedText, GetStringFromBytes(dbFile.FileStream));
 
-                Assert.IsTrue(ctx.BlobProviderData is SqlFileStreamBlobProviderData);
+                //TODO: SQLFS: Uncomment this line if the SQLFS-related test classes are activated.
+                //Assert.IsTrue(ctx.BlobProviderData is SqlFileStreamBlobProviderData);
             }
             else
             {
@@ -998,8 +998,9 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 return false;
             if (ExpectedExternalBlobProviderType == typeof(BuiltInBlobProvider))
                 return false;
-            if (ExpectedExternalBlobProviderType == typeof(SqlFileStreamBlobProvider))
-                return false;
+            //TODO: SQLFS: Uncomment this lines if the SQLFS-related test classes are activated.
+            //if (ExpectedExternalBlobProviderType == typeof(SqlFileStreamBlobProvider))
+            //    return false;
             return true;
         }
 

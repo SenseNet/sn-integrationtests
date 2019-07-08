@@ -146,10 +146,6 @@
       <Project>{a0909e8f-e039-4080-a259-676cfd38ccd1}</Project>
       <Name>SenseNet.Tests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\sn-blob-mssqlfs\src\MsSqlFsBlobProvider\MsSqlFsBlobProvider.csproj">
-      <Project>{a9cfead6-e05e-417c-a50b-199a443dee22}</Project>
-      <Name>MsSqlFsBlobProvider</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SenseNet.IntegrationTests.Common\SenseNet.IntegrationTests.Common.csproj">
       <Project>{627620f1-ec79-408d-a965-63d69c168672}</Project>
       <Name>SenseNet.IntegrationTests.Common</Name>
