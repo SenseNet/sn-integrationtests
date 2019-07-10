@@ -2509,7 +2509,8 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         }
         private class CannotCommitDataProvider : MsSqlDataProvider
         {
-            public override TransactionWrapper WrapTransaction(DbTransaction underlyingTransaction)
+            public override TransactionWrapper WrapTransaction(DbTransaction underlyingTransaction, 
+                TimeSpan timeout = default(TimeSpan))
             {
                 return new CannotCommitTransaction(underlyingTransaction);
             }
