@@ -2507,12 +2507,18 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 throw new NotSupportedException("This transaction cannot commit anything.");
             }
         }
-        private class CannotCommitDataProvider : MsSqlDataProvider
+        private class TestDataContext : MsSqlDctx
         {
-            public override TransactionWrapper WrapTransaction(DbTransaction underlyingTransaction, 
-                TimeSpan timeout = default(TimeSpan))
+            public override TransactionWrapper WrapTransaction(DbTransaction underlyingTransaction, TimeSpan timeout = default(TimeSpan))
             {
                 return new CannotCommitTransaction(underlyingTransaction);
+            }
+        }
+        private class CannotCommitDataProvider : MsSqlDataProvider
+        {
+            public override IDataPlatform<DbConnection, DbCommand, DbParameter> GetPlatform()
+            {
+                return new TestDataContext();
             }
         }
 
