@@ -429,7 +429,7 @@ namespace SenseNet.Storage.IntegrationTests
                 var loaded = Repository.Root.Children.Select(x => x.Id.ToString()).ToArray();
 
                 int[] expected;
-                using (var ctx = new SnDataContext(DP))
+                using (var ctx = new RelationalDbDataContext(DP.GetPlatform()))
                     expected = await ctx.ExecuteReaderAsync(
                         "SELECT * FROM Nodes WHERE ParentNodeId = " + Identifiers.PortalRootId,
                         cmd => { }, async reader =>
@@ -2645,7 +2645,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         private async Task<object> ExecuteScalarAsync(string sql)
         {
-            using (var ctx = new SnDataContext(DP))
+            using (var ctx = new RelationalDbDataContext(DP.GetPlatform()))
                 return await ctx.ExecuteScalarAsync(sql);
         }
 

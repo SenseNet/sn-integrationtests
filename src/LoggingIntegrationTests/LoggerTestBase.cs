@@ -14,9 +14,9 @@ namespace LoggingIntegrationTests
 {
     public abstract class LoggerTestBase
     {
-        protected void InitializeLogEntriesTable(IDbCommandFactory dataProvider)
+        protected void InitializeLogEntriesTable(RelationalDataProviderBase dataProvider)
         {
-            using (var ctx = new SnDataContext(dataProvider))
+            using (var ctx = new RelationalDbDataContext(dataProvider.GetPlatform()))
             {
                 ctx.ExecuteNonQueryAsync("DELETE FROM [LogEntries]").Wait();
                 ctx.ExecuteNonQueryAsync("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)").Wait();

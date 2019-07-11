@@ -60,7 +60,7 @@ namespace SenseNet.Packaging.IntegrationTests
             // preparing database
             ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
             
-            using (var ctx = new SnDataContext(sqlDb))
+            using (var ctx = new RelationalDbDataContext(sqlDb.GetPlatform()))
             {
                 DropPackagesTable(ctx);
                 InstallPackagesTable(ctx);
@@ -949,7 +949,7 @@ namespace SenseNet.Packaging.IntegrationTests
 
         /*================================================= tools */
 
-        internal static void DropPackagesTable(SnDataContext ctx = null)
+        internal static void DropPackagesTable(RelationalDbDataContext ctx = null)
         {        
             var sql = @"
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Packages]') AND type in (N'U'))
@@ -957,7 +957,7 @@ DROP TABLE [dbo].[Packages]
 ";
             ExecuteSqlCommand(sql, ctx);
         }
-        internal static void InstallPackagesTable(SnDataContext ctx = null)
+        internal static void InstallPackagesTable(RelationalDbDataContext ctx = null)
         {
             var sql = @"
 CREATE TABLE [dbo].[Packages](
@@ -980,10 +980,10 @@ CREATE TABLE [dbo].[Packages](
 
         ExecuteSqlCommand(sql, ctx);
         }
-        private static void ExecuteSqlCommand(string sql, SnDataContext ctx)
+        private static void ExecuteSqlCommand(string sql, RelationalDbDataContext ctx)
         {
             if (ctx == null)
-                using(ctx=new SnDataContext(Db))
+                using (ctx = new RelationalDbDataContext(Db.GetPlatform()))
                     ctx.ExecuteNonQueryAsync(sql).Wait();
             else
                 ctx.ExecuteNonQueryAsync(sql).Wait();

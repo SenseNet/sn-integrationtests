@@ -46,7 +46,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected virtual void UpdateFileCreationDate(int fileId, DateTime dateTime)
         {
             var sql = $"UPDATE Files SET CreationDate = @CreationDate WHERE FileId = {fileId}";
-            using (var ctx = new SnDataContext((MsSqlDataProvider) DataStore.DataProvider))
+            using (var ctx = GetRelationalDbDataContext())
             {
                 ctx.ExecuteNonQueryAsync(sql, cmd =>
                 {
@@ -57,7 +57,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected void HackFileRowFileStream(int fileId, byte[] bytes)
         {
             var sql = $"UPDATE Files SET FileStream = @FileStream WHERE FileId = {fileId}";
-            using (var ctx = new SnDataContext((MsSqlDataProvider)DataStore.DataProvider))
+            using (var ctx = GetRelationalDbDataContext())
             {
                 ctx.ExecuteNonQueryAsync(sql, cmd =>
                 {
@@ -68,7 +68,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected void HackFileRowStream(int fileId, byte[] bytes)
         {
             var sql = $"UPDATE Files SET Stream = @Stream WHERE FileId = {fileId}";
-            using (var ctx = new SnDataContext((MsSqlDataProvider) DataStore.DataProvider))
+            using (var ctx = GetRelationalDbDataContext())
             {
                 ctx.ExecuteNonQueryAsync(sql, cmd =>
                 {
@@ -986,6 +986,11 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
         #region Tools
 
+        private RelationalDbDataContext GetRelationalDbDataContext()
+        {
+            return new RelationalDbDataContext(((RelationalDataProviderBase)DataStore.DataProvider).GetPlatform());
+        }
+
         private bool NeedExternal(string fileContent, int sizeLimit)
         {
             if (fileContent.Length + 3 < sizeLimit)
@@ -1054,7 +1059,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             var sql = $@"SELECT f.* FROM BinaryProperties b JOIN Files f on f.FileId = b.FileId WHERE b.VersionId = {versionId} and b.PropertyTypeId = {propTypeId}";
             var dbFiles = new List<DbFile>();
 
-            using (var ctx = new SnDataContext((MsSqlDataProvider) DataStore.DataProvider))
+            using (var ctx = GetRelationalDbDataContext())
             {
                 var _ = ctx.ExecuteReaderAsync(sql, async reader =>
                 {
@@ -1069,7 +1074,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected DbFile LoadDbFile(int fileId)
         {
             var sql = $@"SELECT * FROM Files WHERE FileId = {fileId}";
-            using (var ctx = new SnDataContext((MsSqlDataProvider)DataStore.DataProvider))
+            using (var ctx = GetRelationalDbDataContext())
                 return ctx.ExecuteReaderAsync(sql, async reader => 
                     await reader.ReadAsync() ? GetFileFromReader(reader) : null).Result;
         }
