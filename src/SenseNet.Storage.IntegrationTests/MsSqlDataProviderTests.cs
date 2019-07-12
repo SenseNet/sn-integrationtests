@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
@@ -2501,7 +2502,8 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         private class CannotCommitTransaction : TransactionWrapper
         {
-            public CannotCommitTransaction(DbTransaction transaction) : base(transaction) { }
+            public CannotCommitTransaction(DbTransaction transaction, CancellationToken cancellationToken)
+                : base(transaction, cancellationToken) { }
             public override void Commit()
             {
                 throw new NotSupportedException("This transaction cannot commit anything.");
@@ -2509,9 +2511,10 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         }
         private class TestDataContext : MsSqlDataContext
         {
-            public override TransactionWrapper WrapTransaction(DbTransaction underlyingTransaction, TimeSpan timeout = default(TimeSpan))
+            public override TransactionWrapper WrapTransaction(DbTransaction underlyingTransaction,
+                CancellationToken cancellationToken, TimeSpan timeout = default(TimeSpan))
             {
-                return new CannotCommitTransaction(underlyingTransaction);
+                return new CannotCommitTransaction(underlyingTransaction, cancellationToken);
             }
         }
         private class CannotCommitDataProvider : MsSqlDataProvider
