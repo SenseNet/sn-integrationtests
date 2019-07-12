@@ -42,7 +42,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             var securityEntitiesArray = new List<object>();
             using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
             {
-                ctx.ExecuteReaderAsync(sql, reader =>
+                ctx.ExecuteReaderAsync(sql, (reader, cancel) =>
                 {
                     var count = 0;
                     while (reader.Read())
@@ -72,10 +72,10 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
 
             using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
             {
-                return ctx.ExecuteReaderAsync(sql, reader =>
+                return ctx.ExecuteReaderAsync(sql, (reader, cancel) =>
                 {
                     var count = 0;
-                    if (reader.ReadAsync().Result)
+                    if (reader.ReadAsync(cancel).Result)
                         count = reader.GetSafeInt32(0);
                     return Task.FromResult(count);
                 }).Result;
@@ -127,9 +127,9 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
                 return await ctx.ExecuteReaderAsync("SELECT * FROM Nodes WHERE NodeId = @NodeId", cmd =>
                 {
                     cmd.Parameters.Add(ctx.CreateParameter("@NodeId", DbType.Int32, nodeId));
-                }, async reader =>
+                }, async (reader, cancel) =>
                 {
-                    if (!await reader.ReadAsync())
+                    if (!await reader.ReadAsync(cancel))
                         return null;
 
                     return new NodeHeadData
@@ -175,9 +175,9 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
                 return await ctx.ExecuteReaderAsync("SELECT * FROM Versions WHERE VersionId = @VersionId", cmd =>
                 {
                     cmd.Parameters.Add(ctx.CreateParameter("@VersionId", DbType.Int32, versionId));
-                }, async reader =>
+                }, async (reader, cancel) =>
                 {
-                    if (!await reader.ReadAsync())
+                    if (!await reader.ReadAsync(cancel))
                         return null;
 
                     return new VersionData
@@ -252,10 +252,10 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
                             ctx.CreateParameter("@PropertyTypeId", DbType.Int32, propertyType.Id),
                         });
                     },
-                    async reader =>
+                    async (reader, cancel) =>
                     {
                         var result = new List<int>();
-                        while (await reader.ReadAsync())
+                        while (await reader.ReadAsync(cancel))
                             result.Add(reader.GetSafeInt32(0));
                         return result.Count == 0 ? null : result.ToArray();
                     });

@@ -1061,10 +1061,14 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
             using (var ctx = GetRelationalDbDataContext())
             {
-                var _ = ctx.ExecuteReaderAsync(sql, async reader =>
+                var _ = ctx.ExecuteReaderAsync(sql, async (reader, cancel) =>
                 {
-                    while (await reader.ReadAsync())
+                    cancel.ThrowIfCancellationRequested();
+                    while (await reader.ReadAsync(cancel))
+                    {
+                        cancel.ThrowIfCancellationRequested();
                         dbFiles.Add(GetFileFromReader(reader));
+                    }
                     return true;
                 }).Result;
             }
@@ -1075,8 +1079,13 @@ namespace SenseNet.BlobStorage.IntegrationTests
         {
             var sql = $@"SELECT * FROM Files WHERE FileId = {fileId}";
             using (var ctx = GetRelationalDbDataContext())
-                return ctx.ExecuteReaderAsync(sql, async reader => 
-                    await reader.ReadAsync() ? GetFileFromReader(reader) : null).Result;
+                return ctx.ExecuteReaderAsync(sql, async (reader, cancel) =>
+                {
+                    cancel.ThrowIfCancellationRequested();
+                    return await reader.ReadAsync(cancel)
+                        ? GetFileFromReader(reader)
+                        : null;
+                }).Result;
         }
 
         private DbFile GetFileFromReader(IDataReader reader)

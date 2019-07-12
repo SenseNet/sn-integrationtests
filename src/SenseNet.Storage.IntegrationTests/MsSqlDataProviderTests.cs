@@ -432,10 +432,10 @@ namespace SenseNet.Storage.IntegrationTests
                 using (var ctx = new RelationalDbDataContext(DP.GetPlatform()))
                     expected = await ctx.ExecuteReaderAsync(
                         "SELECT * FROM Nodes WHERE ParentNodeId = " + Identifiers.PortalRootId,
-                        cmd => { }, async reader =>
+                        cmd => { }, async (reader, cancel) =>
                         {
                             var result = new List<int>();
-                            while (await reader.ReadAsync())
+                            while (await reader.ReadAsync(cancel))
                                 result.Add(reader.GetInt32(0));
                             return result.ToArray();
                         });
