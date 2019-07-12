@@ -2507,7 +2507,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 throw new NotSupportedException("This transaction cannot commit anything.");
             }
         }
-        private class TestDataContext : MsSqlDctx
+        private class TestDataContext : MsSqlDataContext
         {
             public override TransactionWrapper WrapTransaction(DbTransaction underlyingTransaction, TimeSpan timeout = default(TimeSpan))
             {
