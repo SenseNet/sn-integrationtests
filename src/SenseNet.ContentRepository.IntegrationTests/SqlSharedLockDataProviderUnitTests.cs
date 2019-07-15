@@ -24,14 +24,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var expectedLockValue = Guid.NewGuid().ToString();
 
                 // ACTION
-                Provider.CreateSharedLock(nodeId, expectedLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue);
 
                 // ASSERT
-                var actualLockValue = Provider.GetSharedLock(nodeId);
+                var actualLockValue = await Provider.GetSharedLockAsync(nodeId);
                 Assert.AreEqual(expectedLockValue, actualLockValue);
             });
         }
@@ -42,9 +42,9 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var expectedLockValue = Guid.NewGuid().ToString();
-                Provider.CreateSharedLock(nodeId, expectedLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue);
 
                 // ACTION
                 var timeout = Provider.SharedLockTimeout;
@@ -61,13 +61,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var expectedLockValue = Guid.NewGuid().ToString();
-                Provider.CreateSharedLock(nodeId, expectedLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
 
                 // ACTION
-                Provider.CreateSharedLock(nodeId, expectedLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue);
 
                 // ASSERT
                 // Equivalent to the refresh lock
@@ -85,14 +85,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
-                Provider.CreateSharedLock(nodeId, oldLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
 
                 // ACTION
-                Provider.CreateSharedLock(nodeId, newLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, newLockValue);
             });
         }
         [TestMethod]
@@ -102,16 +102,16 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
-                Provider.CreateSharedLock(nodeId, oldLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
 
                 // ACTION
-                Provider.CreateSharedLock(nodeId, newLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, newLockValue);
 
-                var actualLockValue = Provider.GetSharedLock(nodeId);
+                var actualLockValue = await Provider.GetSharedLockAsync(nodeId);
                 Assert.AreEqual(newLockValue, actualLockValue);
             });
         }
@@ -124,16 +124,16 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
-                Provider.CreateSharedLock(nodeId, oldLockValue);
-                Assert.AreEqual(oldLockValue, Provider.GetSharedLock(nodeId));
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue);
+                Assert.AreEqual(oldLockValue, await Provider.GetSharedLockAsync(nodeId));
 
                 // ACTION
-                Provider.ModifySharedLock(nodeId, oldLockValue, newLockValue);
+                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue);
 
-                Assert.AreEqual(newLockValue, Provider.GetSharedLock(nodeId));
+                Assert.AreEqual(newLockValue, await Provider.GetSharedLockAsync(nodeId));
             });
         }
         [TestMethod]
@@ -144,14 +144,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
-                Provider.CreateSharedLock(nodeId, oldLockValue);
-                Assert.AreEqual(oldLockValue, Provider.GetSharedLock(nodeId));
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue);
+                Assert.AreEqual(oldLockValue, await Provider.GetSharedLockAsync(nodeId));
 
                 // ACTION
-                var actualLock = Provider.ModifySharedLock(nodeId, "DifferentLock", newLockValue);
+                var actualLock = await Provider.ModifySharedLockAsync(nodeId, "DifferentLock", newLockValue);
 
                 Assert.AreEqual(oldLockValue, actualLock);
             });
@@ -164,12 +164,12 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
 
                 // ACTION
-                Provider.ModifySharedLock(nodeId, oldLockValue, newLockValue);
+                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue);
             });
         }
         [TestMethod]
@@ -180,14 +180,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
-                Provider.CreateSharedLock(nodeId, oldLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
 
                 // ACTION
-                Provider.ModifySharedLock(nodeId, oldLockValue, newLockValue);
+                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue);
             });
         }
 
@@ -199,13 +199,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var lockValue = "LCK_" + Guid.NewGuid();
-                Provider.CreateSharedLock(nodeId, lockValue);
+                await Provider.CreateSharedLockAsync(nodeId, lockValue);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
 
                 // ACTION
-                Provider.RefreshSharedLock(nodeId, lockValue);
+                await Provider.RefreshSharedLockAsync(nodeId, lockValue);
 
                 Assert.IsTrue((DateTime.UtcNow - GetSharedLockCreationDate(nodeId)).TotalSeconds < 1);
             });
@@ -218,12 +218,12 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var lockValue = "LCK_" + Guid.NewGuid();
-                Provider.CreateSharedLock(nodeId, lockValue);
+                await Provider.CreateSharedLockAsync(nodeId, lockValue);
 
                 // ACTION
-                var actualLock = Provider.RefreshSharedLock(nodeId, "DifferentLock");
+                var actualLock = await Provider.RefreshSharedLockAsync(nodeId, "DifferentLock");
 
                 Assert.AreEqual(lockValue, actualLock);
             });
@@ -236,11 +236,11 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var lockValue = "LCK_" + Guid.NewGuid();
 
                 // ACTION
-                Provider.RefreshSharedLock(nodeId, lockValue);
+                await Provider.RefreshSharedLockAsync(nodeId, lockValue);
             });
         }
         [TestMethod]
@@ -251,13 +251,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var lockValue = Guid.NewGuid().ToString();
-                Provider.CreateSharedLock(nodeId, lockValue);
+                await Provider.CreateSharedLockAsync(nodeId, lockValue);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
 
                 // ACTION
-                Provider.RefreshSharedLock(nodeId, lockValue);
+                await Provider.RefreshSharedLockAsync(nodeId, lockValue);
             });
         }
 
@@ -269,14 +269,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var existingLock = "LCK_" + Guid.NewGuid();
-                Provider.CreateSharedLock(nodeId, existingLock);
+                await Provider.CreateSharedLockAsync(nodeId, existingLock);
 
                 // ACTION
-                Provider.DeleteSharedLock(nodeId, existingLock);
+                await Provider.DeleteSharedLockAsync(nodeId, existingLock);
 
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
             });
         }
         [TestMethod]
@@ -287,12 +287,12 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var existingLock = "LCK_" + Guid.NewGuid();
-                Provider.CreateSharedLock(nodeId, existingLock);
+                await Provider.CreateSharedLockAsync(nodeId, existingLock);
 
                 // ACTION
-                var actualLock = Provider.DeleteSharedLock(nodeId, "DifferentLock");
+                var actualLock = await Provider.DeleteSharedLockAsync(nodeId, "DifferentLock");
 
                 Assert.AreEqual(existingLock, actualLock);
             });
@@ -305,11 +305,11 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var existingLock = "LCK_" + Guid.NewGuid();
 
                 // ACTION
-                Provider.DeleteSharedLock(nodeId, existingLock);
+                await Provider.DeleteSharedLockAsync(nodeId, existingLock);
             });
         }
         [TestMethod]
@@ -320,13 +320,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
                 var existingLock = Guid.NewGuid().ToString();
-                Provider.CreateSharedLock(nodeId, existingLock);
+                await Provider.CreateSharedLockAsync(nodeId, existingLock);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
 
                 // ACTION
-                Provider.DeleteSharedLock(nodeId, existingLock);
+                await Provider.DeleteSharedLockAsync(nodeId, existingLock);
             });
         }
 
