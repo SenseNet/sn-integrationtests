@@ -12,6 +12,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.Packaging.IntegrationTests.Implementations;
@@ -24,7 +25,8 @@ namespace SenseNet.Packaging.IntegrationTests
     {
         public override void Execute(ExecutionContext context)
         {
-            PackagingMsSqlTests.InstallPackagesTable();
+            using (var ctx = new MsSqlDataContext(CancellationToken.None))
+                PackagingMsSqlTests.InstallPackagesTable(ctx);
         }
     }
 
@@ -60,7 +62,7 @@ namespace SenseNet.Packaging.IntegrationTests
             // preparing database
             ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
             
-            using (var ctx = new RelationalDbDataContext(sqlDb.GetPlatform()))
+            using (var ctx = new MsSqlDataContext(CancellationToken.None))
             {
                 DropPackagesTable(ctx);
                 InstallPackagesTable(ctx);
@@ -949,15 +951,15 @@ namespace SenseNet.Packaging.IntegrationTests
 
         /*================================================= tools */
 
-        internal static void DropPackagesTable(RelationalDbDataContext ctx = null)
+        internal static void DropPackagesTable(SnDataContext ctx)
         {        
             var sql = @"
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Packages]') AND type in (N'U'))
 DROP TABLE [dbo].[Packages]
 ";
-            ExecuteSqlCommand(sql, ctx);
+            ctx.ExecuteNonQueryAsync(sql).Wait();
         }
-        internal static void InstallPackagesTable(RelationalDbDataContext ctx = null)
+        internal static void InstallPackagesTable(SnDataContext ctx)
         {
             var sql = @"
 CREATE TABLE [dbo].[Packages](
@@ -978,15 +980,7 @@ CREATE TABLE [dbo].[Packages](
 ) ON [PRIMARY]
 ";
 
-        ExecuteSqlCommand(sql, ctx);
-        }
-        private static void ExecuteSqlCommand(string sql, RelationalDbDataContext ctx)
-        {
-            if (ctx == null)
-                using (ctx = new RelationalDbDataContext(Db.GetPlatform()))
-                    ctx.ExecuteNonQueryAsync(sql).Wait();
-            else
-                ctx.ExecuteNonQueryAsync(sql).Wait();
+            ctx.ExecuteNonQueryAsync(sql).Wait();
         }
 
         /*--------------------------------------------------------*/

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Security;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.ContentRepository.Storage.Data;
@@ -16,7 +17,7 @@ namespace LoggingIntegrationTests
     {
         protected void InitializeLogEntriesTable(RelationalDataProviderBase dataProvider)
         {
-            using (var ctx = new RelationalDbDataContext(dataProvider.GetPlatform()))
+            using (var ctx = dataProvider.CreateDataContext(CancellationToken.None))
             {
                 ctx.ExecuteNonQueryAsync("DELETE FROM [LogEntries]").Wait();
                 ctx.ExecuteNonQueryAsync("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)").Wait();

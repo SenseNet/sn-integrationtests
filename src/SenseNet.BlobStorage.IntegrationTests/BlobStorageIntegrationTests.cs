@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading;
 using IO = System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
@@ -46,7 +47,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected virtual void UpdateFileCreationDate(int fileId, DateTime dateTime)
         {
             var sql = $"UPDATE Files SET CreationDate = @CreationDate WHERE FileId = {fileId}";
-            using (var ctx = GetRelationalDbDataContext())
+            using (var ctx = GetDataContext())
             {
                 ctx.ExecuteNonQueryAsync(sql, cmd =>
                 {
@@ -57,7 +58,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected void HackFileRowFileStream(int fileId, byte[] bytes)
         {
             var sql = $"UPDATE Files SET FileStream = @FileStream WHERE FileId = {fileId}";
-            using (var ctx = GetRelationalDbDataContext())
+            using (var ctx = GetDataContext())
             {
                 ctx.ExecuteNonQueryAsync(sql, cmd =>
                 {
@@ -68,7 +69,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected void HackFileRowStream(int fileId, byte[] bytes)
         {
             var sql = $"UPDATE Files SET Stream = @Stream WHERE FileId = {fileId}";
-            using (var ctx = GetRelationalDbDataContext())
+            using (var ctx = GetDataContext())
             {
                 ctx.ExecuteNonQueryAsync(sql, cmd =>
                 {
@@ -986,9 +987,9 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
         #region Tools
 
-        private RelationalDbDataContext GetRelationalDbDataContext()
+        private SnDataContext GetDataContext()
         {
-            return new RelationalDbDataContext(((RelationalDataProviderBase)DataStore.DataProvider).GetPlatform());
+            return ((RelationalDataProviderBase)DataStore.DataProvider).CreateDataContext(CancellationToken.None);
         }
 
         private bool NeedExternal(string fileContent, int sizeLimit)
@@ -1059,7 +1060,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             var sql = $@"SELECT f.* FROM BinaryProperties b JOIN Files f on f.FileId = b.FileId WHERE b.VersionId = {versionId} and b.PropertyTypeId = {propTypeId}";
             var dbFiles = new List<DbFile>();
 
-            using (var ctx = GetRelationalDbDataContext())
+            using (var ctx = GetDataContext())
             {
                 var _ = ctx.ExecuteReaderAsync(sql, async (reader, cancel) =>
                 {
@@ -1078,7 +1079,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         protected DbFile LoadDbFile(int fileId)
         {
             var sql = $@"SELECT * FROM Files WHERE FileId = {fileId}";
-            using (var ctx = GetRelationalDbDataContext())
+            using (var ctx = GetDataContext())
                 return ctx.ExecuteReaderAsync(sql, async (reader, cancel) =>
                 {
                     cancel.ThrowIfCancellationRequested();

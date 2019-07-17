@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SenseNet.ContentRepository.Storage;
@@ -22,7 +23,7 @@ namespace SenseNet.IntegrationTests.Common.Implementations
 
         public void InitializeForTests()
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
             {
                 ctx.ExecuteNonQueryAsync(@"
 ALTER TABLE [BinaryProperties] CHECK CONSTRAINT ALL
@@ -40,7 +41,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
         {
             var sql = "SELECT NodeId, ParentNodeId, [OwnerId] FROM Nodes ORDER BY NodeId";
             var securityEntitiesArray = new List<object>();
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
             {
                 ctx.ExecuteReaderAsync(sql, (reader, cancel) =>
                 {
@@ -70,7 +71,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             var sql = $"SELECT COUNT(1) FROM LogEntries WHERE Title = 'PermissionChanged' AND" +
                         $" LogDate>='{moment:yyyy-MM-dd HH:mm:ss}'";
 
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
             {
                 return ctx.ExecuteReaderAsync(sql, (reader, cancel) =>
                 {
@@ -105,7 +106,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
 
         public async Task<int> GetLastNodeIdAsync()
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
                 return (int)await ctx.ExecuteScalarAsync(
                     "SELECT i.last_value FROM sys.identity_columns i JOIN sys.tables t ON i.object_id = t.object_id WHERE t.name = 'Nodes'");
         }
@@ -122,7 +123,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
 
         public async Task<NodeHeadData> GetNodeHeadDataAsync(int nodeId)
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
             {
                 return await ctx.ExecuteReaderAsync("SELECT * FROM Nodes WHERE NodeId = @NodeId", cmd =>
                 {
@@ -170,7 +171,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
 
         public async Task<VersionData> GetVersionDataAsync(int versionId)
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
             {
                 return await ctx.ExecuteReaderAsync("SELECT * FROM Versions WHERE VersionId = @VersionId", cmd =>
                 {
@@ -199,19 +200,19 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
 
         public async Task<int> GetBinaryPropertyCountAsync(string path)
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
                 return (int) await ctx.ExecuteScalarAsync("SELECT COUNT (1) FROM BinaryProperties NOLOCK", cmd => { });
         }
 
         public async Task<int> GetFileCountAsync(string path)
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
                 return (int)await ctx.ExecuteScalarAsync("SELECT COUNT (1) FROM Files NOLOCK", cmd => { });
         }
 
         public async Task<int> GetLongTextCountAsync(string path)
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
                 return (int)await ctx.ExecuteScalarAsync("SELECT COUNT (1) FROM LongTextProperties NOLOCK", cmd => { });
         }
 
@@ -239,7 +240,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
         }
         private async Task<object> GetReferencePropertyValueAsync(int versionId, PropertyType propertyType)
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
             {
                 return await ctx.ExecuteReaderAsync(
                     "SELECT ReferredNodeId FROM ReferenceProperties " +
@@ -263,7 +264,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
         }
         private async Task<object> GetLongTextValueAsync(int versionId, PropertyType propertyType)
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
             {
                 return (string)await ctx.ExecuteScalarAsync(
                     "SELECT TOP 1 Value FROM LongTextProperties " +
@@ -280,7 +281,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
         }
         private async Task<object> GetDynamicPropertyValueAsync(int versionId, PropertyType propertyType)
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
             {
                 var result = (string)await ctx.ExecuteScalarAsync(
                     "SELECT TOP 1 DynamicProperties FROM Versions WHERE VersionId = @VersionId",
@@ -304,7 +305,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
             {
                 case DataType.Text:
                     var stringValue = (string) value;
-                    using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+                    using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
                     {
                         await ctx.ExecuteNonQueryAsync(
                             "UPDATE LongTextProperties SET Length = @Length, Value = @Value " +
@@ -335,7 +336,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
 
         public async Task SetFileStagingAsync(int fileId, bool staging)
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
             {
                 await ctx.ExecuteNonQueryAsync(
                     "UPDATE Files SET Staging = @Staging WHERE FileId = @FileId",
@@ -352,7 +353,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
 
         public async Task DeleteFileAsync(int fileId)
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
             {
                 await ctx.ExecuteNonQueryAsync(
                     "DELETE FROM Files WHERE FileId = @FileId",
@@ -368,7 +369,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
 
         public async Task EnsureOneUnlockedSchemaLockAsync()
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
                 await ctx.ExecuteNonQueryAsync(@"DELETE FROM SchemaModification
 INSERT INTO SchemaModification (ModificationDate) VALUES (GETUTCDATE())
 ");
@@ -376,7 +377,7 @@ INSERT INTO SchemaModification (ModificationDate) VALUES (GETUTCDATE())
 
         public async Task ClearIndexingActivitiesAsync()
         {
-            using (var ctx = new RelationalDbDataContext(MainProvider.GetPlatform()))
+            using (var ctx = MainProvider.CreateDataContext(CancellationToken.None))
                 await ctx.ExecuteNonQueryAsync(@"DELETE FROM IndexingActivities");
         }
 

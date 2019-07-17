@@ -430,7 +430,7 @@ namespace SenseNet.Storage.IntegrationTests
                 var loaded = Repository.Root.Children.Select(x => x.Id.ToString()).ToArray();
 
                 int[] expected;
-                using (var ctx = new RelationalDbDataContext(DP.GetPlatform()))
+                using (var ctx = DP.CreateDataContext(CancellationToken.None))
                     expected = await ctx.ExecuteReaderAsync(
                         "SELECT * FROM Nodes WHERE ParentNodeId = " + Identifiers.PortalRootId,
                         cmd => { }, async (reader, cancel) =>
@@ -2519,7 +2519,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         }
         private class CannotCommitDataProvider : MsSqlDataProvider
         {
-            public override IDataPlatform<DbConnection, DbCommand, DbParameter> GetPlatform()
+            public override SnDataContext CreateDataContext(CancellationToken token)
             {
                 return new TestDataContext();
             }
@@ -2654,7 +2654,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         private async Task<object> ExecuteScalarAsync(string sql)
         {
-            using (var ctx = new RelationalDbDataContext(DP.GetPlatform()))
+            using (var ctx = DP.CreateDataContext(CancellationToken.None))
                 return await ctx.ExecuteScalarAsync(sql);
         }
 
