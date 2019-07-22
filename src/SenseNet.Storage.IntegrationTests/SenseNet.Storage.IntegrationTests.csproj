@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MsSqlDataProviderTests.cs" />
+    <Compile Include="MsSqlDataProviderTests_AppModel.cs" />
     <Compile Include="MsSqlDataProviderTests_CopyMove.cs" />
     <Compile Include="MsSqlDataProviderTests_IsSystem.cs" />
     <Compile Include="MsSqlDataProviderTests_SchemaWriter.cs" />
