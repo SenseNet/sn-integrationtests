@@ -97,7 +97,8 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             while (GetNextChunk(originalChunkSize, buffer, ref length, ref offset, ref sourceOffset, out var bytes, out var chunkIndex))
                 WriteChunk(((LocalDiskChunkBlobProviderData)context.BlobProviderData).Id, chunkIndex, bytes);
         }
-        public async System.Threading.Tasks.Task WriteAsync(BlobStorageContext context, long offset, byte[] buffer)
+        public async System.Threading.Tasks.Task WriteAsync(BlobStorageContext context, long offset, byte[] buffer,
+            CancellationToken cancellationToken)
         {
             var providerData = (LocalDiskChunkBlobProviderData)context.BlobProviderData;
             var originalChunkSize = providerData.ChunkSize;
@@ -108,7 +109,7 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             var sourceOffset = 0;
 
             while (GetNextChunk(originalChunkSize, buffer, ref length, ref offset, ref sourceOffset, out var bytes, out var chunkIndex))
-                await WriteChunkAsync(((LocalDiskChunkBlobProviderData)context.BlobProviderData).Id, chunkIndex, bytes);
+                await WriteChunkAsync(((LocalDiskChunkBlobProviderData)context.BlobProviderData).Id, chunkIndex, bytes, cancellationToken);
         }
 
         /// <summary>
@@ -154,10 +155,11 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             using (var stream = new FileStream(GetFilePath(id, chunkIndex), FileMode.OpenOrCreate))
                 stream.Write(bytes, 0, bytes.Length);
         }
-        public static async System.Threading.Tasks.Task WriteChunkAsync(Guid id, int chunkIndex, byte[] bytes)
+        public static async System.Threading.Tasks.Task WriteChunkAsync(Guid id, int chunkIndex, byte[] bytes,
+            CancellationToken cancellationToken)
         {
             using (var stream = new FileStream(GetFilePath(id, chunkIndex), FileMode.OpenOrCreate))
-                await stream.WriteAsync(bytes, 0, bytes.Length);
+                await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken);
         }
 
         private static void CreateFolder(Guid id)

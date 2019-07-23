@@ -83,11 +83,13 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
                 stream.Write(buffer, 0, buffer.Length);
             }
         }
-        public async System.Threading.Tasks.Task WriteAsync(BlobStorageContext context, long offset, byte[] buffer)
+        public async System.Threading.Tasks.Task WriteAsync(BlobStorageContext context, long offset, byte[] buffer,
+            CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             using (var stream = GetAndExtendStream(context, offset, buffer.Length))
             {
-                await stream.WriteAsync(buffer, 0, buffer.Length);
+                await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken);
             }
         }
 
