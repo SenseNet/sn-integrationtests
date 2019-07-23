@@ -115,12 +115,12 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
         [TestMethod]
-        public void Blob_BuiltInLocalDiskChunk_DeleteSmall()
+        public void Blob_BuiltInLocalDiskChunk_DeleteSmall_Maintenance()
         {
             TestCase_DeleteSmall();
         }
         [TestMethod]
-        public void Blob_BuiltInLocalDiskChunk_DeleteBig()
+        public void Blob_BuiltInLocalDiskChunk_DeleteBig_Maintenance()
         {
             TestCase_DeleteBig();
         }

@@ -119,12 +119,12 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_DeleteSmall()
+        public void Blob_BuiltInLocalDisk_DeleteSmall_Maintenance()
         {
             TestCase_DeleteSmall();
         }
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_DeleteBig()
+        public void Blob_BuiltInLocalDisk_DeleteBig_Maintenance()
         {
             TestCase_DeleteBig();
         }
