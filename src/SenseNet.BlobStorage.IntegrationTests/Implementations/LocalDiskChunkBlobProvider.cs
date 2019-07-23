@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using SenseNet.ContentRepository.Storage.Data;
 
 namespace SenseNet.BlobStorage.IntegrationTests.Implementations
@@ -51,6 +53,15 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
         {
             var id = GetData(context).Id;
             DeleteFolder(id);
+        }
+        public Task DeleteAsync(BlobStorageContext context, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var id = GetData(context).Id;
+            //UNDONE:DB:BLOB (?) Write a wrapped cancellable async solution
+            DeleteFolder(id);
+            return Task.CompletedTask;
         }
 
         public Stream GetStreamForRead(BlobStorageContext context)
