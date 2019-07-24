@@ -50,11 +50,6 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             return Task.CompletedTask;
         }
 
-        public void Delete(BlobStorageContext context)
-        {
-            var id = GetData(context).Id;
-            DeleteFolder(id);
-        }
         public Task DeleteAsync(BlobStorageContext context, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();

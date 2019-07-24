@@ -43,11 +43,6 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             context.BlobProviderData = new LocalDiskBlobProviderData { Id = id };
         }
 
-        public void Delete(BlobStorageContext context)
-        {
-            var id = GetData(context).Id;
-            DeleteFile(id);
-        }
         public Task DeleteAsync(BlobStorageContext context, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
