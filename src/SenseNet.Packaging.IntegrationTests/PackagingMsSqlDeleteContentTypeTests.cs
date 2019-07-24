@@ -101,7 +101,7 @@ namespace SenseNet.Packaging.IntegrationTests
         [TestMethod]
         public async Task Packaging_SQL_Step_DeleteContentType_Leaf()
         {
-            await DeleteContentTypeTest(() =>
+            await IsolatedDeleteContentTypeTest(() =>
             {
                 // init
                 if (null != ContentType.GetByName("Car"))
