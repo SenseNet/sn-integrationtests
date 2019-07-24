@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.BlobStorage.IntegrationTests.Implementations;
 using SenseNet.ContentRepository;
@@ -159,8 +160,9 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
                 // action
                 var bcEentity =
-                    BlobStorageComponents.DataProvider.LoadBinaryCacheEntity(versionId,
-                        PropertyType.GetByName("Binary").Id);
+                    BlobStorageComponents.DataProvider.LoadBinaryCacheEntityAsync(versionId,
+                        PropertyType.GetByName("Binary").Id,
+                        CancellationToken.None).Result;
 
                 // assert
                 Assert.IsNull(bcEentity.RawData);

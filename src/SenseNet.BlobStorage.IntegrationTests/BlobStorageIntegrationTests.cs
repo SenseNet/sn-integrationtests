@@ -894,8 +894,8 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 var propertyTypeId = PropertyType.GetByName("Binary").Id;
 
                 // action
-                var binaryCacheEntity =
-                    ContentRepository.Storage.Data.BlobStorage.LoadBinaryCacheEntity(file.VersionId, propertyTypeId);
+                var binaryCacheEntity = ContentRepository.Storage.Data.BlobStorage.LoadBinaryCacheEntityAsync(
+                    file.VersionId, propertyTypeId, CancellationToken.None).Result;
 
                 // assert
                 Assert.AreEqual(binaryPropertyId, binaryCacheEntity.BinaryPropertyId);
