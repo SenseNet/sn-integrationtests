@@ -42,11 +42,6 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             return BlobStorageContext.DeserializeBlobProviderData<LocalDiskChunkBlobProviderData>(providerData);
         }
 
-        public void Allocate(BlobStorageContext context)
-        {
-            AllocateAsync(context, CancellationToken.None).Wait();
-        }
-
         public Task AllocateAsync(BlobStorageContext context, CancellationToken cancellationToken)
         {
             var id = Guid.NewGuid();
