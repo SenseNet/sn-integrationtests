@@ -38,8 +38,12 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
 
         public void Allocate(BlobStorageContext context)
         {
+            AllocateAsync(context, CancellationToken.None).Wait();
+        }
+        public async Task AllocateAsync(BlobStorageContext context, CancellationToken cancellationToken)
+        {
             var id = Guid.NewGuid();
-            CreateFile(id, null);
+            await CreateFileAsync(id, null, cancellationToken);
             context.BlobProviderData = new LocalDiskBlobProviderData { Id = id };
         }
 
@@ -125,14 +129,14 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             return specData;
         }
 
-        private void CreateFile(Guid id, Stream stream)
+        private async Task CreateFileAsync(Guid id, Stream stream, CancellationToken cancellationToken)
         {
             using (var fileStream = new FileStream(GetPath(id), FileMode.CreateNew))
             {
                 if (stream != null)
                 {
                     var buffer = new byte[stream.Length];
-                    stream.Read(buffer, 0, Convert.ToInt32(stream.Length));
+                    await stream.ReadAsync(buffer, 0, Convert.ToInt32(stream.Length), cancellationToken);
                     fileStream.Write(buffer, 0, buffer.Length);
                 }
             }

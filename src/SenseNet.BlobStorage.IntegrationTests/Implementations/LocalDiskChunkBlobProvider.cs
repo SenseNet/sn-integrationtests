@@ -44,9 +44,15 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
 
         public void Allocate(BlobStorageContext context)
         {
+            AllocateAsync(context, CancellationToken.None).Wait();
+        }
+
+        public Task AllocateAsync(BlobStorageContext context, CancellationToken cancellationToken)
+        {
             var id = Guid.NewGuid();
             CreateFolder(id);
             context.BlobProviderData = new LocalDiskChunkBlobProviderData { Id = id, ChunkSize = ChunkByteSize };
+            return Task.CompletedTask;
         }
 
         public void Delete(BlobStorageContext context)
