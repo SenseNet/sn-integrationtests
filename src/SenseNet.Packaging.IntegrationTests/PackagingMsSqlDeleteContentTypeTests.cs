@@ -136,7 +136,7 @@ namespace SenseNet.Packaging.IntegrationTests
             var contentTypeTemplate =
                 @"<?xml version='1.0' encoding='utf-8'?><ContentType name='{0}' parentType='Car' handler='SenseNet.ContentRepository.GenericContent' xmlns='http://schemas.sensenet.com/SenseNet/ContentRepository/ContentTypeDefinition' />";
 
-            await DeleteContentTypeTest(() =>
+            await IsolatedDeleteContentTypeTest(() =>
             {
                 // init
                 var contentTypeCount = GetContentTypeCount();
@@ -169,7 +169,7 @@ namespace SenseNet.Packaging.IntegrationTests
             var contentTypeTemplate =
                 @"<?xml version='1.0' encoding='utf-8'?><ContentType name='{0}' parentType='Car' handler='SenseNet.ContentRepository.GenericContent' xmlns='http://schemas.sensenet.com/SenseNet/ContentRepository/ContentTypeDefinition' />";
 
-            await DeleteContentTypeTest(() =>
+            await IsolatedDeleteContentTypeTest(() =>
             {
                 // init
                 var contentTypeCount = GetContentTypeCount();
