@@ -80,19 +80,6 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             return GetStreamForRead(context);
         }
 
-        public void Write(BlobStorageContext context, long offset, byte[] buffer)
-        {
-            var providerData = (LocalDiskChunkBlobProviderData)context.BlobProviderData;
-            var originalChunkSize = providerData.ChunkSize;
-
-            AssertValidChunks(context.Length, originalChunkSize, offset, buffer.Length);
-
-            var length = buffer.Length;
-            var sourceOffset = 0;
-
-            while (GetNextChunk(originalChunkSize, buffer, ref length, ref offset, ref sourceOffset, out var bytes, out var chunkIndex))
-                WriteChunk(((LocalDiskChunkBlobProviderData)context.BlobProviderData).Id, chunkIndex, bytes);
-        }
         public async System.Threading.Tasks.Task WriteAsync(BlobStorageContext context, long offset, byte[] buffer,
             CancellationToken cancellationToken)
         {
