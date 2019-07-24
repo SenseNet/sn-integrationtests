@@ -960,7 +960,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 Assert.IsFalse(IsDeleted(ctx, external));
 
                 // Action #2
-                ContentRepository.Storage.Data.BlobStorage.CleanupFilesSetFlag();
+                ContentRepository.Storage.Data.BlobStorage.CleanupFilesSetFlagAsync(CancellationToken.None).Wait();
 
                 // Assert #2
                 dbFile = LoadDbFile(fileId);
@@ -969,7 +969,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 Assert.IsFalse(IsDeleted(ctx, external));
 
                 // Action #3
-                ContentRepository.Storage.Data.BlobStorage.CleanupFiles();
+                var _ = ContentRepository.Storage.Data.BlobStorage.CleanupFilesAsync(CancellationToken.None).Result;
 
                 // Assert #3
                 dbFile = LoadDbFile(fileId);
