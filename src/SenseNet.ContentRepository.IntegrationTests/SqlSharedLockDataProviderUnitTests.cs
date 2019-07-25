@@ -48,7 +48,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
                 // ACTION
                 var timeout = Provider.SharedLockTimeout;
-                Provider.SetCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-timeout.TotalMinutes - 1));
+                Provider.SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-timeout.TotalMinutes - 1));
 
                 // ASSERT
                 Assert.IsNull(SharedLock.GetLock(nodeId));
@@ -337,14 +337,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             if (!(Provider is MsSqlSharedLockDataProvider dataProvider))
                 throw new InvalidOperationException("InMemorySharedLockDataProvider not configured.");
 
-            dataProvider.SetCreationDate(nodeId, value);
+            dataProvider.SetSharedLockCreationDate(nodeId, value);
         }
         private DateTime GetSharedLockCreationDate(int nodeId)
         {
             if (!(Provider is MsSqlSharedLockDataProvider dataProvider))
                 throw new InvalidOperationException("InMemorySharedLockDataProvider not configured.");
 
-            return dataProvider.GetCreationDate(nodeId);
+            return dataProvider.GetSharedLockCreationDate(nodeId);
         }
 
     }
