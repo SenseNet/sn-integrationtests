@@ -36,26 +36,20 @@ namespace SenseNet.Storage.IntegrationTests
         {
             SnTrace.Test.Enabled = true;
             SnTrace.Test.Write("START test: {0}", TestContext.TestName);
-            //if(SnTrace.SnTracers.Count == 1)
-            //    SnTrace.SnTracers.Add(new SnDebugViewTracer());
 
             EnsureDatabase();
 
-            var builder = CreateRepositoryBuilderForStorageTest();
-
-            PrepareRepository();
+            var unused = CreateRepositoryBuilderForStorageTest();
 
             await callback();
         }
 
-        public async System.Threading.Tasks.Task NoRepositoryIntegrtionTest(Func<System.Threading.Tasks.Task> callback)
+        public async Task NoRepositoryIntegrtionTest(Func<Task> callback)
         {
             SnTrace.Test.Enabled = true;
             SnTrace.Test.Write("START test: {0}", TestContext.TestName);
-            //if(SnTrace.SnTracers.Count == 1)
-            //    SnTrace.SnTracers.Add(new SnDebugViewTracer());
 
-            var builder = CreateRepositoryBuilderForStorageTest();
+            var unused = CreateRepositoryBuilderForStorageTest();
 
             await callback();
         }
@@ -64,13 +58,13 @@ namespace SenseNet.Storage.IntegrationTests
         {
             using (var op = SnTrace.Test.StartOperation("Install database."))
             {
-                _connectionStringBackup = Configuration.ConnectionStrings.ConnectionString;
-                _securityConnectionStringBackup = Configuration.ConnectionStrings.SecurityDatabaseConnectionString;
+                _connectionStringBackup = ConnectionStrings.ConnectionString;
+                _securityConnectionStringBackup = ConnectionStrings.SecurityDatabaseConnectionString;
                 _connectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForStorageTests;
                 _databaseName = GetDatabaseName(_connectionString);
 
-                Configuration.ConnectionStrings.ConnectionString = _connectionString;
-                Configuration.ConnectionStrings.SecurityDatabaseConnectionString = _connectionString;
+                ConnectionStrings.ConnectionString = _connectionString;
+                ConnectionStrings.SecurityDatabaseConnectionString = _connectionString;
 
                 PrepareDatabase();
 
@@ -80,44 +74,16 @@ namespace SenseNet.Storage.IntegrationTests
             }
         }
 
-        private void PrepareRepository()
-        {
-            //SecurityHandler.SecurityInstaller.InstallDefaultSecurityStructure();
-            //ContentTypeInstaller.InstallContentType(LoadCtds());
-            //SaveInitialIndexDocuments();
-            //RebuildIndex();
-        }
-
         protected RepositoryBuilder CreateRepositoryBuilderForStorageTest()
         {
             var dataProvider = new MsSqlDataProvider();
 
-            //// Requires installed Administrator
-            //var securityDataProvider = GetSecurityDataProvider(dataProvider);
-
             var builder = new RepositoryBuilder()
-                    //.UseAccessProvider(new DesktopAccessProvider())
                     .UseDataProvider(dataProvider)
                     .UseBlobMetaDataProvider(new MsSqlBlobMetaDataProvider())
                     .UseBlobProviderSelector(new InMemoryBlobProviderSelector())
-                    //.UseSharedLockDataProviderExtension(new MsSqlSharedLockDataProvider())
-                    //.UseAccessTokenDataProviderExtension(new MsSqlAccessTokenDataProvider())
-                    //.UseSecurityDataProvider(securityDataProvider)
-                    //.UseTestingDataProviderExtension(new MsSqlTestingDataProvider())
-                    //.UseElevatedModificationVisibilityRuleProvider(new ElevatedModificationVisibilityRule())
                     .StartWorkflowEngine(false)
-                    .DisableNodeObservers()
-                //.EnableNodeObservers(typeof(SettingsCache))
-                //.UseTraceCategories("Test", "Event", "Custom") as RepositoryBuilder
-                ;
-            //using (var op = SnTrace.Test.StartOperation("Install initial data."))
-            //{
-            //    DataStore.InstallInitialDataAsync(GetInitialData()).Wait();
-            //    op.Successful = true;
-            //}
-            //var inMemoryIndex = GetInitialIndex();
-
-            //builder.UseSearchEngine(new InMemorySearchEngine(inMemoryIndex));
+                    .DisableNodeObservers();
 
             return (RepositoryBuilder)builder;
         }
@@ -156,9 +122,9 @@ namespace SenseNet.Storage.IntegrationTests
         public void CleanupTest()
         {
             if (_connectionStringBackup != null)
-                Configuration.ConnectionStrings.ConnectionString = _connectionStringBackup;
+                ConnectionStrings.ConnectionString = _connectionStringBackup;
             if (_securityConnectionStringBackup != null)
-                Configuration.ConnectionStrings.SecurityDatabaseConnectionString = _securityConnectionStringBackup;
+                ConnectionStrings.SecurityDatabaseConnectionString = _securityConnectionStringBackup;
 
             SnTrace.Test.Enabled = true;
             SnTrace.Test.Write("END test: {0}", TestContext.TestName);
@@ -167,31 +133,28 @@ namespace SenseNet.Storage.IntegrationTests
 
         protected void PrepareDatabase()
         {
-            var scriptRootPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(
+            var scriptRootPath = Path.GetFullPath(Path.Combine(
                 AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\..\sensenet\src\Storage\Data\MsSqlClient\Scripts"));
 
             var dbid = ExecuteSqlScalarNative<int?>($"SELECT database_id FROM sys.databases WHERE Name = '{_databaseName}'", "master");
             if (dbid == null)
             {
                 // create database
-                var sqlPath = System.IO.Path.Combine(scriptRootPath, "Create_SenseNet_Database_Templated.sql");
+                var sqlPath = Path.Combine(scriptRootPath, "Create_SenseNet_Database_Templated.sql");
                 string sql;
-                using (var reader = new System.IO.StreamReader(sqlPath))
+                using (var reader = new StreamReader(sqlPath))
                     sql = reader.ReadToEnd();
                 sql = sql.Replace("{_databaseName}", _databaseName);
                 ExecuteSqlCommandNative(sql, "master");
             }
             // prepare database
-            ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"MsSqlInstall_Security.sql"), _databaseName);
-            ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"MsSqlInstall_01_Schema.sql"), _databaseName);
-            //ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"MsSqlInstall_02_Procs.sql"), _databaseName);
-            //ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"MsSqlInstall_03_Data_Phase1.sql"), _databaseName);
-            //ExecuteSqlScriptNative(System.IO.Path.Combine(scriptRootPath, @"MsSqlInstall_04_Data_Phase2.sql"), _databaseName);
+            ExecuteSqlScriptNative(Path.Combine(scriptRootPath, @"MsSqlInstall_Security.sql"), _databaseName);
+            ExecuteSqlScriptNative(Path.Combine(scriptRootPath, @"MsSqlInstall_01_Schema.sql"), _databaseName);
         }
         private void ExecuteSqlScriptNative(string scriptPath, string databaseName)
         {
             string sql;
-            using (var reader = new System.IO.StreamReader(scriptPath))
+            using (var reader = new StreamReader(scriptPath))
                 sql = reader.ReadToEnd();
             ExecuteSqlCommandNative(sql, databaseName);
         }
@@ -233,43 +196,6 @@ namespace SenseNet.Storage.IntegrationTests
             return builder.InitialCatalog;
         }
 
-
-
-
-        //private static InitialData GetInitialTestData()
-        //{
-        //    InitialData initialData;
-
-        //    using (var ptr = new StringReader(InitialTestData.PropertyTypes))
-        //    using (var ntr = new StringReader(InitialTestData.NodeTypes))
-        //    using (var nr = new StringReader(InitialTestData.Nodes))
-        //    using (var vr = new StringReader(InitialTestData.Versions))
-        //    using (var dr = new StringReader(InitialTestData.DynamicData))
-        //        initialData = InitialData.Load(ptr, ntr, nr, vr, dr);
-
-        //    initialData.ContentTypeDefinitions = InitialTestData.ContentTypeDefinitions;
-        //    initialData.Blobs = InitialTestData.GeneralBlobs;
-
-        //    return initialData;
-        //}
-
-        private static InitialData GetInitialData(IRepositoryDataFile dataFile)
-        {
-            InitialData initialData;
-
-            using (var ptr = new StringReader(dataFile.PropertyTypes))
-            using (var ntr = new StringReader(dataFile.NodeTypes))
-            using (var nr = new StringReader(dataFile.Nodes))
-            using (var vr = new StringReader(dataFile.Versions))
-            using (var dr = new StringReader(dataFile.DynamicData))
-                initialData = InitialData.Load(ptr, ntr, nr, vr, dr);
-
-            initialData.ContentTypeDefinitions = dataFile.ContentTypeDefinitions;
-            initialData.Blobs = dataFile.Blobs;
-
-            return initialData;
-        }
-
         private static InMemoryIndex _initialIndex;
         protected static InMemoryIndex GetInitialIndex()
         {
@@ -288,13 +214,13 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDataInstaller_TestData()
         {
-            var data = GetInitialData(new InitialTestData());
+            var data = InitialData.Load(new InitialTestData());
             await InstallInitialDataTest(data);
         }
         [TestMethod]
         public async Task MsSqlDataInstaller_SensenetServices()
         {
-            var data = GetInitialData(new SenseNetServicesInitialData());
+            var data = InitialData.Load(new SenseNetServicesInitialData());
             await InstallInitialDataTest(data);
         }
 
