@@ -84,6 +84,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MsSqlDataInstallerTests.cs" />
     <Compile Include="MsSqlDataProviderTests.cs" />
     <Compile Include="MsSqlDataProviderTests_AppModel.cs" />
     <Compile Include="MsSqlDataProviderTests_CopyMove.cs" />

@@ -320,17 +320,18 @@ namespace SenseNet.BlobStorage.IntegrationTests
         private static InitialData _initialData;
         protected static InitialData GetInitialData()
         {
+            var dataFile = new InitialTestData();
             if (_initialData == null)
             {
                 InitialData initialData;
-                using (var ptr = new IO.StringReader(InitialTestData.PropertyTypes))
-                using (var ntr = new IO.StringReader(InitialTestData.NodeTypes))
-                using (var nr = new IO.StringReader(InitialTestData.Nodes))
-                using (var vr = new IO.StringReader(InitialTestData.Versions))
-                using (var dr = new IO.StringReader(InitialTestData.DynamicData))
+                using (var ptr = new IO.StringReader(dataFile.PropertyTypes))
+                using (var ntr = new IO.StringReader(dataFile.NodeTypes))
+                using (var nr = new IO.StringReader(dataFile.Nodes))
+                using (var vr = new IO.StringReader(dataFile.Versions))
+                using (var dr = new IO.StringReader(dataFile.DynamicData))
                     initialData = InitialData.Load(ptr, ntr, nr, vr, dr);
-                initialData.ContentTypeDefinitions = InitialTestData.ContentTypeDefinitions;
-                initialData.Blobs = InitialTestData.GeneralBlobs;
+                initialData.ContentTypeDefinitions = dataFile.ContentTypeDefinitions;
+                initialData.Blobs = dataFile.Blobs;
                 _initialData = initialData;
             }
             return _initialData;
