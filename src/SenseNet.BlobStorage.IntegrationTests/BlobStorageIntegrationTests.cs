@@ -188,7 +188,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             }
             // prepare database
             ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"MsSqlInstall_Security.sql"), DatabaseName);
-            ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"MsSqlInstall_01_Schema.sql"), DatabaseName);
+            ExecuteSqlScriptNative(IO.Path.Combine(scriptRootPath, @"MsSqlInstall_Schema.sql"), DatabaseName);
 
             if (SqlFsEnabled)
             {

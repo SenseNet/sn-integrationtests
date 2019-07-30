@@ -149,7 +149,7 @@ namespace SenseNet.Storage.IntegrationTests
             }
             // prepare database
             ExecuteSqlScriptNative(Path.Combine(scriptRootPath, @"MsSqlInstall_Security.sql"), _databaseName);
-            ExecuteSqlScriptNative(Path.Combine(scriptRootPath, @"MsSqlInstall_01_Schema.sql"), _databaseName);
+            ExecuteSqlScriptNative(Path.Combine(scriptRootPath, @"MsSqlInstall_Schema.sql"), _databaseName);
         }
         private void ExecuteSqlScriptNative(string scriptPath, string databaseName)
         {
