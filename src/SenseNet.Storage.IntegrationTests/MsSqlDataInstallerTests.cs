@@ -257,6 +257,12 @@ namespace SenseNet.Storage.IntegrationTests
                     var count = (int)await ctx.ExecuteScalarAsync(sql);
                     Assert.AreEqual(0, count);
                 }
+                sql = "SELECT COUNT(0) FROM Versions WHERE CreatedById = 0 or ModifiedById = 0";
+                using (var ctx = new MsSqlDataContext())
+                {
+                    var count = (int)await ctx.ExecuteScalarAsync(sql);
+                    Assert.AreEqual(0, count);
+                }
             });
         }
 
