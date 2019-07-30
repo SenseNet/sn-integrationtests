@@ -250,6 +250,13 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(dynProps.SelectMany(x => x.ReferenceProperties).Count(), counts["ReferenceProperties"]);
                 Assert.AreEqual(dynProps.SelectMany(x => x.BinaryProperties).Count(), counts["BinaryProperties"]);
                 Assert.AreEqual(counts["BinaryProperties"], counts["Files"]);
+
+                var sql = "SELECT COUNT(0) FROM Nodes WHERE CreatedById = 0 or ModifiedById = 0 or OwnerId = 0";
+                using (var ctx = new MsSqlDataContext())
+                {
+                    var count = (int)await ctx.ExecuteScalarAsync(sql);
+                    Assert.AreEqual(0, count);
+                }
             });
         }
 
