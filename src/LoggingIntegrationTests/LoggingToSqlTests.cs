@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading;
 using LoggingIntegrationTests.Implementations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
@@ -36,7 +37,7 @@ namespace LoggingIntegrationTests
             SnLog.WriteAudit(new TestAuditEvent(testMessage));
 
             // assert
-            var auditEvent = Dp.LoadLastAuditEventsAsync(1).Result.FirstOrDefault();
+            var auditEvent = Dp.LoadLastAuditEventsAsync(1, CancellationToken.None).Result.FirstOrDefault();
             Assert.IsNotNull(auditEvent);
             Assert.AreEqual(testMessage, auditEvent.Message);
         }

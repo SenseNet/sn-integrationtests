@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository.Search.Indexing;
 using SenseNet.ContentRepository.Search.Indexing.Activities;
@@ -193,7 +194,7 @@ namespace SenseNet.Search.IntegrationTests
             {
                 Providers.Instance.DataProvider = dp2;
 
-                DataStore.DataProvider.DeleteAllIndexingActivitiesAsync().Wait();
+                DataStore.DataProvider.DeleteAllIndexingActivitiesAsync(CancellationToken.None).Wait();
                 RegisterActivity(IndexingActivityType.AddDocument, IndexingActivityRunningState.Waiting, nodeId, versionId, path);
                 RegisterActivity(IndexingActivityType.UpdateDocument, IndexingActivityRunningState.Waiting, nodeId, versionId, path);
                 RegisterActivity(IndexingActivityType.UpdateDocument, IndexingActivityRunningState.Waiting, nodeId, versionId, path);
@@ -259,7 +260,7 @@ namespace SenseNet.Search.IntegrationTests
                 activity = CreateActivity(type, path, nodeId, versionId, 9999);
             activity.RunningState = state;
 
-            DataStore.DataProvider.RegisterIndexingActivityAsync(activity).Wait();
+            DataStore.DataProvider.RegisterIndexingActivityAsync(activity, CancellationToken.None).Wait();
         }
         private IndexingActivityBase CreateActivity(IndexingActivityType type, string path, int nodeId, int versionId, long versionTimestamp)
         {

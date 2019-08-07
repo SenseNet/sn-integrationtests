@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
@@ -201,7 +202,7 @@ namespace SenseNet.IntegrationTests.Common
                 {
                     new StoredAce {EntityId = 2, IdentityId = 1, LocalOnly = false, AllowBits = 0x0EF, DenyBits = 0x000}
                 },
-                Entities = repo.LoadEntityTreeAsync().Result.ToDictionary(x => x.Id, x => new StoredSecurityEntity
+                Entities = repo.LoadEntityTreeAsync(CancellationToken.None).Result.ToDictionary(x => x.Id, x => new StoredSecurityEntity
                 {
                     Id = x.Id,
                     OwnerId = x.OwnerId,

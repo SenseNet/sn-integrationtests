@@ -21,9 +21,10 @@ namespace SenseNet.Search.IntegrationTests
             {
                 // Ensure an existing activity to get right last activity id.
                 await DP.RegisterIndexingActivityAsync(
-                    CreateActivity(IndexingActivityType.AddDocument, "/Root/42", 42, 42, 99999999, null));
-                var lastActivityIdBefore = await DP.GetLastIndexingActivityIdAsync();
-                await DP.DeleteAllIndexingActivitiesAsync();
+                    CreateActivity(IndexingActivityType.AddDocument, "/Root/42", 42, 42, 99999999, null),
+                    CancellationToken.None);
+                var lastActivityIdBefore = await DP.GetLastIndexingActivityIdAsync(CancellationToken.None);
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
 
                 var timeAtStart = DateTime.UtcNow;
 
@@ -41,7 +42,7 @@ namespace SenseNet.Search.IntegrationTests
                 };
 
                 foreach (var activity in activities)
-                    await DP.RegisterIndexingActivityAsync(activity);
+                    await DP.RegisterIndexingActivityAsync(activity, CancellationToken.None);
 
                 // avoid rounding errors: reloaded datetime can be greater than timeAtEnd
                 // if rounding in sql converts the input to greater value.
@@ -49,14 +50,14 @@ namespace SenseNet.Search.IntegrationTests
 
                 var timeAtEnd = DateTime.UtcNow;
 
-                var lastActivityIdAfter = await DP.GetLastIndexingActivityIdAsync();
+                var lastActivityIdAfter = await DP.GetLastIndexingActivityIdAsync(CancellationToken.None);
                 Assert.AreEqual(lastActivityIdBefore + 5, lastActivityIdAfter);
 
                 var factory = new IndexingActivityFactory();
 
                 // ---- simulating system start
                 var unprocessedActivities = await DP.LoadIndexingActivitiesAsync(lastActivityIdBefore + 1,
-                    lastActivityIdAfter, 1000, true, factory);
+                    lastActivityIdAfter, 1000, true, factory, CancellationToken.None);
                 Assert.AreEqual(5, unprocessedActivities.Length);
                 Assert.AreEqual(
                     $"{IndexingActivityType.AddDocument}, {IndexingActivityType.UpdateDocument}, {IndexingActivityType.AddTree}, {IndexingActivityType.RemoveTree}, {IndexingActivityType.Rebuild}",
@@ -83,7 +84,7 @@ namespace SenseNet.Search.IntegrationTests
 
                 // ---- simulating runtime maintenance
                 var loadedActivities = await DP.LoadIndexingActivitiesAsync(lastActivityIdBefore + 1,
-                    lastActivityIdAfter, 1000, false, factory);
+                    lastActivityIdAfter, 1000, false, factory, CancellationToken.None);
                 Assert.AreEqual(5, loadedActivities.Length);
                 Assert.AreEqual(
                     $"{IndexingActivityType.AddDocument}, {IndexingActivityType.UpdateDocument}, {IndexingActivityType.AddTree}, {IndexingActivityType.RemoveTree}, {IndexingActivityType.Rebuild}",
@@ -110,7 +111,7 @@ namespace SenseNet.Search.IntegrationTests
 
                 var gaps = new[] { lastActivityIdBefore + 1, lastActivityIdBefore + 2 };
                 // ---- simulating system start
-                var unprocessedActivitiesFromGaps = await DP.LoadIndexingActivitiesAsync(gaps, true, factory);
+                var unprocessedActivitiesFromGaps = await DP.LoadIndexingActivitiesAsync(gaps, true, factory, CancellationToken.None);
                 Assert.AreEqual(
                     $"{lastActivityIdBefore + 1}, {lastActivityIdBefore + 2}",
                     string.Join(", ", unprocessedActivitiesFromGaps.Select(x => x.Id.ToString()).ToArray()));
@@ -119,7 +120,7 @@ namespace SenseNet.Search.IntegrationTests
                     string.Join(", ",
                         unprocessedActivitiesFromGaps.Select(x => x.IsUnprocessedActivity.ToString()).ToArray()));
                 // ---- simulating runtime maintenance
-                var loadedActivitiesFromGaps = await DP.LoadIndexingActivitiesAsync(gaps, false, factory);
+                var loadedActivitiesFromGaps = await DP.LoadIndexingActivitiesAsync(gaps, false, factory, CancellationToken.None);
                 Assert.AreEqual(
                     $"{lastActivityIdBefore + 1}, {lastActivityIdBefore + 2}",
                     string.Join(", ", loadedActivitiesFromGaps.Select(x => x.Id.ToString()).ToArray()));
@@ -134,15 +135,15 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
-                var lastActivityIdBefore = await DP.GetLastIndexingActivityIdAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
+                var lastActivityIdBefore = await DP.GetLastIndexingActivityIdAsync(CancellationToken.None);
                 await DP.RegisterIndexingActivityAsync(
                     CreateActivity(
-                        IndexingActivityType.AddDocument, "/Root/Indexing_Centralized_UpdateStateToDone", 42, 42, 99999999, null));
-                var lastActivityIdAfter = await DP.GetLastIndexingActivityIdAsync();
+                        IndexingActivityType.AddDocument, "/Root/Indexing_Centralized_UpdateStateToDone", 42, 42, 99999999, null), CancellationToken.None);
+                var lastActivityIdAfter = await DP.GetLastIndexingActivityIdAsync(CancellationToken.None);
 
                 var factory = new IndexingActivityFactory();
-                var loadedActivities = await DP.LoadIndexingActivitiesAsync(lastActivityIdBefore + 1, lastActivityIdAfter, 1000, false, factory);
+                var loadedActivities = await DP.LoadIndexingActivitiesAsync(lastActivityIdBefore + 1, lastActivityIdAfter, 1000, false, factory, CancellationToken.None);
                 if (loadedActivities.Length != 1)
                     Assert.Inconclusive("Successful test needs one IndexingActivity.");
                 var loadedActivity = loadedActivities[0];
@@ -152,13 +153,13 @@ namespace SenseNet.Search.IntegrationTests
                     Assert.Inconclusive("Successful test needs the requirement: ActivityState is IndexingActivityState.Waiting.");
 
                 // action
-                await DP.UpdateIndexingActivityRunningStateAsync(loadedActivity.Id, IndexingActivityRunningState.Done);
+                await DP.UpdateIndexingActivityRunningStateAsync(loadedActivity.Id, IndexingActivityRunningState.Done, CancellationToken.None);
 
                 // check
-                var lastActivityIdAfterUpdate = await DP.GetLastIndexingActivityIdAsync();
+                var lastActivityIdAfterUpdate = await DP.GetLastIndexingActivityIdAsync(CancellationToken.None);
                 Assert.AreEqual(lastActivityIdAfter, lastActivityIdAfterUpdate);
 
-                loadedActivity = (await DP.LoadIndexingActivitiesAsync(lastActivityIdBefore + 1, lastActivityIdAfter, 1000, false, factory)).First();
+                loadedActivity = (await DP.LoadIndexingActivitiesAsync(lastActivityIdBefore + 1, lastActivityIdAfter, 1000, false, factory, CancellationToken.None)).First();
                 Assert.AreEqual(IndexingActivityRunningState.Done, loadedActivity.RunningState);
             });
         }
@@ -167,7 +168,7 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var start = new[]
                 {
                     await RegisterActivityAsync(IndexingActivityType.AddDocument, IndexingActivityRunningState.Done, 1, 1, "/Root/Path1"),
@@ -175,7 +176,7 @@ namespace SenseNet.Search.IntegrationTests
                     await RegisterActivityAsync(IndexingActivityType.AddDocument, IndexingActivityRunningState.Waiting, 3, 3, "/Root/Path3"),
                 };
 
-                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0]);
+                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0], CancellationToken.None);
 
                 var activities = loaded.Activities;
                 Assert.AreEqual(1, activities.Length);
@@ -186,7 +187,7 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var start = new[]
                 {
                     await RegisterActivityAsync(IndexingActivityType.AddDocument,    IndexingActivityRunningState.Waiting, 1, 1, "/Root/Path1"),
@@ -194,7 +195,7 @@ namespace SenseNet.Search.IntegrationTests
                     await RegisterActivityAsync(IndexingActivityType.UpdateDocument, IndexingActivityRunningState.Waiting, 1, 1, "/Root/Path1"),
                 };
 
-                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0]);
+                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0], CancellationToken.None);
 
                 var activities = loaded.Activities;
                 Assert.AreEqual(1, activities.Length);
@@ -205,7 +206,7 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var start = new[]
                 {
                     await RegisterActivityAsync(IndexingActivityType.Rebuild, IndexingActivityRunningState.Waiting, 1, 0, "/Root/Path1"),
@@ -213,7 +214,7 @@ namespace SenseNet.Search.IntegrationTests
                     await RegisterActivityAsync(IndexingActivityType.Rebuild, IndexingActivityRunningState.Waiting, 3, 0, "/Root/Path3"),
                 };
 
-                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0]);
+                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0], CancellationToken.None);
 
                 var activities = loaded.Activities;
                 Assert.AreEqual(3, activities.Length);
@@ -226,7 +227,7 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var start = new[]
                 {
                     await RegisterActivityAsync(IndexingActivityType.AddDocument,    IndexingActivityRunningState.Done,    1, 1, "/Root/Path1"),
@@ -236,7 +237,7 @@ namespace SenseNet.Search.IntegrationTests
                     await RegisterActivityAsync(IndexingActivityType.UpdateDocument, IndexingActivityRunningState.Waiting, 2, 2, "/Root/Path2"),
                 };
 
-                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0]);
+                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0], CancellationToken.None);
 
                 var activities = loaded.Activities;
                 Assert.AreEqual(1, activities.Length);
@@ -247,7 +248,7 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var start = new[]
                 {
                     await RegisterActivityAsync(IndexingActivityType.AddDocument,    IndexingActivityRunningState.Done,    1, 1, "/Root/Path1"), //   0
@@ -261,7 +262,7 @@ namespace SenseNet.Search.IntegrationTests
                     await RegisterActivityAsync(IndexingActivityType.UpdateDocument, IndexingActivityRunningState.Waiting, 4, 4, "/Root/Path4"), //   8
                 };
 
-                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0]);
+                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0], CancellationToken.None);
 
                 var activities = loaded.Activities;
                 Assert.AreEqual(3, activities.Length);
@@ -274,7 +275,7 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var start = new[]
                 {
                     await RegisterActivityAsync(IndexingActivityType.AddTree,        IndexingActivityRunningState.Waiting, 1, 1, "/Root/Path1"),     // 0
@@ -287,7 +288,7 @@ namespace SenseNet.Search.IntegrationTests
                     await RegisterActivityAsync(IndexingActivityType.AddDocument,    IndexingActivityRunningState.Waiting, 7, 7, "/Root/Path4"),     // 7
                 };
 
-                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0]);
+                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0], CancellationToken.None);
 
                 var activities = loaded.Activities;
                 Assert.AreEqual(4, activities.Length);
@@ -301,7 +302,7 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var start = new[]
                 {
                     await RegisterActivityAsync(IndexingActivityType.AddDocument, IndexingActivityRunningState.Done, DateTime.UtcNow.AddSeconds(-75), 1, 1, "/Root/Path1"),        //   0
@@ -320,7 +321,7 @@ namespace SenseNet.Search.IntegrationTests
                     await RegisterActivityAsync(IndexingActivityType.AddDocument, IndexingActivityRunningState.Waiting, DateTime.UtcNow,                 13, 13, "/Root/Path13"),   // 11
                 };
 
-                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0]);
+                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0], CancellationToken.None);
 
                 var activities = loaded.Activities;
                 Assert.AreEqual(6, activities.Length);
@@ -336,14 +337,14 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var start = new IIndexingActivity[15];
                 for (int i = 1; i <= start.Length; i++)
                 {
                     start[i - 1] = await RegisterActivityAsync(IndexingActivityType.AddDocument, IndexingActivityRunningState.Waiting, i, i, $"/Root/Path0{i}");
                 }
 
-                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0]);
+                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0], CancellationToken.None);
 
                 var activities = loaded.Activities;
                 Assert.AreEqual(10, activities.Length);
@@ -355,7 +356,7 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var start = new[]
                 {
                     await RegisterActivityAsync(IndexingActivityType.AddDocument,    IndexingActivityRunningState.Waiting, 1, 1, "/Root/Path1"),
@@ -364,7 +365,7 @@ namespace SenseNet.Search.IntegrationTests
                     await RegisterActivityAsync(IndexingActivityType.UpdateDocument, IndexingActivityRunningState.Waiting, 2, 2, "/Root/Path2"),
                 };
 
-                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0]);
+                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, new int[0], CancellationToken.None);
 
                 var activities = loaded.Activities;
                 Assert.AreEqual(2, activities.Length);
@@ -379,7 +380,7 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var start = new[]
                 {
                     await RegisterActivityAsync(IndexingActivityType.AddDocument,    IndexingActivityRunningState.Done, 1, 1, "/Root/Path1"),
@@ -392,7 +393,7 @@ namespace SenseNet.Search.IntegrationTests
 
                 var waitingIds = new[] { start[0].Id, start[2].Id };
 
-                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, waitingIds);
+                var loaded = await DP.LoadExecutableIndexingActivitiesAsync(new IndexingActivityFactory(), 10, 60, waitingIds, CancellationToken.None);
 
                 var finishetIds = loaded.FinishedActivitiyIds;
                 Assert.AreEqual(1, finishetIds.Length);
@@ -410,7 +411,7 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var now = DateTime.UtcNow;
                 var time1 = now.AddSeconds(-60 * 6);
                 var time2 = now.AddSeconds(-60 * 5);
@@ -426,9 +427,9 @@ namespace SenseNet.Search.IntegrationTests
                 var startIds = start.Select(x => x.Id).ToArray();
 
                 var waitingIds = new[] { start[1].Id, start[2].Id };
-                await DP.RefreshIndexingActivityLockTimeAsync(waitingIds);
+                await DP.RefreshIndexingActivityLockTimeAsync(waitingIds, CancellationToken.None);
 
-                var activities = await DP.LoadIndexingActivitiesAsync(startIds, false, IndexingActivityFactory.Instance);
+                var activities = await DP.LoadIndexingActivitiesAsync(startIds, false, IndexingActivityFactory.Instance, CancellationToken.None);
 
                 Assert.AreEqual(4, activities.Length);
                 Assert.IsTrue(time1 == activities[0].LockTime);
@@ -441,7 +442,7 @@ namespace SenseNet.Search.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await DP.DeleteAllIndexingActivitiesAsync();
+                await DP.DeleteAllIndexingActivitiesAsync(CancellationToken.None);
                 var start = new[]
                 {
                     await RegisterActivityAsync(IndexingActivityType.AddDocument,    IndexingActivityRunningState.Done,    1, 1, "/Root/Path1"),
@@ -452,9 +453,9 @@ namespace SenseNet.Search.IntegrationTests
                     await RegisterActivityAsync(IndexingActivityType.AddDocument,    IndexingActivityRunningState.Waiting, 5, 5, "/Root/Path5"),
                 };
 
-                await DP.DeleteFinishedIndexingActivitiesAsync();
+                await DP.DeleteFinishedIndexingActivitiesAsync(CancellationToken.None);
 
-                var loaded = await DP.LoadIndexingActivitiesAsync(0, int.MaxValue, 9999, false, IndexingActivityFactory.Instance);
+                var loaded = await DP.LoadIndexingActivitiesAsync(0, int.MaxValue, 9999, false, IndexingActivityFactory.Instance, CancellationToken.None);
 
                 Assert.AreEqual(3, loaded.Length);
                 Assert.AreEqual(start[2].Id, loaded[0].Id);
@@ -474,7 +475,7 @@ namespace SenseNet.Search.IntegrationTests
                 activity = CreateActivity(type, path, nodeId, versionId, 9999, null);
             activity.RunningState = state;
 
-            await DP.RegisterIndexingActivityAsync(activity);
+            await DP.RegisterIndexingActivityAsync(activity, CancellationToken.None);
 
             return activity;
         }
@@ -489,7 +490,7 @@ namespace SenseNet.Search.IntegrationTests
             activity.RunningState = state;
             activity.LockTime = lockTime;
 
-            await DP.RegisterIndexingActivityAsync(activity);
+            await DP.RegisterIndexingActivityAsync(activity, CancellationToken.None);
 
             return activity;
         }
