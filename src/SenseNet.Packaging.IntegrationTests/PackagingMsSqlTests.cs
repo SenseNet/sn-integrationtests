@@ -897,7 +897,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.IsNull(package?.Manifest);
 
             // load manifest explicitly
-            await PackageManager.Storage.LoadManifestAsync(package);
+            await PackageManager.Storage.LoadManifestAsync(package, CancellationToken.None);
             var actual = package?.Manifest;
             Assert.AreEqual(expected, actual);
         }
@@ -923,7 +923,7 @@ namespace SenseNet.Packaging.IntegrationTests
             var packs = RepositoryVersionInfo.Instance.InstalledPackages
                 .Where(p => p.ExecutionResult != ExecutionResult.Successful);
             foreach (var package in packs)
-                await PackageManager.Storage.DeletePackageAsync(package);
+                await PackageManager.Storage.DeletePackageAsync(package, CancellationToken.None);
 
             RepositoryVersionInfo.Reset();
 
@@ -943,7 +943,7 @@ namespace SenseNet.Packaging.IntegrationTests
             await SavePackage("C1", "1.2", "10:00", "2016-01-09", PackageType.Patch, ExecutionResult.Successful);
 
             // action
-            await PackageManager.Storage.DeleteAllPackagesAsync();
+            await PackageManager.Storage.DeleteAllPackagesAsync(CancellationToken.None);
 
             // check
             Assert.IsFalse(RepositoryVersionInfo.Instance.InstalledPackages.Any());
@@ -999,7 +999,7 @@ CREATE TABLE [dbo].[Packages](
                 PackageType = packageType,
                 Manifest = $"<Package type='{packageType}'/>"
             };
-            return PackageManager.Storage.SavePackageAsync(package);
+            return PackageManager.Storage.SavePackageAsync(package, CancellationToken.None);
         }
 
         internal static Manifest ParseManifestHead(string manifestXml)
