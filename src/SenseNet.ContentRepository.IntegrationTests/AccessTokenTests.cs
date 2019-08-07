@@ -21,7 +21,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var timeout = TimeSpan.FromMinutes(10);
 
@@ -43,7 +43,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var timeout = TimeSpan.FromMinutes(10);
 
@@ -59,7 +59,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var timeout = TimeSpan.FromMinutes(10);
 
@@ -77,7 +77,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var contentId = 142;
                 var timeout = TimeSpan.FromMinutes(10);
@@ -100,7 +100,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var feature = "Feature1";
                 var timeout = TimeSpan.FromMinutes(10);
@@ -123,7 +123,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var contentId = 142;
                 var feature = "Feature1";
@@ -148,7 +148,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var timeout = TimeSpan.FromMinutes(10);
                 var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
@@ -165,7 +165,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var contentId = 142;
                 var timeout = TimeSpan.FromMinutes(10);
@@ -184,7 +184,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var feature = "Feature1";
                 var timeout = TimeSpan.FromMinutes(10);
@@ -203,7 +203,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var contentId = 142;
                 var feature = "Feature1";
@@ -225,7 +225,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var timeout = TimeSpan.FromMilliseconds(1);
                 var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
@@ -244,7 +244,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var contentId = 142;
                 var feature = "Feature1";
@@ -263,7 +263,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 };
 
                 // ACTION-1
-                var tokens = await AccessTokenVault.GetAllTokensAsync(userId);
+                var tokens = await AccessTokenVault.GetAllTokensAsync(userId, CancellationToken.None);
 
                 // ASSERT-1
                 Assert.AreEqual(
@@ -272,7 +272,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
                 // ACTION-2
                 Thread.Sleep(1100);
-                tokens = await AccessTokenVault.GetAllTokensAsync(userId);
+                tokens = await AccessTokenVault.GetAllTokensAsync(userId, CancellationToken.None);
 
                 // ASSERT-2
                 // The last 4 tokens are expired
@@ -287,7 +287,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var timeout = TimeSpan.FromMinutes(10);
                 var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
@@ -304,7 +304,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
 
                 // ACTION
                 var isExists = await AccessTokenVault.TokenExistsAsync("asdf");
@@ -318,7 +318,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var timeout = TimeSpan.FromMilliseconds(1);
                 var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
@@ -337,7 +337,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var timeout = TimeSpan.FromMinutes(10);
                 var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
@@ -354,7 +354,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 await AccessTokenVault.AssertTokenExistsAsync("asdf");
             });
         }
@@ -364,7 +364,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var timeout = TimeSpan.FromMilliseconds(1);
                 var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
@@ -380,14 +380,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var timeout = TimeSpan.FromMinutes(10.0d);
                 var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
                 Assert.IsTrue(savedToken.ExpirationDate < DateTime.UtcNow.AddMinutes(20.0d));
 
                 // ACTION
-                await AccessTokenVault.UpdateTokenAsync(savedToken.Value, DateTime.UtcNow.AddMinutes(30.0d));
+                await AccessTokenVault.UpdateTokenAsync(savedToken.Value, DateTime.UtcNow.AddMinutes(30.0d), CancellationToken.None);
 
                 // ASSERT
                 var loadedToken = await AccessTokenVault.GetTokenAsync(savedToken.Value);
@@ -401,8 +401,8 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
-                await AccessTokenVault.UpdateTokenAsync("asdf", DateTime.UtcNow.AddMinutes(30.0d));
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
+                await AccessTokenVault.UpdateTokenAsync("asdf", DateTime.UtcNow.AddMinutes(30.0d), CancellationToken.None);
             });
         }
         [TestMethod]
@@ -411,14 +411,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId = 42;
                 var timeout = TimeSpan.FromMilliseconds(1);
                 var savedToken = await AccessTokenVault.CreateTokenAsync(userId, timeout);
 
                 // ACTION
                 Thread.Sleep(1100);
-                await AccessTokenVault.UpdateTokenAsync(savedToken.Value, DateTime.UtcNow.AddMinutes(30.0d));
+                await AccessTokenVault.UpdateTokenAsync(savedToken.Value, DateTime.UtcNow.AddMinutes(30.0d), CancellationToken.None);
             });
         }
 
@@ -427,7 +427,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId1 = 42;
                 var userId2 = 43;
                 var timeout = TimeSpan.FromMinutes(10);
@@ -442,14 +442,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
                 // ACTION
                 Thread.Sleep(1100);
-                await AccessTokenVault.DeleteTokenAsync(savedTokens[0].Value);
-                await AccessTokenVault.DeleteTokenAsync(savedTokens[3].Value);
+                await AccessTokenVault.DeleteTokenAsync(savedTokens[0].Value, CancellationToken.None);
+                await AccessTokenVault.DeleteTokenAsync(savedTokens[3].Value, CancellationToken.None);
 
                 // ASSERT
-                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[0].Id));
-                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[1].Id));
-                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[2].Id));
-                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[3].Id));
+                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[0].Id, CancellationToken.None));
+                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[1].Id, CancellationToken.None));
+                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[2].Id, CancellationToken.None));
+                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[3].Id, CancellationToken.None));
             });
         }
         [TestMethod]
@@ -457,7 +457,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId1 = 42;
                 var userId2 = 43;
                 var timeout = TimeSpan.FromMinutes(10);
@@ -472,13 +472,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
                 // ACTION
                 Thread.Sleep(1100);
-                await AccessTokenVault.DeleteTokensByUserAsync(userId1);
+                await AccessTokenVault.DeleteTokensByUserAsync(userId1, CancellationToken.None);
 
                 // ASSERT
-                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[0].Id));
-                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[1].Id));
-                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[2].Id));
-                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[3].Id));
+                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[0].Id, CancellationToken.None));
+                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[1].Id, CancellationToken.None));
+                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[2].Id, CancellationToken.None));
+                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[3].Id, CancellationToken.None));
             });
         }
         [TestMethod]
@@ -486,7 +486,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                await AccessTokenVault.DeleteAllAccessTokensAsync();
+                await AccessTokenVault.DeleteAllAccessTokensAsync(CancellationToken.None);
                 var userId1 = 42;
                 var userId2 = 43;
                 var contentId1 = 142;
@@ -503,13 +503,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
                 // ACTION
                 Thread.Sleep(1100);
-                await AccessTokenVault.DeleteTokensByContentAsync(contentId1);
+                await AccessTokenVault.DeleteTokensByContentAsync(contentId1, CancellationToken.None);
 
                 // ASSERT
-                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[0].Id));
-                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[1].Id));
-                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[2].Id));
-                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[3].Id));
+                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[0].Id, CancellationToken.None));
+                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[1].Id, CancellationToken.None));
+                Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[2].Id, CancellationToken.None));
+                Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[3].Id, CancellationToken.None));
             });
         }
 
