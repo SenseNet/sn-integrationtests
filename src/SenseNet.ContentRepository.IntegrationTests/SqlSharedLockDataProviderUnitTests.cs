@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository.Storage;
@@ -24,14 +25,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var expectedLockValue = Guid.NewGuid().ToString();
 
                 // ACTION
-                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue, CancellationToken.None);
 
                 // ASSERT
-                var actualLockValue = await Provider.GetSharedLockAsync(nodeId);
+                var actualLockValue = await Provider.GetSharedLockAsync(nodeId, CancellationToken.None);
                 Assert.AreEqual(expectedLockValue, actualLockValue);
             });
         }
@@ -42,9 +43,9 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var expectedLockValue = Guid.NewGuid().ToString();
-                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue, CancellationToken.None);
 
                 // ACTION
                 var timeout = Provider.SharedLockTimeout;
@@ -61,13 +62,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var expectedLockValue = Guid.NewGuid().ToString();
-                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue, CancellationToken.None);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
 
                 // ACTION
-                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue, CancellationToken.None);
 
                 // ASSERT
                 // Equivalent to the refresh lock
@@ -85,14 +86,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
-                await Provider.CreateSharedLockAsync(nodeId, oldLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue, CancellationToken.None);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
 
                 // ACTION
-                await Provider.CreateSharedLockAsync(nodeId, newLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, newLockValue, CancellationToken.None);
             });
         }
         [TestMethod]
@@ -102,16 +103,16 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
-                await Provider.CreateSharedLockAsync(nodeId, oldLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue, CancellationToken.None);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
 
                 // ACTION
-                await Provider.CreateSharedLockAsync(nodeId, newLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, newLockValue, CancellationToken.None);
 
-                var actualLockValue = await Provider.GetSharedLockAsync(nodeId);
+                var actualLockValue = await Provider.GetSharedLockAsync(nodeId, CancellationToken.None);
                 Assert.AreEqual(newLockValue, actualLockValue);
             });
         }
@@ -124,16 +125,16 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
-                await Provider.CreateSharedLockAsync(nodeId, oldLockValue);
-                Assert.AreEqual(oldLockValue, await Provider.GetSharedLockAsync(nodeId));
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue, CancellationToken.None);
+                Assert.AreEqual(oldLockValue, await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
 
                 // ACTION
-                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue);
+                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue, CancellationToken.None);
 
-                Assert.AreEqual(newLockValue, await Provider.GetSharedLockAsync(nodeId));
+                Assert.AreEqual(newLockValue, await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
             });
         }
         [TestMethod]
@@ -144,14 +145,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
-                await Provider.CreateSharedLockAsync(nodeId, oldLockValue);
-                Assert.AreEqual(oldLockValue, await Provider.GetSharedLockAsync(nodeId));
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue, CancellationToken.None);
+                Assert.AreEqual(oldLockValue, await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
 
                 // ACTION
-                var actualLock = await Provider.ModifySharedLockAsync(nodeId, "DifferentLock", newLockValue);
+                var actualLock = await Provider.ModifySharedLockAsync(nodeId, "DifferentLock", newLockValue, CancellationToken.None);
 
                 Assert.AreEqual(oldLockValue, actualLock);
             });
@@ -164,12 +165,12 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
 
                 // ACTION
-                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue);
+                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue, CancellationToken.None);
             });
         }
         [TestMethod]
@@ -180,14 +181,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
                 var newLockValue = Guid.NewGuid().ToString();
-                await Provider.CreateSharedLockAsync(nodeId, oldLockValue);
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue, CancellationToken.None);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
 
                 // ACTION
-                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue);
+                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue, CancellationToken.None);
             });
         }
 
@@ -199,13 +200,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var lockValue = "LCK_" + Guid.NewGuid();
-                await Provider.CreateSharedLockAsync(nodeId, lockValue);
+                await Provider.CreateSharedLockAsync(nodeId, lockValue, CancellationToken.None);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
 
                 // ACTION
-                await Provider.RefreshSharedLockAsync(nodeId, lockValue);
+                await Provider.RefreshSharedLockAsync(nodeId, lockValue, CancellationToken.None);
 
                 Assert.IsTrue((DateTime.UtcNow - GetSharedLockCreationDate(nodeId)).TotalSeconds < 1);
             });
@@ -218,12 +219,12 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var lockValue = "LCK_" + Guid.NewGuid();
-                await Provider.CreateSharedLockAsync(nodeId, lockValue);
+                await Provider.CreateSharedLockAsync(nodeId, lockValue, CancellationToken.None);
 
                 // ACTION
-                var actualLock = await Provider.RefreshSharedLockAsync(nodeId, "DifferentLock");
+                var actualLock = await Provider.RefreshSharedLockAsync(nodeId, "DifferentLock", CancellationToken.None);
 
                 Assert.AreEqual(lockValue, actualLock);
             });
@@ -236,11 +237,11 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var lockValue = "LCK_" + Guid.NewGuid();
 
                 // ACTION
-                await Provider.RefreshSharedLockAsync(nodeId, lockValue);
+                await Provider.RefreshSharedLockAsync(nodeId, lockValue, CancellationToken.None);
             });
         }
         [TestMethod]
@@ -251,13 +252,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var lockValue = Guid.NewGuid().ToString();
-                await Provider.CreateSharedLockAsync(nodeId, lockValue);
+                await Provider.CreateSharedLockAsync(nodeId, lockValue, CancellationToken.None);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
 
                 // ACTION
-                await Provider.RefreshSharedLockAsync(nodeId, lockValue);
+                await Provider.RefreshSharedLockAsync(nodeId, lockValue, CancellationToken.None);
             });
         }
 
@@ -269,14 +270,14 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var existingLock = "LCK_" + Guid.NewGuid();
-                await Provider.CreateSharedLockAsync(nodeId, existingLock);
+                await Provider.CreateSharedLockAsync(nodeId, existingLock, CancellationToken.None);
 
                 // ACTION
-                await Provider.DeleteSharedLockAsync(nodeId, existingLock);
+                await Provider.DeleteSharedLockAsync(nodeId, existingLock, CancellationToken.None);
 
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
             });
         }
         [TestMethod]
@@ -287,12 +288,12 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var existingLock = "LCK_" + Guid.NewGuid();
-                await Provider.CreateSharedLockAsync(nodeId, existingLock);
+                await Provider.CreateSharedLockAsync(nodeId, existingLock, CancellationToken.None);
 
                 // ACTION
-                var actualLock = await Provider.DeleteSharedLockAsync(nodeId, "DifferentLock");
+                var actualLock = await Provider.DeleteSharedLockAsync(nodeId, "DifferentLock", CancellationToken.None);
 
                 Assert.AreEqual(existingLock, actualLock);
             });
@@ -305,11 +306,11 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var existingLock = "LCK_" + Guid.NewGuid();
 
                 // ACTION
-                await Provider.DeleteSharedLockAsync(nodeId, existingLock);
+                await Provider.DeleteSharedLockAsync(nodeId, existingLock, CancellationToken.None);
             });
         }
         [TestMethod]
@@ -320,13 +321,13 @@ namespace SenseNet.ContentRepository.IntegrationTests
             {
                 SharedLock.RemoveAllLocks();
                 const int nodeId = 42;
-                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId));
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var existingLock = Guid.NewGuid().ToString();
-                await Provider.CreateSharedLockAsync(nodeId, existingLock);
+                await Provider.CreateSharedLockAsync(nodeId, existingLock, CancellationToken.None);
                 SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
 
                 // ACTION
-                await Provider.DeleteSharedLockAsync(nodeId, existingLock);
+                await Provider.DeleteSharedLockAsync(nodeId, existingLock, CancellationToken.None);
             });
         }
 
