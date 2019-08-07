@@ -259,7 +259,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
             using (var op = SnTrace.Test.StartOperation("Install initial data."))
             {
-                DataStore.InstallInitialDataAsync(GetInitialData()).Wait();
+                DataStore.InstallInitialDataAsync(GetInitialData(), CancellationToken.None).Wait();
                 op.Successful = true;
             }
             var inMemoryIndex = GetInitialIndex();
@@ -298,7 +298,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
         protected void SaveInitialIndexDocuments()
         {
-            var idSet = DataStore.LoadNotIndexedNodeIdsAsync(0, 11000).Result;
+            var idSet = DataStore.LoadNotIndexedNodeIdsAsync(0, 11000, CancellationToken.None).Result;
             var nodes = Node.LoadNodes(idSet);
 
             if (nodes.Count == 0)
@@ -307,7 +307,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             foreach (var node in nodes)
             {
                 // ReSharper disable once UnusedVariable
-                DataStore.SaveIndexDocumentAsync(node, false, false).Wait();
+                DataStore.SaveIndexDocumentAsync(node, false, false, CancellationToken.None).Wait();
             }
         }
         protected void RebuildIndex()

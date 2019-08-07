@@ -168,7 +168,7 @@ namespace SenseNet.IntegrationTests.Common
 
             using (var op = SnTrace.Test.StartOperation("Install initial data."))
             {
-                DataStore.InstallInitialDataAsync(GetInitialData()).Wait();
+                DataStore.InstallInitialDataAsync(GetInitialData(), CancellationToken.None).Wait();
                 op.Successful = true;
             }
             var inMemoryIndex = GetInitialIndex();
