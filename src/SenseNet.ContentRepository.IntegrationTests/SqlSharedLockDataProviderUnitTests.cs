@@ -49,7 +49,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
                 // ACTION
                 var timeout = Provider.SharedLockTimeout;
-                Provider.SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-timeout.TotalMinutes - 1));
+                TDP.SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-timeout.TotalMinutes - 1));
 
                 // ASSERT
                 Assert.IsNull(SharedLock.GetLock(nodeId, CancellationToken.None));
@@ -335,17 +335,11 @@ namespace SenseNet.ContentRepository.IntegrationTests
 
         private void SetSharedLockCreationDate(int nodeId, DateTime value)
         {
-            if (!(Provider is MsSqlSharedLockDataProvider dataProvider))
-                throw new InvalidOperationException("InMemorySharedLockDataProvider not configured.");
-
-            dataProvider.SetSharedLockCreationDate(nodeId, value);
+            TDP.SetSharedLockCreationDate(nodeId, value);
         }
         private DateTime GetSharedLockCreationDate(int nodeId)
         {
-            if (!(Provider is MsSqlSharedLockDataProvider dataProvider))
-                throw new InvalidOperationException("InMemorySharedLockDataProvider not configured.");
-
-            return dataProvider.GetSharedLockCreationDate(nodeId);
+            return TDP.GetSharedLockCreationDate(nodeId);
         }
 
     }
