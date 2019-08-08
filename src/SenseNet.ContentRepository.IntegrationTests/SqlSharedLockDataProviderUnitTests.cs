@@ -52,7 +52,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Provider.SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-timeout.TotalMinutes - 1));
 
                 // ASSERT
-                Assert.IsNull(SharedLock.GetLock(nodeId));
+                Assert.IsNull(SharedLock.GetLock(nodeId, CancellationToken.None));
             });
         }
         [TestMethod]
