@@ -23,7 +23,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var expectedLockValue = Guid.NewGuid().ToString();
@@ -41,7 +41,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var expectedLockValue = Guid.NewGuid().ToString();
@@ -60,7 +60,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var expectedLockValue = Guid.NewGuid().ToString();
@@ -84,7 +84,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
@@ -101,7 +101,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
@@ -123,7 +123,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
@@ -143,7 +143,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
@@ -163,7 +163,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
@@ -179,7 +179,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var oldLockValue = Guid.NewGuid().ToString();
@@ -198,7 +198,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var lockValue = "LCK_" + Guid.NewGuid();
@@ -217,7 +217,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var lockValue = "LCK_" + Guid.NewGuid();
@@ -235,7 +235,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var lockValue = "LCK_" + Guid.NewGuid();
@@ -250,7 +250,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var lockValue = Guid.NewGuid().ToString();
@@ -268,7 +268,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var existingLock = "LCK_" + Guid.NewGuid();
@@ -286,7 +286,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var existingLock = "LCK_" + Guid.NewGuid();
@@ -304,7 +304,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var existingLock = "LCK_" + Guid.NewGuid();
@@ -319,7 +319,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         {
             await NoRepositoryIntegrtionTest(async () =>
             {
-                SharedLock.RemoveAllLocks();
+                SharedLock.RemoveAllLocks(CancellationToken.None);
                 const int nodeId = 42;
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
                 var existingLock = Guid.NewGuid().ToString();
