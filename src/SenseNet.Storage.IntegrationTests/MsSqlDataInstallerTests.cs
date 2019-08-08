@@ -253,13 +253,13 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(counts["BinaryProperties"], counts["Files"]);
 
                 var sql = "SELECT COUNT(0) FROM Nodes WHERE CreatedById = 0 or ModifiedById = 0 or OwnerId = 0";
-                using (var ctx = new MsSqlDataContext())
+                using (var ctx = new MsSqlDataContext(CancellationToken.None))
                 {
                     var count = (int)await ctx.ExecuteScalarAsync(sql);
                     Assert.AreEqual(0, count);
                 }
                 sql = "SELECT COUNT(0) FROM Versions WHERE CreatedById = 0 or ModifiedById = 0";
-                using (var ctx = new MsSqlDataContext())
+                using (var ctx = new MsSqlDataContext(CancellationToken.None))
                 {
                     var count = (int)await ctx.ExecuteScalarAsync(sql);
                     Assert.AreEqual(0, count);
@@ -277,7 +277,7 @@ WHERE t.is_ms_shipped = 0 -- Means: user defines
 GROUP BY t.NAME, p.Rows
 ORDER BY t.Name";
 
-            using (var ctx = new MsSqlDataContext())
+            using (var ctx = new MsSqlDataContext(CancellationToken.None))
             {
                 return await ctx.ExecuteReaderAsync(sql, async (reader, cancel) =>
                 {

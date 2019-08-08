@@ -2511,6 +2511,10 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         }
         private class TestDataContext : MsSqlDataContext
         {
+            public TestDataContext(CancellationToken cancellationToken) : base(cancellationToken)
+            {
+                    
+            }
             public override TransactionWrapper WrapTransaction(DbTransaction underlyingTransaction,
                 CancellationToken cancellationToken, TimeSpan timeout = default(TimeSpan))
             {
@@ -2521,7 +2525,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         {
             public override SnDataContext CreateDataContext(CancellationToken token)
             {
-                return new TestDataContext();
+                return new TestDataContext(token);
             }
         }
 
