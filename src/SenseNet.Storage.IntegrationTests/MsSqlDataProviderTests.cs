@@ -463,7 +463,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 // ACTION: Node.Move(source.Path, target.Path);
                 var srcNodeHeadData = source.Data.GetNodeHeadData();
-                await DP.MoveNodeAsync(srcNodeHeadData, target.Id, target.NodeTimestamp, CancellationToken.None);
+                await DP.MoveNodeAsync(srcNodeHeadData, target.Id, CancellationToken.None);
 
                 // ASSERT
                 //Assert.AreNotEqual(sourceTimestampBefore, source.NodeTimestamp); //UNDONE:DB: Do need refresh the NodeTimestamp or not?
@@ -2093,7 +2093,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
                     // ACTION
                     nodeHeadData.NodeId = 999999;
-                    await DP.MoveNodeAsync(nodeHeadData, target.Id, target.NodeTimestamp, CancellationToken.None);
+                    await DP.MoveNodeAsync(nodeHeadData, target.Id, CancellationToken.None);
                     Assert.Fail("ContentNotFoundException was not thrown.");
                 }
                 catch (ContentNotFoundException)
@@ -2117,7 +2117,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                     var nodeHeadData = node.Data.GetNodeHeadData();
 
                     // ACTION
-                    await DP.MoveNodeAsync(nodeHeadData, 999999, target.NodeTimestamp, CancellationToken.None);
+                    await DP.MoveNodeAsync(nodeHeadData, 999999, CancellationToken.None);
                     Assert.Fail("ContentNotFoundException was not thrown.");
                 }
                 catch (ContentNotFoundException)
@@ -2142,7 +2142,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
                     // ACTION
                     nodeHeadData.Timestamp++;
-                    await DP.MoveNodeAsync(nodeHeadData, target.Id, target.NodeTimestamp, CancellationToken.None);
+                    await DP.MoveNodeAsync(nodeHeadData, target.Id, CancellationToken.None);
                     Assert.Fail("NodeIsOutOfDateException was not thrown.");
                 }
                 catch (NodeIsOutOfDateException)
@@ -2380,7 +2380,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                     var nodeData = node.Data;
                     var nodeHeadData = nodeData.GetNodeHeadData();
                     // Call low level API
-                    await HDP.MoveNodeAsync(nodeHeadData, target.Id, target.NodeTimestamp, CancellationToken.None);
+                    await HDP.MoveNodeAsync(nodeHeadData, target.Id, CancellationToken.None);
                 }
                 catch (Exception)
                 {
