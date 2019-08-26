@@ -978,7 +978,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 var expected = CreateSafeContentQuery("+InFolder:/Root").Execute().Identifiers;
 
                 // ACTION
-                var result = await DP.GetChildrenIdentfiersAsync(Repository.Root.Id, CancellationToken.None);
+                var result = await DP.GetChildrenIdentifiersAsync(Repository.Root.Id, CancellationToken.None);
 
                 // ASSERT
                 AssertSequenceEqual(expected.OrderBy(x => x), result.OrderBy(x => x));
