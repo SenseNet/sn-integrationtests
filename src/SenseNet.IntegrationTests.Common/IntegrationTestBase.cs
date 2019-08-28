@@ -318,9 +318,8 @@ namespace SenseNet.IntegrationTests.Common
         private static InitialData _initialData;
         protected static InitialData GetInitialData()
         {
-            var dataFile = new InitialTestData();
             if (_initialData == null)
-                _initialData = InitialData.Load(new InitialTestData());
+                _initialData = InitialData.Load(InitialTestData.Instance);
             return _initialData;
         }
 

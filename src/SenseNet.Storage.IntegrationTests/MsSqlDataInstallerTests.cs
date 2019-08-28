@@ -215,7 +215,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDataInstaller_TestData()
         {
-            var data = InitialData.Load(new InitialTestData());
+            var data = InitialData.Load(InitialTestData.Instance);
             await InstallInitialDataTest(data);
         }
         [TestMethod]

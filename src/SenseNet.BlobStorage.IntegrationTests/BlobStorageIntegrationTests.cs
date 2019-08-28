@@ -320,7 +320,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         private static InitialData _initialData;
         protected static InitialData GetInitialData()
         {
-            var dataFile = new InitialTestData();
+            var dataFile = InitialTestData.Instance;
             if (_initialData == null)
             {
                 InitialData initialData;
