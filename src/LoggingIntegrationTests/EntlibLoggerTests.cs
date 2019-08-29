@@ -61,7 +61,8 @@ namespace LoggingIntegrationTests
                 SnLog.WriteAudit(new TestAuditEvent(testMessage));
 
                 // assert
-                var auditEvent = Dp.LoadLastAuditEventsAsync(1, CancellationToken.None).Result.FirstOrDefault();
+                var auditEvent = Dp.LoadLastAuditEventsAsync(1, CancellationToken.None).GetAwaiter().GetResult()
+                    .FirstOrDefault();
                 Assert.IsNotNull(auditEvent);
                 Assert.AreEqual(testMessage, auditEvent.Message);
             }

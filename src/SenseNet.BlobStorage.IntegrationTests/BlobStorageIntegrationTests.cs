@@ -298,7 +298,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
         protected void SaveInitialIndexDocuments()
         {
-            var idSet = DataStore.LoadNotIndexedNodeIdsAsync(0, 11000, CancellationToken.None).Result;
+            var idSet = DataStore.LoadNotIndexedNodeIdsAsync(0, 11000, CancellationToken.None).GetAwaiter().GetResult();
             var nodes = Node.LoadNodes(idSet);
 
             if (nodes.Count == 0)
@@ -355,7 +355,8 @@ namespace SenseNet.BlobStorage.IntegrationTests
         {
             var expectedText = "Lorem ipsum dolo sit amet";
             var dbFile = CreateFileTest(expectedText, expectedText.Length + 10);
-            var ctx = BlobStorageBase.GetBlobStorageContextAsync(dbFile.FileId, CancellationToken.None).Result;
+            var ctx = BlobStorageBase.GetBlobStorageContextAsync(dbFile.FileId, CancellationToken.None)
+                .GetAwaiter().GetResult();
 
             Assert.IsNull(dbFile.FileStream);
             Assert.IsNotNull(dbFile.Stream);
@@ -370,7 +371,8 @@ namespace SenseNet.BlobStorage.IntegrationTests
         {
             var expectedText = "Lorem ipsum dolo sit amet";
             var dbFile = CreateFileTest(expectedText, expectedText.Length - 10);
-            var ctx = BlobStorageBase.GetBlobStorageContextAsync(dbFile.FileId, CancellationToken.None).Result;
+            var ctx = BlobStorageBase.GetBlobStorageContextAsync(dbFile.FileId, CancellationToken.None)
+                .GetAwaiter().GetResult();
 
             Assert.AreEqual(dbFile.FileId, ctx.FileId);
             Assert.AreEqual(dbFile.Size, ctx.Length);
@@ -896,7 +898,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
                 // action
                 var binaryCacheEntity = ContentRepository.Storage.Data.BlobStorage.LoadBinaryCacheEntityAsync(
-                    file.VersionId, propertyTypeId, CancellationToken.None).Result;
+                    file.VersionId, propertyTypeId, CancellationToken.None).GetAwaiter().GetResult();
 
                 // assert
                 Assert.AreEqual(binaryPropertyId, binaryCacheEntity.BinaryPropertyId);
@@ -948,7 +950,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 var fileId = file.Binary.FileId;
                 // memorize blob storage context for further check
                 var ctx = BlobStorageComponents.DataProvider.GetBlobStorageContextAsync(file.Binary.FileId, false,
-                    file.VersionId, propertyTypeId, CancellationToken.None).Result;
+                    file.VersionId, propertyTypeId, CancellationToken.None).GetAwaiter().GetResult();
                 UpdateFileCreationDate(file.Binary.FileId, DateTime.UtcNow.AddDays(-1));
 
                 // Action #1
@@ -971,7 +973,8 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 Assert.IsFalse(IsDeleted(ctx, external));
 
                 // Action #3
-                var _ = ContentRepository.Storage.Data.BlobStorage.CleanupFilesAsync(CancellationToken.None).Result;
+                var _ = ContentRepository.Storage.Data.BlobStorage.CleanupFilesAsync(CancellationToken.None)
+                    .GetAwaiter().GetResult();
 
                 // Assert #3
                 dbFile = LoadDbFile(fileId);
@@ -1073,7 +1076,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                         dbFiles.Add(GetFileFromReader(reader));
                     }
                     return true;
-                }).Result;
+                }).GetAwaiter().GetResult();
             }
 
             return dbFiles.ToArray();
@@ -1088,7 +1091,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                     return await reader.ReadAsync(cancel)
                         ? GetFileFromReader(reader)
                         : null;
-                }).Result;
+                }).GetAwaiter().GetResult();
         }
 
         private DbFile GetFileFromReader(IDataReader reader)
@@ -1170,7 +1173,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             file = Node.Load<File>(file.Id);
             var bin = file.Binary;
             var ctx = BlobStorageComponents.DataProvider.GetBlobStorageContextAsync(bin.FileId, false, file.VersionId,
-                PropertyType.GetByName("Binary").Id, CancellationToken.None).Result;
+                PropertyType.GetByName("Binary").Id, CancellationToken.None).GetAwaiter().GetResult();
             return ctx.Provider.GetType();
         }
 

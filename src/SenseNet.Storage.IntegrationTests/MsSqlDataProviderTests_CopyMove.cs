@@ -771,7 +771,7 @@ namespace SenseNet.Storage.IntegrationTests
                 {
                     if (ContentType.GetByName("Car") == null)
                         InstallCarContentType();
-                    var nextId = TDP.GetLastNodeIdAsync().Result + 1;
+                    var nextId = TDP.GetLastNodeIdAsync().GetAwaiter().GetResult() + 1;
 
                     var testRoot = new SystemFolder(Repository.Root) {Name = "MoveTest-" + nextId};
                     testRoot.Save();

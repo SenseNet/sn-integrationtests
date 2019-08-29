@@ -369,7 +369,7 @@ namespace SenseNet.Storage.IntegrationTests
                 ed.Register();
                 // ASSERT-BEFORE
                 Assert.AreEqual(1, ActiveSchema.NodeTypes[nodeTypeName2].PropertyTypes.Count);
-                var schema = DP.LoadSchemaAsync(CancellationToken.None).Result;
+                var schema = DP.LoadSchemaAsync(CancellationToken.None).GetAwaiter().GetResult();
                 var ntData2 = schema.NodeTypes.First(x => x.Name == nodeTypeName2);
                 Assert.AreEqual(0, ntData2.Properties.Count);
 
@@ -383,7 +383,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 // ASSERT-AFTER
                 Assert.AreEqual(1, ActiveSchema.NodeTypes[nodeTypeName2].PropertyTypes.Count);
-                schema = DP.LoadSchemaAsync(CancellationToken.None).Result;
+                schema = DP.LoadSchemaAsync(CancellationToken.None).GetAwaiter().GetResult();
                 ntData2 = schema.NodeTypes.First(x => x.Name == nodeTypeName2);
                 Assert.AreEqual(1, ntData2.Properties.Count);
 
@@ -411,7 +411,7 @@ namespace SenseNet.Storage.IntegrationTests
                 ed.Register();
 
                 // ASSERT
-                var schema = DP.LoadSchemaAsync(CancellationToken.None).Result;
+                var schema = DP.LoadSchemaAsync(CancellationToken.None).GetAwaiter().GetResult();
                 var ltData = schema.ContentListTypes.First(x => x.Name == lt.Name);
                 AssertSequenceEqual(new[] {pt0.Name, pt1.Name, pt2.Name, pt3.Name}, ltData.Properties);
 
@@ -457,7 +457,7 @@ namespace SenseNet.Storage.IntegrationTests
                 ed.Register();
 
                 // ASSERT
-                var schema = DP.LoadSchemaAsync(CancellationToken.None).Result;
+                var schema = DP.LoadSchemaAsync(CancellationToken.None).GetAwaiter().GetResult();
                 var ltData = schema.NodeTypes.First(x => x.Name == nt.Name);
                 AssertSequenceEqual(new[]{pt1.Name, pt3.Name}, ltData.Properties);
 
@@ -494,7 +494,7 @@ namespace SenseNet.Storage.IntegrationTests
                 ed.Register();
 
                 // ASSERT
-                var schema = DP.LoadSchemaAsync(CancellationToken.None).Result;
+                var schema = DP.LoadSchemaAsync(CancellationToken.None).GetAwaiter().GetResult();
                 var ltData = schema.ContentListTypes.First(x => x.Name == lt.Name);
                 AssertSequenceEqual(new[] { pt1.Name, pt3.Name }, ltData.Properties);
 

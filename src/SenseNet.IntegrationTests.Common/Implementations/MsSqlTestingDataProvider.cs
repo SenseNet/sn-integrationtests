@@ -76,10 +76,10 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
                 return ctx.ExecuteReaderAsync(sql, (reader, cancel) =>
                 {
                     var count = 0;
-                    if (reader.ReadAsync(cancel).Result)
+                    if (reader.ReadAsync(cancel).GetAwaiter().GetResult())
                         count = reader.GetSafeInt32(0);
                     return Task.FromResult(count);
-                }).Result;
+                }).GetAwaiter().GetResult();
             }
         }
 
@@ -387,7 +387,7 @@ INSERT INTO SchemaModification (ModificationDate) VALUES (GETUTCDATE())
                     {
                         ctx.CreateParameter("@ContentId", DbType.Int32, nodeId)
                     });
-                }).Result;
+                }).GetAwaiter().GetResult();
                 return result == DBNull.Value ? DateTime.MinValue : (DateTime)result;
             }
         }
@@ -405,7 +405,7 @@ INSERT INTO SchemaModification (ModificationDate) VALUES (GETUTCDATE())
                         ctx.CreateParameter("@ContentId", DbType.Int32, nodeId),
                         ctx.CreateParameter("@CreationDate", DbType.DateTime2, value)
                     });
-                }).Result;
+                }).GetAwaiter().GetResult();
             }
         }
 

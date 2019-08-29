@@ -162,7 +162,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 var bcEentity =
                     BlobStorageComponents.DataProvider.LoadBinaryCacheEntityAsync(versionId,
                         PropertyType.GetByName("Binary").Id,
-                        CancellationToken.None).Result;
+                        CancellationToken.None).GetAwaiter().GetResult();
 
                 // assert
                 Assert.IsNull(bcEentity.RawData);
