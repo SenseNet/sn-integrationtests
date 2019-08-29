@@ -44,7 +44,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(false, propType.IsContentListProperty);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
         [TestMethod]
         public void MsSqlSchemaWriter_CreateContentListPropertyType()
@@ -72,7 +72,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(true, propType.IsContentListProperty);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
         [TestMethod]
         public void MsSqlSchemaWriter_DeletePropertyType()
@@ -101,7 +101,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.IsNull(ActiveSchema.PropertyTypes[propertyTypeName]);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
 
         /* ============================================================================== NodeType */
@@ -131,7 +131,7 @@ namespace SenseNet.Storage.IntegrationTests
                 }
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
         [TestMethod]
         public void MsSqlSchemaWriter_CreateRootNodeType_WithClassName()
@@ -158,7 +158,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(className, nodeType.ClassName);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
         [TestMethod]
         public void MsSqlSchemaWriter_CreateNodeType_WithParent()
@@ -193,7 +193,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(className2, nodeType2.ClassName);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
         [TestMethod]
         public void MsSqlSchemaWriter_ModifyNodeType()
@@ -223,7 +223,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual("NT1Class_modified", nodeType.ClassName);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
         [TestMethod]
         public void MsSqlSchemaWriter_DeleteNodeType()
@@ -251,7 +251,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.IsNull(ActiveSchema.NodeTypes.GetItemById(nodeTypeId));
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
 
         /* ============================================================================== ContentListType */
@@ -278,7 +278,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(contentListTypeName, listType.Name);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
         [TestMethod]
         public void MsSqlSchemaWriter_DeleteContentListType()
@@ -313,7 +313,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(contentListTypeName3, listType.Name);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
 
         /* ============================================================================== PropertyType assignment */
@@ -348,7 +348,7 @@ namespace SenseNet.Storage.IntegrationTests
                     nt.PropertyTypes.Select(x => x.Name));
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
         [TestMethod]
         public void MsSqlSchemaWriter_AddPropertyTypeToNodeType_Inherited()
@@ -388,7 +388,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(1, ntData2.Properties.Count);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
         [TestMethod]
         public void MsSqlSchemaWriter_AddPropertyTypeToContentListType()
@@ -416,7 +416,7 @@ namespace SenseNet.Storage.IntegrationTests
                 AssertSequenceEqual(new[] {pt0.Name, pt1.Name, pt2.Name, pt3.Name}, ltData.Properties);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
 
         [TestMethod]
@@ -462,7 +462,7 @@ namespace SenseNet.Storage.IntegrationTests
                 AssertSequenceEqual(new[]{pt1.Name, pt3.Name}, ltData.Properties);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
         [TestMethod]
         public void MsSqlSchemaWriter_RemovePropertyTypeFromContentListType()
@@ -499,7 +499,7 @@ namespace SenseNet.Storage.IntegrationTests
                 AssertSequenceEqual(new[] { pt1.Name, pt3.Name }, ltData.Properties);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
         }
 
         [TestMethod]
@@ -531,7 +531,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(2, ActiveSchema.NodeTypes[nt1.Name].PropertyTypes.Count);
 
                 return Task.CompletedTask;
-            }).Wait();
+            }).GetAwaiter().GetResult();
 
         }
 

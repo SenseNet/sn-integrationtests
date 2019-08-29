@@ -52,7 +52,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 ctx.ExecuteNonQueryAsync(sql, cmd =>
                 {
                     cmd.Parameters.Add(ctx.CreateParameter("@CreationDate", DbType.DateTime2, dateTime));
-                }).Wait();
+                }).GetAwaiter().GetResult();
             }
         }
         protected void HackFileRowFileStream(int fileId, byte[] bytes)
@@ -63,7 +63,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 ctx.ExecuteNonQueryAsync(sql, cmd =>
                 {
                     cmd.Parameters.Add(ctx.CreateParameter("@FileStream", DbType.Binary, bytes));
-                }).Wait();
+                }).GetAwaiter().GetResult();
             }
         }
         protected void HackFileRowStream(int fileId, byte[] bytes)
@@ -74,7 +74,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 ctx.ExecuteNonQueryAsync(sql, cmd =>
                 {
                     cmd.Parameters.Add(ctx.CreateParameter("@Stream", DbType.Binary, bytes));
-                }).Wait();
+                }).GetAwaiter().GetResult();
             }
         }
 
@@ -259,7 +259,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
             using (var op = SnTrace.Test.StartOperation("Install initial data."))
             {
-                DataStore.InstallInitialDataAsync(GetInitialData(), CancellationToken.None).Wait();
+                DataStore.InstallInitialDataAsync(GetInitialData(), CancellationToken.None).GetAwaiter().GetResult();
                 op.Successful = true;
             }
             var inMemoryIndex = GetInitialIndex();
@@ -307,7 +307,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             foreach (var node in nodes)
             {
                 // ReSharper disable once UnusedVariable
-                DataStore.SaveIndexDocumentAsync(node, false, false, CancellationToken.None).Wait();
+                DataStore.SaveIndexDocumentAsync(node, false, false, CancellationToken.None).GetAwaiter().GetResult();
             }
         }
         protected void RebuildIndex()
@@ -961,7 +961,8 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 Assert.IsFalse(IsDeleted(ctx, external));
 
                 // Action #2
-                ContentRepository.Storage.Data.BlobStorage.CleanupFilesSetFlagAsync(CancellationToken.None).Wait();
+                ContentRepository.Storage.Data.BlobStorage.CleanupFilesSetFlagAsync(CancellationToken.None)
+                    .GetAwaiter().GetResult();
 
                 // Assert #2
                 dbFile = LoadDbFile(fileId);

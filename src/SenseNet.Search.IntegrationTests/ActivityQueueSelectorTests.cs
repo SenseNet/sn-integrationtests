@@ -194,7 +194,7 @@ namespace SenseNet.Search.IntegrationTests
             {
                 Providers.Instance.DataProvider = dp2;
 
-                DataStore.DataProvider.DeleteAllIndexingActivitiesAsync(CancellationToken.None).Wait();
+                DataStore.DataProvider.DeleteAllIndexingActivitiesAsync(CancellationToken.None).GetAwaiter().GetResult();
                 RegisterActivity(IndexingActivityType.AddDocument, IndexingActivityRunningState.Waiting, nodeId, versionId, path);
                 RegisterActivity(IndexingActivityType.UpdateDocument, IndexingActivityRunningState.Waiting, nodeId, versionId, path);
                 RegisterActivity(IndexingActivityType.UpdateDocument, IndexingActivityRunningState.Waiting, nodeId, versionId, path);
@@ -260,7 +260,7 @@ namespace SenseNet.Search.IntegrationTests
                 activity = CreateActivity(type, path, nodeId, versionId, 9999);
             activity.RunningState = state;
 
-            DataStore.DataProvider.RegisterIndexingActivityAsync(activity, CancellationToken.None).Wait();
+            DataStore.DataProvider.RegisterIndexingActivityAsync(activity, CancellationToken.None).GetAwaiter().GetResult();
         }
         private IndexingActivityBase CreateActivity(IndexingActivityType type, string path, int nodeId, int versionId, long versionTimestamp)
         {

@@ -33,7 +33,7 @@ ALTER TABLE [ReferenceProperties] CHECK CONSTRAINT ALL
 ALTER TABLE [TextPropertiesNText] CHECK CONSTRAINT ALL
 ALTER TABLE [TextPropertiesNVarchar] CHECK CONSTRAINT ALL
 ALTER TABLE [Versions] CHECK CONSTRAINT ALL
-").Wait();
+").GetAwaiter().GetResult();
             }
         }
 
@@ -61,7 +61,7 @@ ALTER TABLE [Versions] CHECK CONSTRAINT ALL
                             throw new ArgumentOutOfRangeException("number of Nodes");
                     }
                     return Task.FromResult(0);
-                }).Wait();
+                }).GetAwaiter().GetResult();
             }
             return JsonConvert.SerializeObject(securityEntitiesArray);
         }

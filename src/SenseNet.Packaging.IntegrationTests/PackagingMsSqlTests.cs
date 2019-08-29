@@ -957,7 +957,7 @@ namespace SenseNet.Packaging.IntegrationTests
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Packages]') AND type in (N'U'))
 DROP TABLE [dbo].[Packages]
 ";
-            ctx.ExecuteNonQueryAsync(sql).Wait();
+            ctx.ExecuteNonQueryAsync(sql).GetAwaiter().GetResult();
         }
         internal static void InstallPackagesTable(SnDataContext ctx)
         {
@@ -980,7 +980,7 @@ CREATE TABLE [dbo].[Packages](
 ) ON [PRIMARY]
 ";
 
-            ctx.ExecuteNonQueryAsync(sql).Wait();
+            ctx.ExecuteNonQueryAsync(sql).GetAwaiter().GetResult();
         }
 
         /*--------------------------------------------------------*/

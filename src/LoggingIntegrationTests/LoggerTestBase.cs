@@ -19,8 +19,8 @@ namespace LoggingIntegrationTests
         {
             using (var ctx = dataProvider.CreateDataContext(CancellationToken.None))
             {
-                ctx.ExecuteNonQueryAsync("DELETE FROM [LogEntries]").Wait();
-                ctx.ExecuteNonQueryAsync("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)").Wait();
+                ctx.ExecuteNonQueryAsync("DELETE FROM [LogEntries]").GetAwaiter().GetResult();
+                ctx.ExecuteNonQueryAsync("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)").GetAwaiter().GetResult();
             }
         }
 

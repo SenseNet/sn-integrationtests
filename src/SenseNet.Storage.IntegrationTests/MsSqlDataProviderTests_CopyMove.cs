@@ -785,7 +785,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                     }
                     return Task.CompletedTask;
-                }).Wait();
+                }).GetAwaiter().GetResult();
             }
             catch (AggregateException e)
             {
