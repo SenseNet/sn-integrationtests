@@ -467,7 +467,7 @@ namespace SenseNet.Storage.IntegrationTests
 
                 // ASSERT
                 //Assert.AreNotEqual(sourceTimestampBefore, source.NodeTimestamp); //UNDONE:DB: Do need refresh the NodeTimestamp or not?
-                Cache.Reset(); //UNDONE:DB: Need to work without explicite clear.
+                Cache.Reset(); // simulates PathDependency operation (see the Node.MoveTo method).
                 target = Node.Load<SystemFolder>(target.Id);
                 source = Node.Load<SystemFolder>(source.Id);
                 f1 = Node.Load<SystemFolder>(f1.Id);
