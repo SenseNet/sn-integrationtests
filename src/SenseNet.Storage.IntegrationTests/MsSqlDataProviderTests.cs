@@ -448,6 +448,58 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDP_Move()
         {
+            await MoveTest(async (source, target) =>
+            {
+                var sourceTimestampBefore = source.NodeTimestamp;
+
+                // ACTION: Node.Move(source.Path, target.Path);
+                var srcNodeHeadData = source.Data.GetNodeHeadData();
+                await DP.MoveNodeAsync(srcNodeHeadData, target.Id, CancellationToken.None);
+
+                // ASSERT
+                Assert.AreNotEqual(sourceTimestampBefore, srcNodeHeadData.Timestamp);
+
+                //There are further asserts in the caller. See the MoveTest method.
+            });
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Move_DataStore_NodeHead()
+        {
+            await MoveTest(async (source, target) =>
+            {
+                var sourceTimestampBefore = source.NodeTimestamp;
+
+                // ACTION
+                var sourceNodeHead = NodeHead.Get(source.Id);
+                await DataStore.MoveNodeAsync(sourceNodeHead, target.Id, CancellationToken.None);
+
+                // ASSERT
+                Assert.AreNotEqual(sourceTimestampBefore, sourceNodeHead.Timestamp);
+
+                //There are further asserts in the caller. See the MoveTest method.
+            });
+        }
+        [TestMethod]
+        public async Task MsSqlDP_Move_DataStore_NodeData()
+        {
+            await MoveTest(async (source, target) =>
+            {
+                var sourceTimestampBefore = source.NodeTimestamp;
+                source.Index++; // ensure private source.Data
+
+                // ACTION
+                await DataStore.MoveNodeAsync(source.Data, target.Id, CancellationToken.None);
+
+                // ASSERT
+                // timestamp is changed because the source.Data is private
+                Assert.AreNotEqual(sourceTimestampBefore, source.NodeTimestamp);
+
+                //There are further asserts in the caller. See the MoveTest method.
+            });
+        }
+
+        private async Task MoveTest(Func<Node, Node, Task> callback)
+        {
             await StorageTest(async () =>
             {
                 // Create a small subtree
@@ -459,14 +511,11 @@ namespace SenseNet.Storage.IntegrationTests
                 var f2 = new SystemFolder(source) { Name = "F2" }; f2.Save();
                 var f3 = new SystemFolder(f1) { Name = "F3" }; f3.Save();
                 var f4 = new SystemFolder(f1) { Name = "F4" }; f4.Save();
-                var sourceTimestampBefore = source.NodeTimestamp;
 
                 // ACTION: Node.Move(source.Path, target.Path);
-                var srcNodeHeadData = source.Data.GetNodeHeadData();
-                await DP.MoveNodeAsync(srcNodeHeadData, target.Id, CancellationToken.None);
+                await callback(source, target);
 
                 // ASSERT
-                //Assert.AreNotEqual(sourceTimestampBefore, source.NodeTimestamp); //UNDONE:DB: Do need refresh the NodeTimestamp or not?
                 Cache.Reset(); // simulates PathDependency operation (see the Node.MoveTo method).
                 target = Node.Load<SystemFolder>(target.Id);
                 source = Node.Load<SystemFolder>(source.Id);
