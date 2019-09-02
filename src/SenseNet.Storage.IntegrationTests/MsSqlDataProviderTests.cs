@@ -979,6 +979,51 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             });
         }
 
+        /* ================================================================================================== ShortText escape */
+
+        [TestMethod]
+        public async Task MsSqlDP_ShortText_Escape()
+        {
+            await StorageTest(() =>
+            {
+                var properties = new PropertyType[]
+                {
+                    PropertyType.GetByName("Domain"),
+                    PropertyType.GetByName("FullName"),
+                    PropertyType.GetByName("Email"),
+                    PropertyType.GetByName("LoginName"),
+                };
+                var inputValues = new[]
+                {
+                    "Domain1",
+                    "LastName\tFirstName",
+                    "a@b.c \\ d@e.f",
+                    "asdf\\\r\nqwer",
+                };
+                var data = new Dictionary<PropertyType, object>();
+                for (int i = 0; i < inputValues.Length; i++)
+                {
+                    data.Add(properties[i], inputValues[i]);
+                }
+                
+
+                // ACTION
+                var serialized = DP.SerializeDynamicProperties(data);
+                var deserialized = DP.DeserializeDynamicProperties(serialized);
+
+                // ASSERT
+                var keys = deserialized.Keys.ToArray();
+                var values = deserialized.Values.ToArray();
+                for (int i = 0; i < inputValues.Length; i++)
+                {
+                    Assert.AreEqual(properties[i], keys[i]);
+                    Assert.AreEqual(inputValues[i], values[i]);
+                }
+
+                return Task.CompletedTask;
+            });
+        }
+
         /* ================================================================================================== NodeQuery */
 
         [TestMethod]
