@@ -7,8 +7,10 @@ using System.Linq;
 using System.Threading;
 using IO = System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.BackgroundOperations;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository;
+using SenseNet.ContentRepository.InMemory;
 using SenseNet.ContentRepository.Schema;
 using SenseNet.ContentRepository.Search;
 using SenseNet.ContentRepository.Security;
@@ -20,6 +22,7 @@ using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.ContentRepository.Storage.Security;
 using SenseNet.Diagnostics;
+using SenseNet.Extensions.DependencyInjection;
 using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
 // ReSharper disable AccessToDisposedClosure
@@ -139,7 +142,8 @@ namespace SenseNet.BlobStorage.IntegrationTests
                         PrepareRepository();
                     _commonRepositoryInstance = repositoryInstance;
 
-                    new SnMaintenance().Shutdown();
+                    //UNDONE: new SnMaintenance().Shutdown();
+                    //new SnMaintenance().Shutdown();
 
                     Instances[GetType()] = this;
 
@@ -314,24 +318,18 @@ namespace SenseNet.BlobStorage.IntegrationTests
         {
             var populator = SearchManager.GetIndexPopulator();
             populator.NodeIndexed += (o, e) => { /* collect paths if there is any problem */ };
-            populator.ClearAndPopulateAll();
+            populator.ClearAndPopulateAllAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private static InitialData _initialData;
         protected static InitialData GetInitialData()
         {
-            var dataFile = InitialTestData.Instance;
+            var dataFile = InMemoryTestData.Instance;
             if (_initialData == null)
             {
-                InitialData initialData;
-                using (var ptr = new IO.StringReader(dataFile.PropertyTypes))
-                using (var ntr = new IO.StringReader(dataFile.NodeTypes))
-                using (var nr = new IO.StringReader(dataFile.Nodes))
-                using (var vr = new IO.StringReader(dataFile.Versions))
-                using (var dr = new IO.StringReader(dataFile.DynamicData))
-                    initialData = InitialData.Load(ptr, ntr, nr, vr, dr);
-                initialData.ContentTypeDefinitions = dataFile.ContentTypeDefinitions;
-                initialData.Blobs = dataFile.Blobs;
+                var initialData = InitialData.Load(dataFile);
+                //initialData.ContentTypeDefinitions = dataFile.ContentTypeDefinitions;
+                //initialData.Blobs = dataFile.Blobs;
                 _initialData = initialData;
             }
             return _initialData;
@@ -343,7 +341,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             if (_initialIndex == null)
             {
                 var index = new InMemoryIndex();
-                index.Load(new IO.StringReader(InitialTestIndex.Index));
+                index.Load(new IO.StringReader(InMemoryTestIndex.Index));
                 _initialIndex = index;
             }
             return _initialIndex.Clone();

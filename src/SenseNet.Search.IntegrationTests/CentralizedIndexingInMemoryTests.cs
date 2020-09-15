@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.ContentRepository.Storage.Data;
 using System.Threading.Tasks;
+using SenseNet.ContentRepository.InMemory;
 using SenseNet.Tests.Implementations;
 
 namespace SenseNet.Search.IntegrationTests

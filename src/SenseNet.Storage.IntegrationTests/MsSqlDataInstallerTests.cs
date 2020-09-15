@@ -7,12 +7,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.BackgroundOperations;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository;
+using SenseNet.ContentRepository.InMemory;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.Diagnostics;
+using SenseNet.Extensions.DependencyInjection;
 using SenseNet.Security;
 using SenseNet.Security.Data;
 using SenseNet.Tests;
@@ -69,7 +72,8 @@ namespace SenseNet.Storage.IntegrationTests
 
                 PrepareDatabase();
 
-                new SnMaintenance().Shutdown();
+                //UNDONE: new SnMaintenance().Shutdown();
+                //new SnMaintenance().Shutdown();
 
                 op.Successful = true;
             }
@@ -204,7 +208,7 @@ namespace SenseNet.Storage.IntegrationTests
             if (_initialIndex == null)
             {
                 var index = new InMemoryIndex();
-                index.Load(new StringReader(InitialTestIndex.Index));
+                index.Load(new StringReader(InMemoryTestIndex.Index));
                 _initialIndex = index;
             }
             return _initialIndex.Clone();
@@ -216,7 +220,7 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDataInstaller_TestData()
         {
-            var data = InitialData.Load(InitialTestData.Instance);
+            var data = InitialData.Load(InMemoryTestData.Instance);
             await InstallInitialDataTest(data);
         }
         [TestMethod]

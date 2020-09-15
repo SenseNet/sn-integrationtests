@@ -15,6 +15,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
+using SenseNet.Extensions.DependencyInjection;
 using SenseNet.Packaging.IntegrationTests.Implementations;
 using SenseNet.Tests;
 using Task = System.Threading.Tasks.Task;

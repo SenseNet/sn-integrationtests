@@ -8,8 +8,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.BackgroundOperations;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository;
+using SenseNet.ContentRepository.InMemory;
 using SenseNet.ContentRepository.Schema;
 using SenseNet.ContentRepository.Security;
 using SenseNet.ContentRepository.Storage;
@@ -19,6 +21,7 @@ using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.ContentRepository.Storage.DataModel;
 using SenseNet.ContentRepository.Storage.Security;
 using SenseNet.Diagnostics;
+using SenseNet.Extensions.DependencyInjection;
 using SenseNet.IntegrationTests.Common.Implementations;
 using SenseNet.Search;
 using SenseNet.Security;
@@ -138,7 +141,8 @@ namespace SenseNet.IntegrationTests.Common
 
                     PrepareDatabase();
 
-                    new SnMaintenance().Shutdown();
+                    //UNDONE: new SnMaintenance().Shutdown();
+                    //new SnMaintenance().Shutdown();
 
                     _instance = this;
 
@@ -320,7 +324,7 @@ namespace SenseNet.IntegrationTests.Common
         protected static InitialData GetInitialData()
         {
             if (_initialData == null)
-                _initialData = InitialData.Load(InitialTestData.Instance);
+                _initialData = InitialData.Load(InMemoryTestData.Instance);
             return _initialData;
         }
 
@@ -330,7 +334,7 @@ namespace SenseNet.IntegrationTests.Common
             if (_initialIndex == null)
             {
                 var index = new InMemoryIndex();
-                index.Load(new StringReader(InitialTestIndex.Index));
+                index.Load(new StringReader(InMemoryTestIndex.Index));
                 _initialIndex = index;
             }
             return _initialIndex.Clone();
