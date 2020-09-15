@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionStrings.cs" />
+    <Compile Include="Implementations\MsSqlTools.cs" />
     <Compile Include="Implementations\SqlTestingDataProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

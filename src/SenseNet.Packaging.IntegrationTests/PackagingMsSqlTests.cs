@@ -11,9 +11,14 @@ using SenseNet.Packaging.Steps;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Threading;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
+using SenseNet.Extensions.DependencyInjection;
+using SenseNet.IntegrationTests.Common.Implementations;
 using SenseNet.Packaging.IntegrationTests.Implementations;
 using SenseNet.Tests;
+using Task = System.Threading.Tasks.Task;
 
 namespace SenseNet.Packaging.IntegrationTests
 {
@@ -72,16 +77,12 @@ CREATE TABLE [dbo].[Packages](
 
             // build database
             var builder = new RepositoryBuilder();
-            builder.UsePackagingDataProviderExtension(new SqlPackagingDataProvider());
+            builder.UsePackagingDataProviderExtension(new MsSqlPackagingDataProvider());
 
             // preparing database
-            ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
-            var proc = DataProvider.Instance.CreateDataProcedure("DELETE FROM [Packages]");
-            proc.CommandType = CommandType.Text;
-            proc.ExecuteNonQuery();
-            proc = DataProvider.Instance.CreateDataProcedure("DBCC CHECKIDENT ('[Packages]', RESEED, 1)");
-            proc.CommandType = CommandType.Text;
-            proc.ExecuteNonQuery();
+            var cnstr = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
+            MsSqlTools.ExecuteNonQuery("DELETE FROM [Packages]", cnstr);
+            MsSqlTools.ExecuteNonQuery("DBCC CHECKIDENT ('[Packages]', RESEED, 1)", cnstr);
 
             RepositoryVersionInfo.Reset();
         }
@@ -105,9 +106,7 @@ CREATE TABLE [dbo].[Packages](
                             <Dependencies>
                                 <Dependency id='Component1' version='7.0' />
                             </Dependencies>
-                            <Steps>
-                                <Trace>Package is running.</Trace>
-                            </Steps>
+                            <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                         </Package>");
                 Assert.Fail("PackagingException was not thrown.");
             }
@@ -127,9 +126,7 @@ CREATE TABLE [dbo].[Packages](
                         <Id>MyCompany.MyComponent</Id>
                         <ReleaseDate>2017-01-01</ReleaseDate>
                         <Version>1.0</Version>
-                        <Steps>
-                            <Trace>Package is running.</Trace>
-                        </Steps>
+                        <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                     </Package>");
 
             // action
@@ -140,9 +137,7 @@ CREATE TABLE [dbo].[Packages](
                             <Id>MyCompany.MyComponent</Id>
                             <ReleaseDate>2017-01-01</ReleaseDate>
                             <Version>1.1</Version>
-                            <Steps>
-                                <Trace>Package is running.</Trace>
-                            </Steps>
+                            <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                         </Package>");
                 Assert.Fail("PackagingException was not thrown.");
             }
@@ -161,9 +156,7 @@ CREATE TABLE [dbo].[Packages](
                         <Id>Component2</Id>
                         <ReleaseDate>2017-01-01</ReleaseDate>
                         <Version>1.1</Version>
-                        <Steps>
-                            <Trace>Package is running.</Trace>
-                        </Steps>
+                        <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                     </Package>");
                 Assert.Fail("PackagingException was not thrown.");
             }
@@ -180,9 +173,7 @@ CREATE TABLE [dbo].[Packages](
                         <Id>MyCompany.MyComponent</Id>
                         <ReleaseDate>2017-01-01</ReleaseDate>
                         <Version>1.0</Version>
-                        <Steps>
-                            <Trace>Package is running.</Trace>
-                        </Steps>
+                        <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                     </Package>");
 
             // action
@@ -193,9 +184,7 @@ CREATE TABLE [dbo].[Packages](
                             <Id>MyCompany.MyComponent</Id>
                             <ReleaseDate>2017-01-01</ReleaseDate>
                             <Version>1.0</Version>
-                            <Steps>
-                                <Trace>Package is running.</Trace>
-                            </Steps>
+                            <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                         </Package>");
                 Assert.Fail("PackagingException was not thrown.");
             }
@@ -213,9 +202,7 @@ CREATE TABLE [dbo].[Packages](
                         <Id>Component1</Id>
                         <ReleaseDate>2017-01-01</ReleaseDate>
                         <Version>1.0</Version>
-                        <Steps>
-                            <Trace>Package is running.</Trace>
-                        </Steps>
+                        <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                     </Package>");
 
             // action
@@ -229,9 +216,7 @@ CREATE TABLE [dbo].[Packages](
                             <Dependencies>
                                 <Dependency id='Component1' version='1.2' />
                             </Dependencies>
-                            <Steps>
-                                <Trace>Package is running.</Trace>
-                            </Steps>
+                            <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                         </Package>");
                 Assert.Fail("PackagingException was not thrown.");
             }
@@ -248,9 +233,7 @@ CREATE TABLE [dbo].[Packages](
                         <Id>Component1</Id>
                         <ReleaseDate>2017-01-01</ReleaseDate>
                         <Version>1.0</Version>
-                        <Steps>
-                            <Trace>Package is running.</Trace>
-                        </Steps>
+                        <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                     </Package>");
 
             // action
@@ -264,9 +247,7 @@ CREATE TABLE [dbo].[Packages](
                             <Dependencies>
                                 <Dependency id='Component1' minVersion='1.1' />
                             </Dependencies>
-                            <Steps>
-                                <Trace>Package is running.</Trace>
-                            </Steps>
+                            <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                         </Package>");
                 Assert.Fail("PackagingException was not thrown.");
             }
@@ -283,9 +264,7 @@ CREATE TABLE [dbo].[Packages](
                         <Id>Component1</Id>
                         <ReleaseDate>2017-01-01</ReleaseDate>
                         <Version>3.0</Version>
-                        <Steps>
-                            <Trace>Package is running.</Trace>
-                        </Steps>
+                        <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                     </Package>");
 
             // action
@@ -299,9 +278,7 @@ CREATE TABLE [dbo].[Packages](
                             <Dependencies>
                                 <Dependency id='Component1' maxVersion='2.0' />
                             </Dependencies>
-                            <Steps>
-                                <Trace>Package is running.</Trace>
-                            </Steps>
+                            <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                         </Package>");
                 Assert.Fail("PackagingException was not thrown.");
             }
@@ -318,9 +295,7 @@ CREATE TABLE [dbo].[Packages](
                         <Id>Component1</Id>
                         <ReleaseDate>2017-01-01</ReleaseDate>
                         <Version>1.0</Version>
-                        <Steps>
-                            <Trace>Package is running.</Trace>
-                        </Steps>
+                        <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                     </Package>");
 
             // action
@@ -334,9 +309,7 @@ CREATE TABLE [dbo].[Packages](
                             <Dependencies>
                                 <Dependency id='Component1' minVersionExclusive='1.0' />
                             </Dependencies>
-                            <Steps>
-                                <Trace>Package is running.</Trace>
-                            </Steps>
+                            <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                         </Package>");
                 Assert.Fail("PackagingException was not thrown.");
             }
@@ -353,9 +326,7 @@ CREATE TABLE [dbo].[Packages](
                         <Id>Component1</Id>
                         <ReleaseDate>2017-01-01</ReleaseDate>
                         <Version>3.0</Version>
-                        <Steps>
-                            <Trace>Package is running.</Trace>
-                        </Steps>
+                        <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                     </Package>");
 
             // action
@@ -369,9 +340,7 @@ CREATE TABLE [dbo].[Packages](
                             <Dependencies>
                                 <Dependency id='Component1' maxVersionExclusive='2.0' />
                             </Dependencies>
-                            <Steps>
-                                <Trace>Package is running.</Trace>
-                            </Steps>
+                            <!--<Steps><Trace>Package is running.</Trace></Steps>-->
                         </Package>");
                 Assert.Fail("PackagingException was not thrown.");
             }
@@ -465,9 +434,8 @@ CREATE TABLE [dbo].[Packages](
             var component = RepositoryVersionInfo.Instance.Components.FirstOrDefault();
             Assert.IsNotNull(component);
             Assert.AreEqual("Component42", component.ComponentId);
+            Assert.IsNotNull(component.Version);
             Assert.AreEqual("4.42", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("4.42", component.AcceptableVersion.ToString());
             var pkg = RepositoryVersionInfo.Instance.InstalledPackages.FirstOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("Component42", pkg.ComponentId);
@@ -526,9 +494,8 @@ CREATE TABLE [dbo].[Packages](
             var component = RepositoryVersionInfo.Instance.Components.FirstOrDefault();
             Assert.IsNotNull(component);
             Assert.AreEqual("Component42", component.ComponentId);
+            Assert.IsNotNull(component.Version);
             Assert.AreEqual("4.42", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("4.42", component.AcceptableVersion.ToString());
             pkg = RepositoryVersionInfo.Instance.InstalledPackages.FirstOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("Component42", pkg.ComponentId);
@@ -573,9 +540,8 @@ CREATE TABLE [dbo].[Packages](
             var component = RepositoryVersionInfo.Instance.Components.FirstOrDefault();
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
-            Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.0", component.AcceptableVersion.ToString());
+            Assert.IsNotNull(component.Version);
+            Assert.AreEqual("1.0", component.Version.ToString());
             var pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -590,9 +556,8 @@ CREATE TABLE [dbo].[Packages](
             component = RepositoryVersionInfo.Instance.Components.FirstOrDefault();
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
-            Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.0", component.AcceptableVersion.ToString());
+            Assert.IsNotNull(component.Version);
+            Assert.AreEqual("1.0", component.Version.ToString());
             pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -607,9 +572,8 @@ CREATE TABLE [dbo].[Packages](
             component = RepositoryVersionInfo.Instance.Components.FirstOrDefault();
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
+            Assert.IsNotNull(component.Version);
             Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.2", component.AcceptableVersion.ToString());
             pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -659,9 +623,8 @@ CREATE TABLE [dbo].[Packages](
             var component = RepositoryVersionInfo.Instance.Components.FirstOrDefault();
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
-            Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.0", component.AcceptableVersion.ToString());
+            Assert.IsNotNull(component.Version);
+            Assert.AreEqual("1.0", component.Version.ToString());
             var pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -717,9 +680,8 @@ CREATE TABLE [dbo].[Packages](
             var component = RepositoryVersionInfo.Instance.Components.FirstOrDefault();
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
+            Assert.IsNotNull(component.Version);
             Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.2", component.AcceptableVersion.ToString());
             var pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -778,9 +740,8 @@ CREATE TABLE [dbo].[Packages](
             var component = RepositoryVersionInfo.Instance.Components.FirstOrDefault();
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
+            Assert.IsNotNull(component.Version);
             Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.2", component.AcceptableVersion.ToString());
             var pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -847,10 +808,10 @@ CREATE TABLE [dbo].[Packages](
             // check
             var actual = string.Join(" | ", verInfo.Components
                 .OrderBy(a => a.ComponentId)
-                .Select(a => $"{a.ComponentId}: {a.AcceptableVersion} ({a.Version})")
+                .Select(a => $"{a.ComponentId}: {a.Version} {a.Manifest}")
                 .ToArray());
             // 
-            var expected = "C1: 1.2 (1.2) | C2: 1.0 (1.2)";
+            var expected = "C1: 1.2 <Package type='Patch'/> | C2: 1.0 <Package type='Install'/>";
             Assert.AreEqual(expected, actual);
             Assert.AreEqual(9, verInfo.InstalledPackages.Count());
         }
@@ -871,11 +832,11 @@ CREATE TABLE [dbo].[Packages](
             // check
             var actual = string.Join(" | ", verInfo.Components
                 .OrderBy(a => a.ComponentId)
-                .Select(a => $"{a.ComponentId}: {a.AcceptableVersion} ({a.Version})")
+                .Select(a => $"{a.ComponentId}: {a.Version}")
                 .ToArray());
             
             // we expect a separate line for every Install package execution
-            var expected = "C1: 1.0 (1.2) | C1: 1.0 (1.2) | C1: 1.0 (1.2) | C2: 1.0 (1.0)";
+            var expected = "C1: 1.0 | C2: 1.0";
             Assert.AreEqual(expected, actual);
             Assert.AreEqual(6, verInfo.InstalledPackages.Count());
         }
@@ -910,7 +871,8 @@ CREATE TABLE [dbo].[Packages](
             Assert.IsNull(package?.Manifest);
 
             // load manifest explicitly
-            PackageManager.Storage.LoadManifest(package);
+            PackageManager.Storage.LoadManifestAsync(package, CancellationToken.None)
+                .ConfigureAwait(false).GetAwaiter().GetResult();
             var actual = package?.Manifest;
             Assert.AreEqual(expected, actual);
         }
@@ -936,7 +898,8 @@ CREATE TABLE [dbo].[Packages](
             var packs = RepositoryVersionInfo.Instance.InstalledPackages
                 .Where(p => p.ExecutionResult != ExecutionResult.Successful);
             foreach (var package in packs)
-                PackageManager.Storage.DeletePackage(package);
+                PackageManager.Storage.DeletePackageAsync(package, CancellationToken.None)
+                    .ConfigureAwait(false).GetAwaiter().GetResult();
             RepositoryVersionInfo.Reset();
 
             // check
@@ -955,7 +918,8 @@ CREATE TABLE [dbo].[Packages](
             SavePackage("C1", "1.2", "10:00", "2016-01-09", PackageType.Patch, ExecutionResult.Successful);
 
             // action
-            PackageManager.Storage.DeleteAllPackages();
+            PackageManager.Storage.DeleteAllPackagesAsync(CancellationToken.None)
+                .ConfigureAwait(false).GetAwaiter().GetResult();
 
             // check
             Assert.IsFalse(RepositoryVersionInfo.Instance.InstalledPackages.Any());
@@ -971,12 +935,18 @@ CREATE TABLE [dbo].[Packages](
         {
             ExecuteSqlCommand(InstallPackagesTableSql);
         }
+
         private static void ExecuteSqlCommand(string sql)
         {
+            ExecuteSqlCommandAsync(sql).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+        private static async Task ExecuteSqlCommandAsync(string sql, CancellationToken cancellationToken = default)
+        {
             ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
-            var proc = DataProvider.Instance.CreateDataProcedure(sql);
-            proc.CommandType = CommandType.Text;
-            proc.ExecuteNonQuery();
+            using (var ctx = new MsSqlDataContext(cancellationToken))
+            {
+                await ctx.ExecuteNonQueryAsync(sql).ConfigureAwait(false);
+            }
         }
 
         /*--------------------------------------------------------*/
@@ -995,7 +965,8 @@ CREATE TABLE [dbo].[Packages](
                 PackageType = packageType,
                 Manifest = $"<Package type='{packageType}'/>"
             };
-            PackageManager.Storage.SavePackage(package);
+            PackageManager.Storage.SavePackageAsync(package, CancellationToken.None)
+                .ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         internal static Manifest ParseManifestHead(string manifestXml)
