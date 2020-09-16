@@ -819,10 +819,10 @@ namespace SenseNet.Packaging.IntegrationTests
             // check
             var actual = string.Join(" | ", verInfo.Components
                 .OrderBy(a => a.ComponentId)
-                .Select(a => $"{a.ComponentId}: {a.Version} {a.Manifest}")
+                .Select(a => $"{a.ComponentId}: {a.Version}")
                 .ToArray());
             // 
-            var expected = "C1: 1.2 <Package type='Patch'/> | C2: 1.0 <Package type='Install'/>";
+            var expected = "C1: 1.2 | C2: 1.0";
             Assert.AreEqual(expected, actual);
             Assert.AreEqual(9, verInfo.InstalledPackages.Count());
         }
@@ -934,7 +934,95 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.IsFalse(RepositoryVersionInfo.Instance.InstalledPackages.Any());
         }
 
-        /*================================================= tools */
+        /* ===================================================================== PATCHING */
+
+
+        [TestMethod]
+        public void PatchingSystem_InstalledComponents()
+        {
+            var installer1 = new ComponentInstaller
+            {
+                ComponentId = "C1",
+                Version = new Version(1, 0),
+                Description = "C1 description",
+                ReleaseDate = new DateTime(2020, 07, 30),
+                Dependencies = null
+            };
+            var installer2 = new ComponentInstaller
+            {
+                ComponentId = "C2",
+                Version = new Version(2, 0),
+                Description = "C2 description",
+                ReleaseDate = new DateTime(2020, 07, 31),
+                Dependencies = new[]
+                {
+                    Dep("C1", "1.0 <= v <= 1.0"),
+                }
+            };
+            PackageManager.SavePackage(Manifest.Create(installer1), null, true, null);
+            PackageManager.SavePackage(Manifest.Create(installer2), null, true, null);
+
+            var verInfo = RepositoryVersionInfo.Create(CancellationToken.None);
+
+            var components = verInfo.Components.ToArray();
+            Assert.AreEqual(2, components.Length);
+
+            Assert.AreEqual("C1", components[0].ComponentId);
+            Assert.AreEqual("C2", components[1].ComponentId);
+
+            Assert.AreEqual("1.0", components[0].Version.ToString());
+            Assert.AreEqual("2.0", components[1].Version.ToString());
+
+            Assert.AreEqual("C1 description", components[0].Description);
+            Assert.AreEqual("C2 description", components[1].Description);
+
+            Assert.AreEqual(0, components[0].Dependencies.Length);
+            Assert.AreEqual(1, components[1].Dependencies.Length);
+            Assert.AreEqual("C1: 1.0 <= v <= 1.0", components[1].Dependencies[0].ToString());
+        }
+        [TestMethod]
+        public void PatchingSystem_InstalledComponents_Descriptions()
+        {
+            var installer = new ComponentInstaller
+            {
+                ComponentId = "C1",
+                Version = new Version(1, 0),
+                Description = "C1 component",
+                ReleaseDate = new DateTime(2020, 07, 30),
+                Dependencies = null
+            };
+            var patch = new SnPatch
+            {
+                ComponentId = "C1",
+                Version = new Version(2, 0),
+                Description = "C1 patch",
+                ReleaseDate = new DateTime(2020, 07, 31),
+                Boundary = new VersionBoundary
+                {
+                    MinVersion = new Version(1, 0)
+                },
+                Dependencies = new[]
+                {
+                    Dep("C2", "1.0 <= v <= 1.0"),
+                }
+            };
+
+            PackageManager.SavePackage(Manifest.Create(installer), null, true, null);
+            PackageManager.SavePackage(Manifest.Create(patch), null, true, null);
+
+            var verInfo = RepositoryVersionInfo.Create(CancellationToken.None);
+
+            var components = verInfo.Components.ToArray();
+            Assert.AreEqual(1, components.Length);
+            Assert.AreEqual("C1", components[0].ComponentId);
+            Assert.AreEqual("2.0", components[0].Version.ToString());
+            Assert.AreEqual("C1 component", components[0].Description);
+            Assert.AreEqual(1, components[0].Dependencies.Length);
+            Assert.AreEqual("C2: 1.0 <= v <= 1.0", components[0].Dependencies[0].ToString());
+        }
+
+
+        /* ================================================= tools */
 
         internal static void DropPackagesTable(SnDataContext ctx)
         {        
@@ -968,7 +1056,7 @@ CREATE TABLE [dbo].[Packages](
             ctx.ExecuteNonQueryAsync(sql).GetAwaiter().GetResult();
         }
 
-        /*--------------------------------------------------------*/
+        /* --------------------------------------------------------*/
 
         private Task SavePackage(string id, string version, string execTime, string releaseDate, PackageType packageType, ExecutionResult result)
         {
@@ -1028,6 +1116,66 @@ CREATE TABLE [dbo].[Packages](
             var result = PackageManager.ExecuteCurrentPhase(manifest, executionContext);
             RepositoryVersionInfo.Reset();
             return result;
+        }
+
+        /// <summary>
+        /// Creates a Dependency for test purposes.
+        /// </summary>
+        /// <param name="id">ComponentId</param>
+        /// <param name="boundary">Complex source version. Example: "1.1 &lt;= v &lt;= 1.1"</param>
+        /// <returns></returns>
+        internal static Dependency Dep(string id, string boundary)
+        {
+            return new Dependency
+            {
+                Id = id,
+                Boundary = ParseBoundary(boundary)
+            };
+        }
+        internal static VersionBoundary ParseBoundary(string src)
+        {
+            // "1.0 <= v <  2.0"
+
+            var a = src.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var boundary = new VersionBoundary();
+
+            if (a.Length == 3)
+            {
+                if (a[0] == "v")
+                {
+                    boundary.MaxVersion = Version.Parse(a[2]);
+                    boundary.MaxVersionIsExclusive = a[1] == "<";
+
+                    boundary.MinVersion = Version.Parse("0.0");
+                    boundary.MinVersionIsExclusive = false;
+                }
+                else if (a[2] == "v")
+                {
+                    boundary.MinVersion = Version.Parse(a[0]);
+                    boundary.MinVersionIsExclusive = a[1] == "<";
+
+                    boundary.MaxVersion = new Version(int.MaxValue, int.MaxValue);
+                    boundary.MaxVersionIsExclusive = false;
+                }
+                else
+                {
+                    throw new FormatException($"Invalid Boundary: {src}");
+                }
+            }
+            else if (a.Length == 5 && a[2] == "v")
+            {
+                boundary.MinVersion = Version.Parse(a[0]);
+                boundary.MinVersionIsExclusive = a[1] == "<";
+
+                boundary.MaxVersion = Version.Parse(a[4]);
+                boundary.MaxVersionIsExclusive = a[3] == "<";
+            }
+            else
+            {
+                throw new FormatException($"Invalid Boundary: {src}");
+            }
+
+            return boundary;
         }
 
     }
