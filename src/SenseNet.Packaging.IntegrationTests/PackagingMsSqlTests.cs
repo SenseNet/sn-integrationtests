@@ -132,7 +132,7 @@ namespace SenseNet.Packaging.IntegrationTests
                                 <Trace>Package is running.</Trace>
                             </Steps>
                         </Package>");
-                Assert.Fail("PackagingException was not thrown.");
+                Assert.Fail("PackagingException was not thrown.");//UNDONE: PACKAGING test color: RED
             }
             catch (PackagingException e)
             {
@@ -454,8 +454,6 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.IsNotNull(component);
             Assert.AreEqual("Component42", component.ComponentId);
             Assert.AreEqual("4.42", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("4.42", component.AcceptableVersion.ToString());
             var pkg = RepositoryVersionInfo.Instance.InstalledPackages.FirstOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("Component42", pkg.ComponentId);
@@ -515,8 +513,6 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.IsNotNull(component);
             Assert.AreEqual("Component42", component.ComponentId);
             Assert.AreEqual("4.42", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("4.42", component.AcceptableVersion.ToString());
             pkg = RepositoryVersionInfo.Instance.InstalledPackages.FirstOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("Component42", pkg.ComponentId);
@@ -561,9 +557,7 @@ namespace SenseNet.Packaging.IntegrationTests
             var component = RepositoryVersionInfo.Instance.Components.FirstOrDefault();
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
-            Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.0", component.AcceptableVersion.ToString());
+            Assert.AreEqual("1.0", component.Version.ToString());
             var pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -578,9 +572,7 @@ namespace SenseNet.Packaging.IntegrationTests
             component = RepositoryVersionInfo.Instance.Components.FirstOrDefault();
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
-            Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.0", component.AcceptableVersion.ToString());
+            Assert.AreEqual("1.0", component.Version.ToString());
             pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -596,8 +588,6 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
             Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.2", component.AcceptableVersion.ToString());
             pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -647,9 +637,7 @@ namespace SenseNet.Packaging.IntegrationTests
             var component = RepositoryVersionInfo.Instance.Components.FirstOrDefault();
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
-            Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.0", component.AcceptableVersion.ToString());
+            Assert.AreEqual("1.0", component.Version.ToString());
             var pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -706,8 +694,6 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
             Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.2", component.AcceptableVersion.ToString());
             var pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -767,8 +753,6 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.IsNotNull(component);
             Assert.AreEqual("MyCompany.MyComponent", component.ComponentId);
             Assert.AreEqual("1.2", component.Version.ToString());
-            Assert.IsNotNull(component.AcceptableVersion);
-            Assert.AreEqual("1.2", component.AcceptableVersion.ToString());
             var pkg = RepositoryVersionInfo.Instance.InstalledPackages.LastOrDefault();
             Assert.IsNotNull(pkg);
             Assert.AreEqual("MyCompany.MyComponent", pkg.ComponentId);
@@ -835,10 +819,10 @@ namespace SenseNet.Packaging.IntegrationTests
             // check
             var actual = string.Join(" | ", verInfo.Components
                 .OrderBy(a => a.ComponentId)
-                .Select(a => $"{a.ComponentId}: {a.AcceptableVersion} ({a.Version})")
+                .Select(a => $"{a.ComponentId}: {a.Version} {a.Manifest}")
                 .ToArray());
             // 
-            var expected = "C1: 1.2 (1.2) | C2: 1.0 (1.2)";
+            var expected = "C1: 1.2 <Package type='Patch'/> | C2: 1.0 <Package type='Install'/>";
             Assert.AreEqual(expected, actual);
             Assert.AreEqual(9, verInfo.InstalledPackages.Count());
         }
@@ -859,11 +843,11 @@ namespace SenseNet.Packaging.IntegrationTests
             // check
             var actual = string.Join(" | ", verInfo.Components
                 .OrderBy(a => a.ComponentId)
-                .Select(a => $"{a.ComponentId}: {a.AcceptableVersion} ({a.Version})")
+                .Select(a => $"{a.ComponentId}: {a.Version}")
                 .ToArray());
             
             // we expect a separate line for every Install package execution
-            var expected = "C1: 1.0 (1.2) | C1: 1.0 (1.2) | C1: 1.0 (1.2) | C2: 1.0 (1.0)";
+            var expected = "C1: 1.0 | C2: 1.0";
             Assert.AreEqual(expected, actual);
             Assert.AreEqual(6, verInfo.InstalledPackages.Count());
         }
