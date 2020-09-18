@@ -141,6 +141,7 @@
   <ItemGroup>
     <Compile Include="Implementations\PackagingTestLogger.cs" />
     <Compile Include="PackagingMsSqlTests.cs" />
+    <Compile Include="PatchingMsSqlTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PackagingMsSqlDeleteContentTypeTests.cs" />
   </ItemGroup>
