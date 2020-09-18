@@ -132,7 +132,7 @@ namespace SenseNet.Packaging.IntegrationTests
                                 <Trace>Package is running.</Trace>
                             </Steps>
                         </Package>");
-                Assert.Fail("PackagingException was not thrown.");//UNDONE: PACKAGING test color: RED
+                Assert.Fail("PackagingException was not thrown.");
             }
             catch (PackagingException e)
             {
