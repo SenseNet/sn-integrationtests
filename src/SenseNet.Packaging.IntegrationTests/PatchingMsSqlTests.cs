@@ -168,9 +168,8 @@ namespace SenseNet.Packaging.IntegrationTests
             };
 
             // ACTION
-            var context = new PatchExecutionContext();
-            context.LogMessage = LogMessage;
-            var pm = new PatchManager();
+            var context = new PatchExecutionContext(null, LogMessage);
+            var pm = new PatchManager(context);
             pm.ExecuteRelevantPatches(patches, installed, context);
 
             // ASSERT
@@ -209,9 +208,8 @@ namespace SenseNet.Packaging.IntegrationTests
             };
 
             // ACTION
-            var context = new PatchExecutionContext();
-            context.LogMessage = LogMessage;
-            var pm = new PatchManager();
+            var context = new PatchExecutionContext(null, LogMessage);
+            var pm = new PatchManager(context);
             pm.ExecuteRelevantPatches(patches, installed, context);
 
             // ASSERT
@@ -250,9 +248,8 @@ namespace SenseNet.Packaging.IntegrationTests
             };
 
             // ACTION
-            var context = new PatchExecutionContext();
-            context.LogMessage = LogMessage;
-            var pm = new PatchManager();
+            var context = new PatchExecutionContext(null, LogMessage);
+            var pm = new PatchManager(context);
             pm.ExecuteRelevantPatches(patches, installed, context);
 
             // ASSERT
@@ -296,9 +293,8 @@ namespace SenseNet.Packaging.IntegrationTests
             };
 
             // ACTION
-            var context = new PatchExecutionContext();
-            context.LogMessage = LogMessage;
-            var pm = new PatchManager();
+            var context = new PatchExecutionContext(null, LogMessage);
+            var pm = new PatchManager(context);
             pm.ExecuteRelevantPatches(patches, installed, context);
 
             // ASSERT
@@ -392,14 +388,14 @@ CREATE TABLE [dbo].[Packages](
         /// <param name="execute">Function of execution</param>
         /// <returns></returns>
         protected ComponentInstaller Inst(string id, string version, Dependency[] dependencies,
-            Action<PatchExecutionContext> execute)
+            Action<PatchExecutionContext> action)
         {
             return new ComponentInstaller
             {
                 ComponentId = id,
                 Version = Version.Parse(version.TrimStart('v')),
                 Dependencies = dependencies,
-                Execute = execute
+                Action = action
             };
         }
         /// <summary>
@@ -430,7 +426,7 @@ CREATE TABLE [dbo].[Packages](
         /// <param name="execute">Function of execution</param>
         /// <returns></returns>
         protected SnPatch Patch(string id, string boundary, string version, Dependency[] dependencies,
-            Action<PatchExecutionContext> execute)
+            Action<PatchExecutionContext> action)
         {
             return new SnPatch
             {
@@ -438,7 +434,7 @@ CREATE TABLE [dbo].[Packages](
                 Version = version == null ? null : Version.Parse(version.TrimStart('v')),
                 Boundary = ParseBoundary(boundary),
                 Dependencies = dependencies,
-                Execute = execute
+                Action = action
             };
         }
         /// <summary>
