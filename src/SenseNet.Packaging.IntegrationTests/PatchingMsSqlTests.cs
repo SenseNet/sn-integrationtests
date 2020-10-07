@@ -189,7 +189,11 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.IsTrue(patches[0].ExecutionDate <= DateTime.UtcNow);
             Assert.AreEqual(ExecutionResult.Faulty, patches[0].ExecutionResult);
             Assert.IsNotNull(patches[0].ExecutionError);
-            Assert.AreEqual(PackagingExceptionType.DependencyNotFound, ((PackagingException)patches[0].ExecutionError).ErrorType);
+            var data = patches[0].ExecutionError.Data;
+            Assert.IsNotNull(data);
+            Assert.IsTrue(data.Contains("ErrorType"));
+            Assert.AreEqual(PackagingExceptionType.DependencyNotFound.ToString(), data["ErrorType"].ToString());
+
         }
         [TestMethod]
         public void Patching_System_ReSaveAndReloadInstaller()
@@ -441,8 +445,10 @@ namespace SenseNet.Packaging.IntegrationTests
                 .ConfigureAwait(false).GetAwaiter().GetResult().ToArray();
 
             // ASSERT
-            var e = (PackagingException)packages[0].ExecutionError;
-            Assert.AreEqual(PackagingExceptionType.DependencyNotFound, e.ErrorType);
+            var data = packages[0].ExecutionError.Data;
+            Assert.IsNotNull(data);
+            Assert.IsTrue(data.Contains("ErrorType"));
+            Assert.AreEqual(PackagingExceptionType.DependencyNotFound.ToString(), data["ErrorType"].ToString());
         }
 
         [TestMethod]
