@@ -139,6 +139,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExclusiveBlockMsSqlTests.cs" />
+    <Compile Include="ExclusiveBlockTestCases.cs" />
     <Compile Include="Implementations\PackagingTestLogger.cs" />
     <Compile Include="PackagingMsSqlTests.cs" />
     <Compile Include="PatchingMsSqlTests.cs" />
