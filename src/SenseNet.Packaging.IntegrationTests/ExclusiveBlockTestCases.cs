@@ -15,7 +15,14 @@ namespace SenseNet.Packaging.IntegrationTests
     //UNDONE: Copy of ExclusiveBlockTestCases.cs from the SenseNet.ContentRepository.Tests
     public abstract class ExclusiveBlockTestCases : TestBase
     {
-        private async System.Threading.Tasks.Task Worker(string operationId, ExclusiveBlockType blockType,
+        private object _logWriteSync = new object();
+        private void Log(List<string> log, string msg)
+        {
+            lock(_logWriteSync)
+                log.Add(msg);
+        }
+
+        private async System.Threading.Tasks.Task Worker(string key, string operationId, ExclusiveBlockType blockType,
             List<string> log, TimeSpan timeout = default)
         {
             var context = new ExclusiveBlockContext
@@ -23,23 +30,23 @@ namespace SenseNet.Packaging.IntegrationTests
                 OperationId = operationId,
                 //LockTimeout = TimeSpan.FromSeconds(1),
                 //PollingTime = TimeSpan.FromSeconds(0.1),
-                LockTimeout = TimeSpan.FromSeconds(60),
+                LockTimeout = TimeSpan.FromSeconds(2.5),
                 PollingTime = TimeSpan.FromSeconds(1),
             };
             if (timeout != default)
                 context.WaitTimeout = timeout;
 
-            log.Add("before block " + operationId);
-            Trace.WriteLine("SnTrace: TEST: before block " + operationId);
-            await ExclusiveBlock.RunAsync(context, "MyFeature", blockType, CancellationToken.None, async () =>
+            Log(log, "before block " + operationId);
+            Trace.WriteLine($"SnTrace: TEST: before block {key} #{operationId}");
+            await ExclusiveBlock.RunAsync(context, key, blockType, CancellationToken.None, async () =>
             {
+                Log(log, "in block " + operationId);
                 //await System.Threading.Tasks.Task.Delay(1500);
                 await System.Threading.Tasks.Task.Delay(3000);
-                log.Add("in block " + operationId);
-                Trace.WriteLine("SnTrace: TEST: in block " + operationId);
+                Trace.WriteLine($"SnTrace: TEST: in block {key} #{operationId}");
             });
-            log.Add("after block " + operationId);
-            Trace.WriteLine("SnTrace: TEST: after block " + operationId);
+            Log(log, "after block " + operationId);
+            Trace.WriteLine($"SnTrace: TEST: after block {key} #{operationId}");
         }
 
         public void TestCase_SkipIfLocked()
@@ -48,9 +55,12 @@ namespace SenseNet.Packaging.IntegrationTests
             Initialize();
             var log = new List<string>();
 
-            var task1 = Worker("1", ExclusiveBlockType.SkipIfLocked, log);
-            var task2 = Worker("2", ExclusiveBlockType.SkipIfLocked, log);
-            System.Threading.Tasks.Task.WaitAll(task1, task2);
+            var task1 = Worker("MyFeature", "1", ExclusiveBlockType.SkipIfLocked, log);
+            var task2 = Worker("MyFeature", "2", ExclusiveBlockType.SkipIfLocked, log);
+            var task3 = Worker("MyFeature", "3", ExclusiveBlockType.SkipIfLocked, log);
+            var task4 = Worker("MyFeature", "4", ExclusiveBlockType.SkipIfLocked, log);
+            var task5 = Worker("MyFeature", "5", ExclusiveBlockType.SkipIfLocked, log);
+            System.Threading.Tasks.Task.WaitAll(task1, task2, task3, task4, task5);
             Thread.Sleep(100);
 
             // LOG EXAMPLE:
@@ -70,9 +80,12 @@ namespace SenseNet.Packaging.IntegrationTests
             Initialize();
             var log = new List<string>();
 
-            var task1 = Worker("1", ExclusiveBlockType.WaitForReleased, log);
-            var task2 = Worker("2", ExclusiveBlockType.WaitForReleased, log);
-            System.Threading.Tasks.Task.WaitAll(task1, task2);
+            var task1 = Worker("MyFeature", "1", ExclusiveBlockType.WaitForReleased, log);
+            var task2 = Worker("MyFeature", "2", ExclusiveBlockType.WaitForReleased, log);
+            var task3 = Worker("MyFeature", "3", ExclusiveBlockType.WaitForReleased, log);
+            var task4 = Worker("MyFeature", "4", ExclusiveBlockType.WaitForReleased, log);
+            var task5 = Worker("MyFeature", "5", ExclusiveBlockType.WaitForReleased, log);
+            System.Threading.Tasks.Task.WaitAll(task1, task2, task3, task4, task5);
             Thread.Sleep(100);
 
             // LOG EXAMPLE:
@@ -92,9 +105,12 @@ namespace SenseNet.Packaging.IntegrationTests
             Initialize();
             var log = new List<string>();
 
-            var task1 = Worker("1", ExclusiveBlockType.WaitAndAcquire, log, TimeSpan.FromSeconds(20));
-            var task2 = Worker("2", ExclusiveBlockType.WaitAndAcquire, log, TimeSpan.FromSeconds(20));
-            System.Threading.Tasks.Task.WaitAll(task1, task2);
+            var task1 = Worker("MyFeature", "1", ExclusiveBlockType.WaitAndAcquire, log, TimeSpan.FromSeconds(20));
+            var task2 = Worker("MyFeature", "2", ExclusiveBlockType.WaitAndAcquire, log, TimeSpan.FromSeconds(20));
+            var task3 = Worker("MyFeature", "3", ExclusiveBlockType.WaitAndAcquire, log, TimeSpan.FromSeconds(20));
+            var task4 = Worker("MyFeature", "4", ExclusiveBlockType.WaitAndAcquire, log, TimeSpan.FromSeconds(20));
+            var task5 = Worker("MyFeature", "5", ExclusiveBlockType.WaitAndAcquire, log, TimeSpan.FromSeconds(20));
+            System.Threading.Tasks.Task.WaitAll(task1, task2, task3, task4, task5);
             Thread.Sleep(100);
 
             // LOG EXAMPLE:
@@ -106,7 +122,7 @@ namespace SenseNet.Packaging.IntegrationTests
             // "after block 2"
 
             var inBlockCount = log.Count(x => x.StartsWith("in block"));
-            Assert.AreEqual(2, inBlockCount);
+            Assert.AreEqual(5, inBlockCount);
         }
 
         private void Initialize()
