@@ -25,20 +25,19 @@ namespace SenseNet.Packaging.IntegrationTests
         private async System.Threading.Tasks.Task Worker(string key, string operationId, ExclusiveBlockType blockType,
             List<string> log, TimeSpan timeout = default)
         {
-            var context = new ExclusiveBlockContext
+            var config = new ExclusiveBlockConfiguration
             {
-                OperationId = operationId,
                 //LockTimeout = TimeSpan.FromSeconds(1),
                 //PollingTime = TimeSpan.FromSeconds(0.1),
                 LockTimeout = TimeSpan.FromSeconds(2.5),
                 PollingTime = TimeSpan.FromSeconds(1),
             };
             if (timeout != default)
-                context.WaitTimeout = timeout;
+                config.WaitTimeout = timeout;
 
             Log(log, "before block " + operationId);
             Trace.WriteLine($"SnTrace: TEST: before block {key} #{operationId}");
-            await ExclusiveBlock.RunAsync(context, key, blockType, CancellationToken.None, async () =>
+            await ExclusiveBlock.RunAsync(key, operationId, blockType, config, CancellationToken.None, async () =>
             {
                 Log(log, "in block " + operationId);
                 //await System.Threading.Tasks.Task.Delay(1500);
