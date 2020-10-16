@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.BlobStorage.IntegrationTests.Implementations;
-using SenseNet.ContentRepository.Storage.Data.SqlClient;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 
 namespace SenseNet.BlobStorage.IntegrationTests
 {
@@ -9,7 +9,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
     public class BuiltInLocalDiskChunkTests : BlobStorageIntegrationTests
     {
         protected override string DatabaseName => "sn7blobtests_builtin";
-        protected override bool SqlFsEnabled => true;
+        protected override bool SqlFsEnabled => false;
         protected override bool SqlFsUsed => false;
         protected override Type ExpectedExternalBlobProviderType => typeof(LocalDiskChunkBlobProvider);
         protected override Type ExpectedMetadataProviderType => typeof(MsSqlBlobMetaDataProvider);
@@ -115,12 +115,12 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
         [TestMethod]
-        public void Blob_BuiltInLocalDiskChunk_DeleteSmall()
+        public void Blob_BuiltInLocalDiskChunk_DeleteSmall_Maintenance()
         {
             TestCase_DeleteSmall();
         }
         [TestMethod]
-        public void Blob_BuiltInLocalDiskChunk_DeleteBig()
+        public void Blob_BuiltInLocalDiskChunk_DeleteBig_Maintenance()
         {
             TestCase_DeleteBig();
         }

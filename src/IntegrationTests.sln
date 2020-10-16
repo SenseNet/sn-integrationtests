@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.BlobStorage.IntegrationTests", "SenseNet.BlobStorage.IntegrationTests\SenseNet.BlobStorage.IntegrationTests.csproj", "{95710586-A910-41ED-A1D3-053E28211ECE}"
 EndProject
@@ -9,17 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.BlobStorage", "..\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.Common", "..\..\sensenet\src\Common\SenseNet.Common.csproj", "{42075CAB-39C0-4055-AA3E-3B12850117B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.ContentRepository", "..\..\sensenet\src\ContentRepository\SenseNet.ContentRepository.csproj", "{786E6165-CA02-45A9-BF58-207A45D7D6DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.ContentRepository", "..\..\sensenet\src\ContentRepository\SenseNet.ContentRepository.csproj", "{786E6165-CA02-45A9-BF58-207A45D7D6DF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.Search", "..\..\sensenet\src\Search\SenseNet.Search.csproj", "{1020CAAF-18FD-418F-B3B0-3CAB79E619B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.Storage", "..\..\sensenet\src\Storage\SenseNet.Storage.csproj", "{5DB4DDBA-81F6-4D81-943A-18F3178B3355}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.Storage", "..\..\sensenet\src\Storage\SenseNet.Storage.csproj", "{5DB4DDBA-81F6-4D81-943A-18F3178B3355}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.Tests", "..\..\sensenet\src\Tests\SenseNet.Tests\SenseNet.Tests.csproj", "{A0909E8F-E039-4080-A259-676CFD38CCD1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.Security", "..\..\sn-security\src\SenseNet.Security\SenseNet.Security.csproj", "{9FA65E99-96D3-4323-896B-CB53E0777C82}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsSqlFsBlobProvider", "..\..\sn-blob-mssqlfs\src\MsSqlFsBlobProvider\MsSqlFsBlobProvider.csproj", "{A9CFEAD6-E05E-417C-A50B-199A443DEE22}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.Packaging.IntegrationTests", "SenseNet.Packaging.IntegrationTests\SenseNet.Packaging.IntegrationTests.csproj", "{998FF44E-0B9D-45FD-B1AC-56CD530F4E4D}"
 EndProject
@@ -34,6 +32,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.EntlibLogger", "..\..\sn-logging-entlib\src\EntlibLogger\SenseNet.EntlibLogger.csproj", "{8B3AA97F-E469-41A3-A181-8CE88FCEE24B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.ContentRepository.IntegrationTests", "SenseNet.ContentRepository.IntegrationTests\SenseNet.ContentRepository.IntegrationTests.csproj", "{FD3AE293-694D-4D21-B299-4CC22768098C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.Storage.IntegrationTests", "SenseNet.Storage.IntegrationTests\SenseNet.Storage.IntegrationTests.csproj", "{0EBD60AE-9469-4550-97E5-1C1B2EC15272}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SenseNet.Services", "..\..\sensenet\src\Services\SenseNet.Services.csproj", "{B72529C8-FEB1-49F5-B08B-56055B58F296}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.ContentRepository.InMemory", "..\..\sensenet\src\ContentRepository.InMemory\SenseNet.ContentRepository.InMemory.csproj", "{23469B3A-979B-4FB7-93F2-83E458EB2D45}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,10 +77,6 @@ Global
 		{9FA65E99-96D3-4323-896B-CB53E0777C82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FA65E99-96D3-4323-896B-CB53E0777C82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FA65E99-96D3-4323-896B-CB53E0777C82}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A9CFEAD6-E05E-417C-A50B-199A443DEE22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A9CFEAD6-E05E-417C-A50B-199A443DEE22}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A9CFEAD6-E05E-417C-A50B-199A443DEE22}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A9CFEAD6-E05E-417C-A50B-199A443DEE22}.Release|Any CPU.Build.0 = Release|Any CPU
 		{998FF44E-0B9D-45FD-B1AC-56CD530F4E4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{998FF44E-0B9D-45FD-B1AC-56CD530F4E4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{998FF44E-0B9D-45FD-B1AC-56CD530F4E4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -101,6 +101,18 @@ Global
 		{FD3AE293-694D-4D21-B299-4CC22768098C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD3AE293-694D-4D21-B299-4CC22768098C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD3AE293-694D-4D21-B299-4CC22768098C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EBD60AE-9469-4550-97E5-1C1B2EC15272}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EBD60AE-9469-4550-97E5-1C1B2EC15272}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EBD60AE-9469-4550-97E5-1C1B2EC15272}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EBD60AE-9469-4550-97E5-1C1B2EC15272}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B72529C8-FEB1-49F5-B08B-56055B58F296}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B72529C8-FEB1-49F5-B08B-56055B58F296}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B72529C8-FEB1-49F5-B08B-56055B58F296}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B72529C8-FEB1-49F5-B08B-56055B58F296}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23469B3A-979B-4FB7-93F2-83E458EB2D45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23469B3A-979B-4FB7-93F2-83E458EB2D45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23469B3A-979B-4FB7-93F2-83E458EB2D45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23469B3A-979B-4FB7-93F2-83E458EB2D45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,8 +125,9 @@ Global
 		{5DB4DDBA-81F6-4D81-943A-18F3178B3355} = {A6F22E95-BF95-48C6-87AD-059CEDFA97BA}
 		{A0909E8F-E039-4080-A259-676CFD38CCD1} = {A6F22E95-BF95-48C6-87AD-059CEDFA97BA}
 		{9FA65E99-96D3-4323-896B-CB53E0777C82} = {A6F22E95-BF95-48C6-87AD-059CEDFA97BA}
-		{A9CFEAD6-E05E-417C-A50B-199A443DEE22} = {A6F22E95-BF95-48C6-87AD-059CEDFA97BA}
 		{8B3AA97F-E469-41A3-A181-8CE88FCEE24B} = {A6F22E95-BF95-48C6-87AD-059CEDFA97BA}
+		{B72529C8-FEB1-49F5-B08B-56055B58F296} = {A6F22E95-BF95-48C6-87AD-059CEDFA97BA}
+		{23469B3A-979B-4FB7-93F2-83E458EB2D45} = {A6F22E95-BF95-48C6-87AD-059CEDFA97BA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {919120C5-4DC2-4FB5-AFE7-25D1E1F639DE}

@@ -1,298 +1,345 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.Configuration;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
-using SenseNet.ContentRepository.Storage.Data.SqlClient;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Security;
+using SenseNet.IntegrationTests.Common;
+using STT = System.Threading.Tasks;
 
 namespace SenseNet.ContentRepository.IntegrationTests
 {
     [TestClass]
-    public class SqlSharedLockDataProviderUnitTests : IntegrationTestBase
+    public class SqlSharedLockDataProviderUnitTests : MsSqlIntegrationTestBase
     {
-        [TestInitialize]
-        public void DeleteAllSharedLocks()
-        {
-            // set default implementation directly to avoid repository start
-            DataProvider.Instance.SetExtension(typeof(ISharedLockDataProviderExtension), new SqlSharedLockDataProvider());
-
-            SharedLock.RemoveAllLocks();
-        }
-
-        [ClassCleanup]
-        public static void CleanupClass()
-        {
-            TearDown();
-        }
-
-        private SqlSharedLockDataProvider Provider => (SqlSharedLockDataProvider)DataProvider.GetExtension<ISharedLockDataProviderExtension>();
+        private MsSqlSharedLockDataProvider Provider => (MsSqlSharedLockDataProvider)DataStore.GetDataProviderExtension<ISharedLockDataProviderExtension>();
 
         /* ====================================================================== */
 
         [TestMethod]
-        public void SharedLock_LockAndGetLock()
+        public async STT.Task SharedLock_LockAndGetLock()
         {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var expectedLockValue = Guid.NewGuid().ToString();
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var expectedLockValue = Guid.NewGuid().ToString();
 
-            // ACTION
-            Provider.CreateSharedLock(nodeId, expectedLockValue);
+                // ACTION
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue, CancellationToken.None);
 
-            // ASSERT
-            var actualLockValue = Provider.GetSharedLock(nodeId);
-            Assert.AreEqual(expectedLockValue, actualLockValue);
+                // ASSERT
+                var actualLockValue = await Provider.GetSharedLockAsync(nodeId, CancellationToken.None);
+                Assert.AreEqual(expectedLockValue, actualLockValue);
+            });
         }
         [TestMethod]
-        public void SharedLock_GetTimedOut()
+        public async STT.Task SharedLock_GetTimedOut()
         {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var expectedLockValue = Guid.NewGuid().ToString();
-            Provider.CreateSharedLock(nodeId, expectedLockValue);
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var expectedLockValue = Guid.NewGuid().ToString();
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue, CancellationToken.None);
 
-            // ACTION
-            var timeout = DataProvider.GetExtension<ISharedLockDataProviderExtension>().SharedLockTimeout;
-            Provider.SetCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-timeout.TotalMinutes - 1));
+                // ACTION
+                var timeout = Provider.SharedLockTimeout;
+                TDP.SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-timeout.TotalMinutes - 1));
 
-            // ASSERT
-            Assert.IsNull(SharedLock.GetLock(nodeId));
+                // ASSERT
+                Assert.IsNull(SharedLock.GetLock(nodeId, CancellationToken.None));
+            });
         }
         [TestMethod]
-        public void SharedLock_Lock_Same()
+        public async STT.Task SharedLock_Lock_Same()
         {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var expectedLockValue = Guid.NewGuid().ToString();
-            Provider.CreateSharedLock(nodeId, expectedLockValue);
-            SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var expectedLockValue = Guid.NewGuid().ToString();
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue, CancellationToken.None);
+                SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
 
-            // ACTION
-            Provider.CreateSharedLock(nodeId, expectedLockValue);
+                // ACTION
+                await Provider.CreateSharedLockAsync(nodeId, expectedLockValue, CancellationToken.None);
 
-            // ASSERT
-            // Equivalent to the refresh lock
-            var now = DateTime.UtcNow;
-            var actualDate = GetSharedLockCreationDate(nodeId);
-            var delta = (now - actualDate).TotalSeconds;
-            Assert.IsTrue(delta < 1);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(LockedNodeException))]
-        public void SharedLock_Lock_Different()
-        {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var oldLockValue = Guid.NewGuid().ToString();
-            var newLockValue = Guid.NewGuid().ToString();
-            Provider.CreateSharedLock(nodeId, oldLockValue);
-            SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
-
-            // ACTION
-            Provider.CreateSharedLock(nodeId, newLockValue);
-        }
-        [TestMethod]
-        public void SharedLock_Lock_DifferentTimedOut()
-        {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var oldLockValue = Guid.NewGuid().ToString();
-            var newLockValue = Guid.NewGuid().ToString();
-            Provider.CreateSharedLock(nodeId, oldLockValue);
-            SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
-
-            // ACTION
-            Provider.CreateSharedLock(nodeId, newLockValue);
-
-            var actualLockValue = Provider.GetSharedLock(nodeId);
-            Assert.AreEqual(newLockValue, actualLockValue);
-        }
-
-
-        [TestMethod]
-        public void SharedLock_ModifyLock()
-        {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var oldLockValue = Guid.NewGuid().ToString();
-            var newLockValue = Guid.NewGuid().ToString();
-            Provider.CreateSharedLock(nodeId, oldLockValue);
-            Assert.AreEqual(oldLockValue, Provider.GetSharedLock(nodeId));
-
-            // ACTION
-            Provider.ModifySharedLock(nodeId, oldLockValue, newLockValue);
-
-            Assert.AreEqual(newLockValue, Provider.GetSharedLock(nodeId));
+                // ASSERT
+                // Equivalent to the refresh lock
+                var now = DateTime.UtcNow;
+                var actualDate = GetSharedLockCreationDate(nodeId);
+                var delta = (now - actualDate).TotalSeconds;
+                Assert.IsTrue(delta < 1);
+            });
         }
         [TestMethod]
         [ExpectedException(typeof(LockedNodeException))]
-        public void SharedLock_ModifyLockDifferent()
+        public async STT.Task SharedLock_Lock_Different()
         {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var oldLockValue = Guid.NewGuid().ToString();
-            var newLockValue = Guid.NewGuid().ToString();
-            Provider.CreateSharedLock(nodeId, oldLockValue);
-            Assert.AreEqual(oldLockValue, Provider.GetSharedLock(nodeId));
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var oldLockValue = Guid.NewGuid().ToString();
+                var newLockValue = Guid.NewGuid().ToString();
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue, CancellationToken.None);
+                SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
 
-            // ACTION
-            var actualLock = Provider.ModifySharedLock(nodeId, "DifferentLock", newLockValue);
-
-            Assert.AreEqual(oldLockValue, actualLock);
+                // ACTION
+                await Provider.CreateSharedLockAsync(nodeId, newLockValue, CancellationToken.None);
+            });
         }
         [TestMethod]
-        [ExpectedException(typeof(SharedLockNotFoundException))]
-        public void SharedLock_ModifyLock_Missing()
+        public async STT.Task SharedLock_Lock_DifferentTimedOut()
         {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var oldLockValue = Guid.NewGuid().ToString();
-            var newLockValue = Guid.NewGuid().ToString();
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var oldLockValue = Guid.NewGuid().ToString();
+                var newLockValue = Guid.NewGuid().ToString();
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue, CancellationToken.None);
+                SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
 
-            // ACTION
-            Provider.ModifySharedLock(nodeId, oldLockValue, newLockValue);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(SharedLockNotFoundException))]
-        public void SharedLock_ModifyLock_TimedOut()
-        {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var oldLockValue = Guid.NewGuid().ToString();
-            var newLockValue = Guid.NewGuid().ToString();
-            Provider.CreateSharedLock(nodeId, oldLockValue);
-            SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
+                // ACTION
+                await Provider.CreateSharedLockAsync(nodeId, newLockValue, CancellationToken.None);
 
-            // ACTION
-            Provider.ModifySharedLock(nodeId, oldLockValue, newLockValue);
+                var actualLockValue = await Provider.GetSharedLockAsync(nodeId, CancellationToken.None);
+                Assert.AreEqual(newLockValue, actualLockValue);
+            });
         }
 
 
         [TestMethod]
-        public void SharedLock_RefreshLock()
+        public async STT.Task SharedLock_ModifyLock()
         {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var lockValue = "LCK_" + Guid.NewGuid();
-            Provider.CreateSharedLock(nodeId, lockValue);
-            SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var oldLockValue = Guid.NewGuid().ToString();
+                var newLockValue = Guid.NewGuid().ToString();
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue, CancellationToken.None);
+                Assert.AreEqual(oldLockValue, await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
 
-            // ACTION
-            Provider.RefreshSharedLock(nodeId, lockValue);
+                // ACTION
+                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue, CancellationToken.None);
 
-            Assert.IsTrue((DateTime.UtcNow - GetSharedLockCreationDate(nodeId)).TotalSeconds < 1);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(LockedNodeException))]
-        public void SharedLock_RefreshLock_Different()
-        {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var lockValue = "LCK_" + Guid.NewGuid();
-            Provider.CreateSharedLock(nodeId, lockValue);
-
-            // ACTION
-            var actualLock = Provider.RefreshSharedLock(nodeId, "DifferentLock");
-
-            Assert.AreEqual(lockValue, actualLock);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(SharedLockNotFoundException))]
-        public void SharedLock_RefreshLock_Missing()
-        {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var lockValue = "LCK_" + Guid.NewGuid();
-
-            // ACTION
-            Provider.RefreshSharedLock(nodeId, lockValue);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(SharedLockNotFoundException))]
-        public void SharedLock_RefreshLock_TimedOut()
-        {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var lockValue = Guid.NewGuid().ToString();
-            Provider.CreateSharedLock(nodeId, lockValue);
-            SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
-
-            // ACTION
-            Provider.RefreshSharedLock(nodeId, lockValue);
-        }
-
-
-        [TestMethod]
-        public void SharedLock_Unlock()
-        {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var existingLock = "LCK_" + Guid.NewGuid();
-            Provider.CreateSharedLock(nodeId, existingLock);
-
-            // ACTION
-            Provider.DeleteSharedLock(nodeId, existingLock);
-
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
+                Assert.AreEqual(newLockValue, await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+            });
         }
         [TestMethod]
         [ExpectedException(typeof(LockedNodeException))]
-        public void SharedLock_Unlock_Different()
+        public async STT.Task SharedLock_ModifyLockDifferent()
         {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var existingLock = "LCK_" + Guid.NewGuid();
-            Provider.CreateSharedLock(nodeId, existingLock);
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var oldLockValue = Guid.NewGuid().ToString();
+                var newLockValue = Guid.NewGuid().ToString();
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue, CancellationToken.None);
+                Assert.AreEqual(oldLockValue, await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
 
-            // ACTION
-            var actualLock = Provider.DeleteSharedLock(nodeId, "DifferentLock");
+                // ACTION
+                var actualLock = await Provider.ModifySharedLockAsync(nodeId, "DifferentLock", newLockValue, CancellationToken.None);
 
-            Assert.AreEqual(existingLock, actualLock);
+                Assert.AreEqual(oldLockValue, actualLock);
+            });
         }
         [TestMethod]
         [ExpectedException(typeof(SharedLockNotFoundException))]
-        public void SharedLock_Unlock_Missing()
+        public async STT.Task SharedLock_ModifyLock_Missing()
         {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var existingLock = "LCK_" + Guid.NewGuid();
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var oldLockValue = Guid.NewGuid().ToString();
+                var newLockValue = Guid.NewGuid().ToString();
 
-            // ACTION
-            Provider.DeleteSharedLock(nodeId, existingLock);
+                // ACTION
+                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue, CancellationToken.None);
+            });
         }
         [TestMethod]
         [ExpectedException(typeof(SharedLockNotFoundException))]
-        public void SharedLock_Unlock_TimedOut()
+        public async STT.Task SharedLock_ModifyLock_TimedOut()
         {
-            const int nodeId = 42;
-            Assert.IsNull(Provider.GetSharedLock(nodeId));
-            var existingLock = Guid.NewGuid().ToString();
-            Provider.CreateSharedLock(nodeId, existingLock);
-            SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var oldLockValue = Guid.NewGuid().ToString();
+                var newLockValue = Guid.NewGuid().ToString();
+                await Provider.CreateSharedLockAsync(nodeId, oldLockValue, CancellationToken.None);
+                SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
 
-            // ACTION
-            Provider.DeleteSharedLock(nodeId, existingLock);
+                // ACTION
+                await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue, CancellationToken.None);
+            });
+        }
+
+
+        [TestMethod]
+        public async STT.Task SharedLock_RefreshLock()
+        {
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var lockValue = "LCK_" + Guid.NewGuid();
+                await Provider.CreateSharedLockAsync(nodeId, lockValue, CancellationToken.None);
+                SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddMinutes(-10.0d));
+
+                // ACTION
+                await Provider.RefreshSharedLockAsync(nodeId, lockValue, CancellationToken.None);
+
+                Assert.IsTrue((DateTime.UtcNow - GetSharedLockCreationDate(nodeId)).TotalSeconds < 1);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(LockedNodeException))]
+        public async STT.Task SharedLock_RefreshLock_Different()
+        {
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var lockValue = "LCK_" + Guid.NewGuid();
+                await Provider.CreateSharedLockAsync(nodeId, lockValue, CancellationToken.None);
+
+                // ACTION
+                var actualLock = await Provider.RefreshSharedLockAsync(nodeId, "DifferentLock", CancellationToken.None);
+
+                Assert.AreEqual(lockValue, actualLock);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(SharedLockNotFoundException))]
+        public async STT.Task SharedLock_RefreshLock_Missing()
+        {
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var lockValue = "LCK_" + Guid.NewGuid();
+
+                // ACTION
+                await Provider.RefreshSharedLockAsync(nodeId, lockValue, CancellationToken.None);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(SharedLockNotFoundException))]
+        public async STT.Task SharedLock_RefreshLock_TimedOut()
+        {
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var lockValue = Guid.NewGuid().ToString();
+                await Provider.CreateSharedLockAsync(nodeId, lockValue, CancellationToken.None);
+                SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
+
+                // ACTION
+                await Provider.RefreshSharedLockAsync(nodeId, lockValue, CancellationToken.None);
+            });
+        }
+
+
+        [TestMethod]
+        public async STT.Task SharedLock_Unlock()
+        {
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var existingLock = "LCK_" + Guid.NewGuid();
+                await Provider.CreateSharedLockAsync(nodeId, existingLock, CancellationToken.None);
+
+                // ACTION
+                await Provider.DeleteSharedLockAsync(nodeId, existingLock, CancellationToken.None);
+
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(LockedNodeException))]
+        public async STT.Task SharedLock_Unlock_Different()
+        {
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var existingLock = "LCK_" + Guid.NewGuid();
+                await Provider.CreateSharedLockAsync(nodeId, existingLock, CancellationToken.None);
+
+                // ACTION
+                var actualLock = await Provider.DeleteSharedLockAsync(nodeId, "DifferentLock", CancellationToken.None);
+
+                Assert.AreEqual(existingLock, actualLock);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(SharedLockNotFoundException))]
+        public async STT.Task SharedLock_Unlock_Missing()
+        {
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var existingLock = "LCK_" + Guid.NewGuid();
+
+                // ACTION
+                await Provider.DeleteSharedLockAsync(nodeId, existingLock, CancellationToken.None);
+            });
+        }
+        [TestMethod]
+        [ExpectedException(typeof(SharedLockNotFoundException))]
+        public async STT.Task SharedLock_Unlock_TimedOut()
+        {
+            await NoRepositoryIntegrtionTest(async () =>
+            {
+                SharedLock.RemoveAllLocks(CancellationToken.None);
+                const int nodeId = 42;
+                Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
+                var existingLock = Guid.NewGuid().ToString();
+                await Provider.CreateSharedLockAsync(nodeId, existingLock, CancellationToken.None);
+                SetSharedLockCreationDate(nodeId, DateTime.UtcNow.AddHours(-1.0d));
+
+                // ACTION
+                await Provider.DeleteSharedLockAsync(nodeId, existingLock, CancellationToken.None);
+            });
         }
 
         /* ====================================================================== Tools */
 
         private void SetSharedLockCreationDate(int nodeId, DateTime value)
         {
-            if (!(DataProvider.GetExtension<ISharedLockDataProviderExtension>() is SqlSharedLockDataProvider dataProvider))
-                throw new InvalidOperationException("InMemorySharedLockDataProvider not configured.");
-
-            dataProvider.SetCreationDate(nodeId, value);
+            TDP.SetSharedLockCreationDate(nodeId, value);
         }
         private DateTime GetSharedLockCreationDate(int nodeId)
         {
-            if (!(DataProvider.GetExtension<ISharedLockDataProviderExtension>() is SqlSharedLockDataProvider dataProvider))
-                throw new InvalidOperationException("InMemorySharedLockDataProvider not configured.");
-
-            return dataProvider.GetCreationDate(nodeId);
+            return TDP.GetSharedLockCreationDate(nodeId);
         }
 
     }

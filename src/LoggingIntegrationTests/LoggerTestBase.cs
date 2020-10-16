@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Security;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.Diagnostics;
@@ -13,17 +15,13 @@ namespace LoggingIntegrationTests
 {
     public abstract class LoggerTestBase
     {
-        protected void InitializeLogEntriesTable()
+        protected void InitializeLogEntriesTable(RelationalDataProviderBase dataProvider)
         {
-            SenseNet.Configuration.ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests;
-            var proc = DataProvider.Instance.CreateDataProcedure("DELETE FROM [LogEntries]");
-            proc.CommandType = CommandType.Text;
-            proc.ExecuteNonQuery();
-            proc = DataProvider.Instance.CreateDataProcedure("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)");
-            proc.CommandType = CommandType.Text;
-            proc.ExecuteNonQuery();
-
-            //RepositoryVersionInfo.Reset();
+            using (var ctx = dataProvider.CreateDataContext(CancellationToken.None))
+            {
+                ctx.ExecuteNonQueryAsync("DELETE FROM [LogEntries]").GetAwaiter().GetResult();
+                ctx.ExecuteNonQueryAsync("DBCC CHECKIDENT ('[LogEntries]', RESEED, 1)").GetAwaiter().GetResult();
+            }
         }
 
         protected EventLogEntry GetLastEventLogEntry()

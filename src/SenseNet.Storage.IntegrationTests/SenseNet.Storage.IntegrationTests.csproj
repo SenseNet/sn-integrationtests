@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FD3AE293-694D-4D21-B299-4CC22768098C}</ProjectGuid>
+    <ProjectGuid>{0EBD60AE-9469-4550-97E5-1C1B2EC15272}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SenseNet.ContentRepository.IntegrationTests</RootNamespace>
-    <AssemblyName>SenseNet.ContentRepository.IntegrationTests</AssemblyName>
+    <RootNamespace>SenseNet.Storage.IntegrationTests</RootNamespace>
+    <AssemblyName>SenseNet.Storage.IntegrationTests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -41,6 +41,9 @@
   <ItemGroup>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.2.2.0\lib\netstandard2.0\Microsoft.Extensions.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=3.1.2.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Configuration.Abstractions.3.1.2\lib\netstandard2.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
@@ -81,8 +84,11 @@
     <Reference Include="Nito.Disposables, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Nito.Disposables.2.0.0\lib\netstandard2.0\Nito.Disposables.dll</HintPath>
     </Reference>
-    <Reference Include="SenseNet.Tools, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SenseNet.Tools.3.1.0\lib\netstandard2.0\SenseNet.Tools.dll</HintPath>
+    <Reference Include="SenseNet.Preview, Version=7.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SenseNet.Preview.7.2.0\lib\netstandard2.0\SenseNet.Preview.dll</HintPath>
+    </Reference>
+    <Reference Include="SenseNet.Tools, Version=3.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SenseNet.Tools.3.2.2\lib\netstandard2.0\SenseNet.Tools.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -109,6 +115,9 @@
       <HintPath>..\packages\System.Diagnostics.EventLog.4.5.0\lib\net461\System.Diagnostics.EventLog.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Common, Version=4.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.4.5.0\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
     <Reference Include="System.Memory, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.2\lib\netstandard2.0\System.Memory.dll</HintPath>
     </Reference>
@@ -137,27 +146,56 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccessTokenTests.cs" />
-    <Compile Include="Initializer.cs" />
+    <Compile Include="MsSqlDataInstallerTests.cs" />
+    <Compile Include="MsSqlDataProviderTests.cs" />
+    <Compile Include="MsSqlDataProviderTests_AppModel.cs" />
+    <Compile Include="MsSqlDataProviderTests_CopyMove.cs" />
+    <Compile Include="MsSqlDataProviderTests_IsSystem.cs" />
+    <Compile Include="MsSqlDataProviderTests_SchemaWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqlSharedLockDataProviderUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\sensenet\src\BlobStorage\SenseNet.BlobStorage.csproj">
+      <Project>{5577b9e7-7c55-43e3-b2a2-cc192c12c20b}</Project>
+      <Name>SenseNet.BlobStorage</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\sensenet\src\Common\SenseNet.Common.csproj">
-      <Project>{42075CAB-39C0-4055-AA3E-3B12850117B8}</Project>
+      <Project>{42075cab-39c0-4055-aa3e-3b12850117b8}</Project>
       <Name>SenseNet.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\sensenet\src\ContentRepository.InMemory\SenseNet.ContentRepository.InMemory.csproj">
+      <Project>{23469B3A-979B-4FB7-93F2-83E458EB2D45}</Project>
+      <Name>SenseNet.ContentRepository.InMemory</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\sensenet\src\ContentRepository\SenseNet.ContentRepository.csproj">
-      <Project>{786E6165-CA02-45A9-BF58-207A45D7D6DF}</Project>
+      <Project>{786e6165-ca02-45a9-bf58-207a45d7d6df}</Project>
       <Name>SenseNet.ContentRepository</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\sensenet\src\Search\SenseNet.Search.csproj">
+      <Project>{1020caaf-18fd-418f-b3b0-3cab79e619b6}</Project>
+      <Name>SenseNet.Search</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\sensenet\src\Services\SenseNet.Services.csproj">
+      <Project>{B72529C8-FEB1-49F5-B08B-56055B58F296}</Project>
+      <Name>SenseNet.Services</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\sensenet\src\Storage\SenseNet.Storage.csproj">
-      <Project>{5DB4DDBA-81F6-4D81-943A-18F3178B3355}</Project>
+      <Project>{5db4ddba-81f6-4d81-943a-18f3178b3355}</Project>
       <Name>SenseNet.Storage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\sensenet\src\Tests\SenseNet.Tests\SenseNet.Tests.csproj">
+      <Project>{a0909e8f-e039-4080-a259-676cfd38ccd1}</Project>
+      <Name>SenseNet.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\sn-security\src\SenseNet.Security\SenseNet.Security.csproj">
+      <Project>{9fa65e99-96d3-4323-896b-cb53e0777c82}</Project>
+      <Name>SenseNet.Security</Name>
     </ProjectReference>
     <ProjectReference Include="..\SenseNet.IntegrationTests.Common\SenseNet.IntegrationTests.Common.csproj">
       <Project>{627620f1-ec79-408d-a965-63d69c168672}</Project>

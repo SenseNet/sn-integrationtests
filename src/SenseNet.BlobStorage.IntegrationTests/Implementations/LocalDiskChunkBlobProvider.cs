@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using SenseNet.ContentRepository.Storage.Data;
 
 namespace SenseNet.BlobStorage.IntegrationTests.Implementations
@@ -40,17 +42,22 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             return BlobStorageContext.DeserializeBlobProviderData<LocalDiskChunkBlobProviderData>(providerData);
         }
 
-        public void Allocate(BlobStorageContext context)
+        public Task AllocateAsync(BlobStorageContext context, CancellationToken cancellationToken)
         {
             var id = Guid.NewGuid();
             CreateFolder(id);
             context.BlobProviderData = new LocalDiskChunkBlobProviderData { Id = id, ChunkSize = ChunkByteSize };
+            return Task.CompletedTask;
         }
 
-        public void Delete(BlobStorageContext context)
+        public Task DeleteAsync(BlobStorageContext context, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var id = GetData(context).Id;
+            //UNDONE:DB:BLOB (?) Write a wrapped cancellable async solution
             DeleteFolder(id);
+            return Task.CompletedTask;
         }
 
         public Stream GetStreamForRead(BlobStorageContext context)
@@ -73,7 +80,8 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             return GetStreamForRead(context);
         }
 
-        public void Write(BlobStorageContext context, long offset, byte[] buffer)
+        public async System.Threading.Tasks.Task WriteAsync(BlobStorageContext context, long offset, byte[] buffer,
+            CancellationToken cancellationToken)
         {
             var providerData = (LocalDiskChunkBlobProviderData)context.BlobProviderData;
             var originalChunkSize = providerData.ChunkSize;
@@ -84,20 +92,7 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             var sourceOffset = 0;
 
             while (GetNextChunk(originalChunkSize, buffer, ref length, ref offset, ref sourceOffset, out var bytes, out var chunkIndex))
-                WriteChunk(((LocalDiskChunkBlobProviderData)context.BlobProviderData).Id, chunkIndex, bytes);
-        }
-        public async System.Threading.Tasks.Task WriteAsync(BlobStorageContext context, long offset, byte[] buffer)
-        {
-            var providerData = (LocalDiskChunkBlobProviderData)context.BlobProviderData;
-            var originalChunkSize = providerData.ChunkSize;
-
-            AssertValidChunks(context.Length, originalChunkSize, offset, buffer.Length);
-
-            var length = buffer.Length;
-            var sourceOffset = 0;
-
-            while (GetNextChunk(originalChunkSize, buffer, ref length, ref offset, ref sourceOffset, out var bytes, out var chunkIndex))
-                await WriteChunkAsync(((LocalDiskChunkBlobProviderData)context.BlobProviderData).Id, chunkIndex, bytes);
+                await WriteChunkAsync(((LocalDiskChunkBlobProviderData)context.BlobProviderData).Id, chunkIndex, bytes, cancellationToken);
         }
 
         /// <summary>
@@ -143,10 +138,11 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             using (var stream = new FileStream(GetFilePath(id, chunkIndex), FileMode.OpenOrCreate))
                 stream.Write(bytes, 0, bytes.Length);
         }
-        public static async System.Threading.Tasks.Task WriteChunkAsync(Guid id, int chunkIndex, byte[] bytes)
+        public static async System.Threading.Tasks.Task WriteChunkAsync(Guid id, int chunkIndex, byte[] bytes,
+            CancellationToken cancellationToken)
         {
             using (var stream = new FileStream(GetFilePath(id, chunkIndex), FileMode.OpenOrCreate))
-                await stream.WriteAsync(bytes, 0, bytes.Length);
+                await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken);
         }
 
         private static void CreateFolder(Guid id)

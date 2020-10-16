@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using SenseNet.ContentRepository.Storage.Data;
 
 namespace SenseNet.BlobStorage.IntegrationTests.Implementations
@@ -34,17 +36,21 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             return BlobStorageContext.DeserializeBlobProviderData<LocalDiskBlobProviderData>(providerData);
         }
 
-        public void Allocate(BlobStorageContext context)
+        public async Task AllocateAsync(BlobStorageContext context, CancellationToken cancellationToken)
         {
             var id = Guid.NewGuid();
-            CreateFile(id, null);
+            await CreateFileAsync(id, null, cancellationToken);
             context.BlobProviderData = new LocalDiskBlobProviderData { Id = id };
         }
 
-        public void Delete(BlobStorageContext context)
+        public Task DeleteAsync(BlobStorageContext context, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var id = GetData(context).Id;
+            //UNDONE:DB:BLOB (?) Write a wrapped cancellable async solution
             DeleteFile(id);
+            return Task.CompletedTask;
         }
 
         public Stream GetStreamForRead(BlobStorageContext context)
@@ -65,18 +71,13 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             return GetStream(context, FileMode.Open);
         }
 
-        public void Write(BlobStorageContext context, long offset, byte[] buffer)
+        public async Task WriteAsync(BlobStorageContext context, long offset, byte[] buffer,
+            CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             using (var stream = GetAndExtendStream(context, offset, buffer.Length))
             {
-                stream.Write(buffer, 0, buffer.Length);
-            }
-        }
-        public async System.Threading.Tasks.Task WriteAsync(BlobStorageContext context, long offset, byte[] buffer)
-        {
-            using (var stream = GetAndExtendStream(context, offset, buffer.Length))
-            {
-                await stream.WriteAsync(buffer, 0, buffer.Length);
+                await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken);
             }
         }
 
@@ -112,14 +113,14 @@ namespace SenseNet.BlobStorage.IntegrationTests.Implementations
             return specData;
         }
 
-        private void CreateFile(Guid id, Stream stream)
+        private async Task CreateFileAsync(Guid id, Stream stream, CancellationToken cancellationToken)
         {
             using (var fileStream = new FileStream(GetPath(id), FileMode.CreateNew))
             {
                 if (stream != null)
                 {
                     var buffer = new byte[stream.Length];
-                    stream.Read(buffer, 0, Convert.ToInt32(stream.Length));
+                    await stream.ReadAsync(buffer, 0, Convert.ToInt32(stream.Length), cancellationToken);
                     fileStream.Write(buffer, 0, buffer.Length);
                 }
             }

@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.BlobStorage.IntegrationTests.Implementations;
 using SenseNet.ContentRepository;
 using SenseNet.ContentRepository.Storage;
-using SenseNet.ContentRepository.Storage.Data.SqlClient;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.ContentRepository.Storage.Security;
 
@@ -12,8 +13,8 @@ namespace SenseNet.BlobStorage.IntegrationTests
     [TestClass]
     public class BuiltInLocalDiskTests : BlobStorageIntegrationTests
     {
-        protected override string DatabaseName => "sn7blobtests_builtinfs";
-        protected override bool SqlFsEnabled => true;
+        protected override string DatabaseName => "sn7blobtests_builtin"; //"sn7blobtests_builtinfs";
+        protected override bool SqlFsEnabled => false;
         protected override bool SqlFsUsed => false;
         protected override Type ExpectedExternalBlobProviderType => typeof(LocalDiskBlobProvider);
         protected override Type ExpectedMetadataProviderType => typeof(MsSqlBlobMetaDataProvider);
@@ -119,23 +120,26 @@ namespace SenseNet.BlobStorage.IntegrationTests
         }
 
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_DeleteSmall()
+        public void Blob_BuiltInLocalDisk_DeleteSmall_Maintenance()
         {
             TestCase_DeleteSmall();
         }
         [TestMethod]
-        public void Blob_BuiltInLocalDisk_DeleteBig()
+        public void Blob_BuiltInLocalDisk_DeleteBig_Maintenance()
         {
             TestCase_DeleteBig();
         }
 
-        [TestMethod]
+        //TODO: Use this test when the sn-blob-mssqlfs repository is implemented well
+        //[TestMethod]
         public void Blob_BuiltInLocalDisk_Bug_EmptyFileStreamAndExternalRecord()
         {
             // Symptom: record in the Files table that contains external provider and empty
             // FileStream value (0x instead of [null]) causes error: LoadBinaryCacheEntity of the 
             // BlobMetadata provider reads this value that overrides the BlobProvider settings
             // and the SnStream constructor instantiates a RepositoryStream with a zero length buffer.
+
+            Assert.Inconclusive();
 
             using (new SystemAccount())
             using (new SizeLimitSwindler(this, 10))
@@ -147,7 +151,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 file.Save();
                 var fileId = file.Binary.FileId;
                 var versionId = file.VersionId;
-                HackFileRowFileStream(fileId, new byte[0]);
+                HackFileRowStream(fileId, new byte[0]);
                 var dbFile = LoadDbFile(fileId);
                 Assert.IsNotNull(dbFile.BlobProvider);
                 Assert.IsNotNull(dbFile.BlobProviderData);
@@ -156,8 +160,9 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
                 // action
                 var bcEentity =
-                    BlobStorageComponents.DataProvider.LoadBinaryCacheEntity(versionId,
-                        PropertyType.GetByName("Binary").Id);
+                    BlobStorageComponents.DataProvider.LoadBinaryCacheEntityAsync(versionId,
+                        PropertyType.GetByName("Binary").Id,
+                        CancellationToken.None).GetAwaiter().GetResult();
 
                 // assert
                 Assert.IsNull(bcEentity.RawData);

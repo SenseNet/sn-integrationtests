@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using LoggingIntegrationTests.Implementations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.Configuration;
 using SenseNet.ContentRepository.Storage.Data;
+using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.Diagnostics;
 
 namespace LoggingIntegrationTests
@@ -11,14 +14,24 @@ namespace LoggingIntegrationTests
     [TestClass]
     public class EntlibLoggerTests : LoggerTestBase
     {
+        private MsSqlDataProvider Dp
+        {
+            get
+            {
+                if (DataStore.DataProvider is MsSqlDataProvider dp && ConnectionStrings.ConnectionString == SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests)
+                    return dp;
+                ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests;
+                Providers.Instance.DataProvider = (dp = new MsSqlDataProvider());
+                return dp;
+            }
+        }
+
         [TestMethod]
         public void Logging_Information_ToEntlib()
         {
             using (SwindleLogger(new EntLibLoggerAdapter()))
             {
-                var provider = DataProvider.Current;
-                Assert.AreEqual("SqlProvider", provider.GetType().Name);
-                InitializeLogEntriesTable();
+                InitializeLogEntriesTable(Dp);
 
                 var testMessage = Guid.NewGuid().ToString();
 
@@ -40,9 +53,7 @@ namespace LoggingIntegrationTests
         {
             using (SwindleLogger(new EntLibLoggerAdapter()))
             {
-                var provider = DataProvider.Current;
-                Assert.AreEqual("SqlProvider", provider.GetType().Name);
-                InitializeLogEntriesTable();
+                InitializeLogEntriesTable(Dp);
 
                 var testMessage = Guid.NewGuid().ToString();
 
@@ -50,7 +61,8 @@ namespace LoggingIntegrationTests
                 SnLog.WriteAudit(new TestAuditEvent(testMessage));
 
                 // assert
-                var auditEvent = DataProvider.Current.LoadLastAuditLogEntries(1).FirstOrDefault();
+                var auditEvent = Dp.LoadLastAuditEventsAsync(1, CancellationToken.None).GetAwaiter().GetResult()
+                    .FirstOrDefault();
                 Assert.IsNotNull(auditEvent);
                 Assert.AreEqual(testMessage, auditEvent.Message);
             }
