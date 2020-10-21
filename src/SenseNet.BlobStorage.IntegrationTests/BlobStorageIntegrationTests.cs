@@ -23,8 +23,11 @@ using SenseNet.ContentRepository.Storage.Schema;
 using SenseNet.ContentRepository.Storage.Security;
 using SenseNet.Diagnostics;
 using SenseNet.Extensions.DependencyInjection;
+using SenseNet.IntegrationTests.Common.Implementations;
+using SenseNet.Testing;
 using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
+using STT = System.Threading.Tasks;
 // ReSharper disable AccessToDisposedClosure
 
 namespace SenseNet.BlobStorage.IntegrationTests
@@ -270,6 +273,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
             dp2.SetExtension(typeof(ISharedLockDataProviderExtension), new MsSqlSharedLockDataProvider());
             dp2.SetExtension(typeof(IAccessTokenDataProviderExtension), new MsSqlAccessTokenDataProvider());
+            dp2.SetExtension(typeof(ITestingDataProviderExtension), new MsSqlTestingDataProvider());
 
             /* ------------------------------------------------------------------------ */
 
@@ -980,6 +984,113 @@ namespace SenseNet.BlobStorage.IntegrationTests
                 Assert.IsTrue(IsDeleted(ctx, external));
             }
         }
+
+        public void TestCase_DeletionPolicy_Default()
+        {
+            var dp = DataStore.DataProvider;
+            var tdp = DataStore.GetDataProviderExtension<ITestingDataProviderExtension>();
+
+            Assert.AreEqual(BlobDeletionPolicy.BackgroundDelayed, Configuration.BlobStorage.BlobDeletionPolicy);
+            var countsBefore = GetDbObjectCountsAsync(null, dp, tdp).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            DeletionPolicy_TheTest();
+
+            var countsAfter = GetDbObjectCountsAsync(null, dp, tdp).ConfigureAwait(false).GetAwaiter().GetResult();
+            Assert.AreEqual(countsBefore.AllCountsExceptFiles, countsAfter.AllCountsExceptFiles);
+            Assert.AreNotEqual(countsBefore.Files, countsAfter.Files);
+            Thread.Sleep(500);
+            Assert.AreNotEqual(countsBefore.Files, countsAfter.Files);
+        }
+        public void TestCase_DeletionPolicy_Immediately()
+        {
+            var dp = DataStore.DataProvider;
+            var tdp = DataStore.GetDataProviderExtension<ITestingDataProviderExtension>();
+            var countsBefore = GetDbObjectCountsAsync(null, dp, tdp).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            using (new BlobDeletionPolicySwindler(BlobDeletionPolicy.Immediately))
+                DeletionPolicy_TheTest();
+
+            var countsAfter = GetDbObjectCountsAsync(null, dp, tdp).ConfigureAwait(false).GetAwaiter().GetResult();
+            Assert.AreEqual(countsBefore.Files, countsAfter.Files);
+            Assert.AreEqual(countsBefore.AllCounts, countsAfter.AllCounts);
+        }
+        public void TestCase_DeletionPolicy_BackgroundImmediately()
+        {
+            var dp = DataStore.DataProvider;
+            var tdp = DataStore.GetDataProviderExtension<ITestingDataProviderExtension>();
+            var countsBefore = GetDbObjectCountsAsync(null, dp, tdp).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            using (new BlobDeletionPolicySwindler(BlobDeletionPolicy.BackgroundImmediately))
+                DeletionPolicy_TheTest();
+
+            var countsAfter = GetDbObjectCountsAsync(null, dp, tdp).ConfigureAwait(false).GetAwaiter().GetResult();
+            Assert.AreEqual(countsBefore.AllCountsExceptFiles, countsAfter.AllCountsExceptFiles);
+            Assert.AreNotEqual(countsBefore.Files, countsAfter.Files);
+            Thread.Sleep(500);
+            Assert.AreEqual(countsBefore.Files, countsAfter.Files);
+        }
+        private void DeletionPolicy_TheTest()
+        {
+            using (new SystemAccount())
+            {
+                // Create a small subtree
+                var root = new SystemFolder(Repository.Root) {Name = "TestRoot"};
+                root.Save();
+                var f1 = new SystemFolder(root) {Name = "F1"};
+                f1.Save();
+                var f2 = new File(root) {Name = "F2"};
+                f2.Binary.SetStream(RepositoryTools.GetStreamFromString("filecontent"));
+                f2.Save();
+                var f3 = new SystemFolder(f1) {Name = "F3"};
+                f3.Save();
+                var f4 = new File(root) {Name = "F4"};
+                f4.Binary.SetStream(RepositoryTools.GetStreamFromString("filecontent"));
+                f4.Save();
+
+                // ACTION
+                Node.ForceDelete(root.Path);
+
+                // ASSERT
+                Assert.IsNull(Node.Load<SystemFolder>(root.Id));
+                Assert.IsNull(Node.Load<SystemFolder>(f1.Id));
+                Assert.IsNull(Node.Load<File>(f2.Id));
+                Assert.IsNull(Node.Load<SystemFolder>(f3.Id));
+                Assert.IsNull(Node.Load<File>(f4.Id));
+            }
+        }
+        private async STT.Task<(int Nodes, int Versions, int Binaries, int Files, int LongTexts, string AllCounts, string AllCountsExceptFiles)> GetDbObjectCountsAsync(string path, DataProvider dp, ITestingDataProviderExtension tdp)
+        {
+            var nodesTask = dp.GetNodeCountAsync(path, CancellationToken.None);
+            var versionsTask = dp.GetVersionCountAsync(path, CancellationToken.None);
+            var binariesTasks = tdp.GetBinaryPropertyCountAsync(path);
+            var filesTask = tdp.GetFileCountAsync(path);
+            var longTextsTask = tdp.GetLongTextCountAsync(path);
+
+            STT.Task.WaitAll(nodesTask, versionsTask, binariesTasks, filesTask, longTextsTask);
+
+            var nodes = nodesTask.Result;
+            var versions = versionsTask.Result;
+            var binaries = binariesTasks.Result;
+            var files = filesTask.Result;
+            var longTexts = longTextsTask.Result;
+            
+            var all = $"{nodes},{versions},{binaries},{files},{longTexts}";
+            var allExceptFiles = $"{nodes},{versions},{binaries},{longTexts}";
+
+            var result = (Nodes: nodes, Versions: versions, Binaries: binaries, Files: files, LongTexts: longTexts, AllCounts: all, AllCountsExceptFiles: allExceptFiles);
+            return await STT.Task.FromResult(result);
+        }
+        private class BlobDeletionPolicySwindler : Swindler<BlobDeletionPolicy>
+        {
+            public BlobDeletionPolicySwindler(BlobDeletionPolicy hack) : base(
+                hack,
+                () => Configuration.BlobStorage.BlobDeletionPolicy,
+                (value) => { Configuration.BlobStorage.BlobDeletionPolicy = value; })
+            {
+            }
+        }
+
+
 
         private bool IsDeleted(BlobStorageContext context, bool external)
         {
