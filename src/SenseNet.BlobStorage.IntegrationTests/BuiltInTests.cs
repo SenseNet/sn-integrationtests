@@ -123,5 +123,22 @@ namespace SenseNet.BlobStorage.IntegrationTests
         {
             TestCase_DeleteBig();
         }
+
+        [TestMethod]
+        public void Blob_BuiltIn_DeletionPolicy_Default()
+        {
+            TestCase_DeletionPolicy_Default();
+        }
+        [TestMethod]
+        public void Blob_BuiltIn_DeletionPolicy_Immediately()
+        {
+            TestCase_DeletionPolicy_Immediately();
+        }
+        //[TestMethod]
+        public void Blob_BuiltIn_DeletionPolicy_BackgroundImmediately()
+        {
+            // This test cannot be executed well because the background threading does not work.
+            TestCase_DeletionPolicy_BackgroundImmediately();
+        }
     }
 }
