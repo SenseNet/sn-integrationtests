@@ -46,9 +46,10 @@ namespace SenseNet.Packaging.IntegrationTests
             builder.UsePackagingDataProviderExtension(new MsSqlPackagingDataProvider());
 
             // preparing database
-            ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
+            var connectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
+            ConnectionStrings.ConnectionString = connectionString;
 
-            using (var ctx = new MsSqlDataContext(CancellationToken.None))
+            using (var ctx = new MsSqlDataContext(connectionString, new DataOptions(), CancellationToken.None))
             {
                 DropPackagesTable(ctx);
                 InstallPackagesTable(ctx);
@@ -1371,6 +1372,78 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual(4, packages.Count);
             Assert.AreEqual("1, C1: Install Successful, 3.0",
                 PackagesToString(packages[3]));
+        }
+
+        /* ===================================================================== EXECUTION VS VERSIONINFO TESTS */
+
+        [TestMethod]
+        public void Patching_Exec_ComponentLifeCycleVsVersionInfo()
+        {
+            void Exec(PatchExecutionContext ctx) { /* do nothing but register the fact of execution */ }
+
+
+            AssertVersionInfo("C1", null, new string[0]);
+
+            // ACTION-1
+            var installed = new List<SnComponentDescriptor>();
+            var candidates = new List<ISnPatch>
+            {
+                Inst("C1", "v1.0", Exec, Exec),
+            };
+            var patchManager = new PatchManager(null, null);
+            patchManager.ExecuteOnBefore(candidates, installed, false);
+            patchManager.ExecuteOnAfter(candidates, installed, false);
+
+            // ASSERT-1
+            AssertVersionInfo("C1", "1.0", new[] { "1.0" });
+
+
+            // ACTION-2
+            installed = new List<SnComponentDescriptor>();
+            candidates = new List<ISnPatch>
+            {
+                Inst("C1", "v2.0", Exec, Exec),
+                Patch("C1", "1.0 <= v < 2.0", "v2.0", Exec, Exec),
+            };
+            patchManager = new PatchManager(null, null);
+            patchManager.ExecuteOnBefore(candidates, installed, false);
+            patchManager.ExecuteOnAfter(candidates, installed, false);
+
+            // ASSERT-2
+            AssertVersionInfo("C1", "2.0", new[] { "1.0", "2.0" });
+        }
+
+        private void AssertVersionInfo(string componentId,
+            string expectedComponentVersion, string[] expectedPackageVersions)
+        {
+            var versionInfo = RepositoryVersionInfo.Instance;
+
+            var packages = versionInfo.InstalledPackages.Where(x => x.ComponentId == componentId).ToArray();
+            if (expectedPackageVersions.Length == 0)
+            {
+                Assert.AreEqual(0, packages.Length);
+            }
+            else
+            {
+                var expected = string.Join(", ", expectedPackageVersions);
+                var actual = string.Join(", ", packages.Select(x => x.ComponentVersion.ToString()));
+                Assert.AreEqual(expected, actual);
+
+                Assert.AreEqual(PackageType.Install, packages[0].PackageType);
+                for (int i = 1; i < packages.Length; i++)
+                    Assert.AreEqual(PackageType.Patch, packages[0].PackageType);
+            }
+
+            var component = versionInfo.Components.SingleOrDefault(x => x.ComponentId == componentId);
+            if (expectedComponentVersion == null)
+            {
+                Assert.IsNull(component);
+            }
+            else
+            {
+                Assert.IsNotNull(component, "Component not found.");
+                Assert.AreEqual(expectedComponentVersion, component.Version.ToString());
+            }
         }
 
         /* ======================================================================= CONDITIONAL EXECUTION TESTS */

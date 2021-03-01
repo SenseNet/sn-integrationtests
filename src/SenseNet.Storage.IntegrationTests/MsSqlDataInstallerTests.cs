@@ -220,13 +220,13 @@ namespace SenseNet.Storage.IntegrationTests
         [TestMethod]
         public async Task MsSqlDataInstaller_TestData()
         {
-            var data = InitialData.Load(InMemoryTestData.Instance);
+            var data = InitialData.Load(InMemoryTestData.Instance, null);
             await InstallInitialDataTest(data);
         }
         [TestMethod]
         public async Task MsSqlDataInstaller_SensenetServices()
         {
-            var data = InitialData.Load(new SenseNetServicesInitialData());
+            var data = InitialData.Load(new SenseNetServicesInitialData(), null);
             await InstallInitialDataTest(data);
         }
 
@@ -257,14 +257,17 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(dynProps.SelectMany(x => x.BinaryProperties).Count(), counts["BinaryProperties"]);
                 Assert.AreEqual(counts["BinaryProperties"], counts["Files"]);
 
+                var connectionString = ConnectionStrings.ConnectionString;
+                var dataOptions = new DataOptions();
+
                 var sql = "SELECT COUNT(0) FROM Nodes WHERE CreatedById = 0 or ModifiedById = 0 or OwnerId = 0";
-                using (var ctx = new MsSqlDataContext(CancellationToken.None))
+                using (var ctx = new MsSqlDataContext(connectionString, dataOptions, CancellationToken.None))
                 {
                     var count = (int)await ctx.ExecuteScalarAsync(sql);
                     Assert.AreEqual(0, count);
                 }
                 sql = "SELECT COUNT(0) FROM Versions WHERE CreatedById = 0 or ModifiedById = 0";
-                using (var ctx = new MsSqlDataContext(CancellationToken.None))
+                using (var ctx = new MsSqlDataContext(connectionString, dataOptions, CancellationToken.None))
                 {
                     var count = (int)await ctx.ExecuteScalarAsync(sql);
                     Assert.AreEqual(0, count);
@@ -282,7 +285,7 @@ WHERE t.is_ms_shipped = 0 -- Means: user defines
 GROUP BY t.NAME, p.Rows
 ORDER BY t.Name";
 
-            using (var ctx = new MsSqlDataContext(CancellationToken.None))
+            using (var ctx = new MsSqlDataContext(ConnectionStrings.ConnectionString, new DataOptions(), CancellationToken.None))
             {
                 return await ctx.ExecuteReaderAsync(sql, async (reader, cancel) =>
                 {

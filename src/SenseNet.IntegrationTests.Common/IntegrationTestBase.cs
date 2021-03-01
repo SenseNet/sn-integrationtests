@@ -324,7 +324,7 @@ namespace SenseNet.IntegrationTests.Common
         protected static InitialData GetInitialData()
         {
             if (_initialData == null)
-                _initialData = InitialData.Load(InMemoryTestData.Instance);
+                _initialData = InitialData.Load(InMemoryTestData.Instance, null);
             return _initialData;
         }
 

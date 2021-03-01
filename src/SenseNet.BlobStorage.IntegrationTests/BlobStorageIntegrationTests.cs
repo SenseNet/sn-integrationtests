@@ -331,7 +331,7 @@ namespace SenseNet.BlobStorage.IntegrationTests
             var dataFile = InMemoryTestData.Instance;
             if (_initialData == null)
             {
-                var initialData = InitialData.Load(dataFile);
+                var initialData = InitialData.Load(dataFile, null);
                 //initialData.ContentTypeDefinitions = dataFile.ContentTypeDefinitions;
                 //initialData.Blobs = dataFile.Blobs;
                 _initialData = initialData;
