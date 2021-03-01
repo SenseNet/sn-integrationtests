@@ -23,6 +23,7 @@ using SenseNet.Search.Indexing;
 using SenseNet.Search.Querying;
 using SenseNet.Tests;
 using SenseNet.Tests.Implementations;
+using ConnectionStrings = SenseNet.IntegrationTests.Common.ConnectionStrings;
 using Task = System.Threading.Tasks.Task;
 
 namespace SenseNet.Storage.IntegrationTests
@@ -2596,8 +2597,8 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         private class CannotCommitTransaction : TransactionWrapper
         {
-            public CannotCommitTransaction(DbTransaction transaction, CancellationToken cancellationToken)
-                : base(transaction, cancellationToken) { }
+            public CannotCommitTransaction(DbTransaction transaction, DataOptions options, CancellationToken cancellationToken)
+                : base(transaction, options, cancellationToken) { }
             public override void Commit()
             {
                 throw new NotSupportedException("This transaction cannot commit anything.");
@@ -2605,21 +2606,22 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         }
         private class TestDataContext : MsSqlDataContext
         {
-            public TestDataContext(CancellationToken cancellationToken) : base(cancellationToken)
+            public TestDataContext(string connectionString, DataOptions options, CancellationToken cancellationToken)
+                : base(connectionString, options, cancellationToken)
             {
                     
             }
             public override TransactionWrapper WrapTransaction(DbTransaction underlyingTransaction,
                 CancellationToken cancellationToken, TimeSpan timeout = default(TimeSpan))
             {
-                return new CannotCommitTransaction(underlyingTransaction, cancellationToken);
+                return new CannotCommitTransaction(underlyingTransaction, new DataOptions(), cancellationToken);
             }
         }
         private class CannotCommitDataProvider : MsSqlDataProvider
         {
             public override SnDataContext CreateDataContext(CancellationToken token)
             {
-                return new TestDataContext(token);
+                return new TestDataContext(ConnectionStrings.ForStorageTests, new DataOptions(), token);
             }
         }
 

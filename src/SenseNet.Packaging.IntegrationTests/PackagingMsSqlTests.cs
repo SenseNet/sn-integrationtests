@@ -26,7 +26,7 @@ namespace SenseNet.Packaging.IntegrationTests
     {
         public override void Execute(ExecutionContext context)
         {
-            using (var ctx = new MsSqlDataContext(CancellationToken.None))
+            using (var ctx = new MsSqlDataContext(ConnectionStrings.ConnectionString, new DataOptions(), CancellationToken.None))
                 PackagingMsSqlTests.InstallPackagesTable(ctx);
         }
     }
@@ -61,9 +61,10 @@ namespace SenseNet.Packaging.IntegrationTests
             builder.UsePackagingDataProviderExtension(new MsSqlPackagingDataProvider());
 
             // preparing database
-            ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
-            
-            using (var ctx = new MsSqlDataContext(CancellationToken.None))
+            var connectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForPackagingTests;
+            ConnectionStrings.ConnectionString = connectionString;
+
+            using (var ctx = new MsSqlDataContext(connectionString, new DataOptions(), CancellationToken.None))
             {
                 DropPackagesTable(ctx);
                 InstallPackagesTable(ctx);
