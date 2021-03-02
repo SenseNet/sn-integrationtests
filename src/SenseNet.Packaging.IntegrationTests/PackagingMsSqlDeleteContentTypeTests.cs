@@ -581,7 +581,7 @@ namespace SenseNet.Packaging.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Step_DeleteContentType_IfNotUsed()
+        public async Task Packaging_SQL_Step_DeleteContentType_IfNotUsed()
         {
             await DeleteContentTypeTest(() =>
             {
