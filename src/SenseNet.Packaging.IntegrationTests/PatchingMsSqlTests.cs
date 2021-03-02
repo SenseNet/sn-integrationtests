@@ -16,7 +16,7 @@ using SenseNet.Tests;
 
 namespace SenseNet.Packaging.IntegrationTests
 {
-    [TestClass]
+    //[TestClass]
     public class PatchingMsSqlTests : TestBase
     {
         private static StringBuilder _log;
