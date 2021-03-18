@@ -58,7 +58,7 @@ namespace SenseNet.Packaging.IntegrationTests
             RepositoryVersionInfo.Reset();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void PatchingSystem_InstalledComponents()
         {
             var installer1 = new ComponentInstaller
@@ -101,7 +101,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual(1, components[1].Dependencies.Length);
             Assert.AreEqual("C1: 1.0 <= v <= 1.0", components[1].Dependencies[0].ToString());
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void PatchingSystem_InstalledComponents_Descriptions()
         {
             var installer = new ComponentInstaller
@@ -144,7 +144,7 @@ namespace SenseNet.Packaging.IntegrationTests
 
         /* ===================================================================== INFRASTRUCTURE TESTS */
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_SaveAndReloadFaultyInstaller()
         {
             var installer = new ComponentInstaller
@@ -196,7 +196,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual(PackagingExceptionType.DependencyNotFound.ToString(), data["ErrorType"].ToString());
 
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_ReSaveAndReloadInstaller()
         {
             var installer = new ComponentInstaller
@@ -246,7 +246,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual(ExecutionResult.Successful, patches[0].ExecutionResult);
             Assert.IsNull(patches[0].ExecutionError);
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_SaveAndReloadSnPatch()
         {
             var snPatch = new SnPatch
@@ -297,7 +297,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.IsNull(patch.ExecutionError);
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_SaveAndReload_Installer_FaultyBefore()
         {
             var installer = new ComponentInstaller
@@ -326,7 +326,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("C7: 1.0", patches[0].ToString());
             Assert.AreEqual(ExecutionResult.FaultyBefore, patches[0].ExecutionResult);
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_SaveAndReload_Installer_SuccessfulBefore()
         {
             var installer = new ComponentInstaller
@@ -366,7 +366,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("C7v(1.0,,SuccessfulBefore)", ComponentsToStringWithResult(components));
 
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_SaveAndReload_SnPatch_FaultyBefore()
         {
             var snPatch = new SnPatch
@@ -397,7 +397,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("C7: 1.0 <= v < 2.0 --> 2.0", patch.ToString());
             Assert.AreEqual(ExecutionResult.FaultyBefore, patch.ExecutionResult);
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_SaveAndReload_SnPatch_SuccessfulBefore()
         {
             var snPatch = new SnPatch
@@ -428,7 +428,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("C7: 1.0 <= v < 2.0 --> 2.0", patch.ToString());
             Assert.AreEqual(ExecutionResult.SuccessfulBefore, patch.ExecutionResult);
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_SaveAndReloadExecutionError()
         {
             var installer = Inst("C7", "1.0");
@@ -452,7 +452,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual(PackagingExceptionType.DependencyNotFound.ToString(), data["ErrorType"].ToString());
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_InstalledComponents()
         {
             var installer1 = new ComponentInstaller
@@ -495,7 +495,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual(1, components[1].Dependencies.Length);
             Assert.AreEqual("C1: 1.0 <= v <= 1.0", components[1].Dependencies[0].ToString());
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_InstalledComponents_Descriptions()
         {
             var installer = new ComponentInstaller
@@ -536,7 +536,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("C2: 1.0 <= v <= 1.0", components[0].Dependencies[0].ToString());
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_LoadInstalledComponents()
         {
             // Installers only
@@ -581,7 +581,7 @@ namespace SenseNet.Packaging.IntegrationTests
                 ComponentsToStringWithResult(currentComponents));
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_Load_Issue1174()
         {
             SavePackage(Inst("REF", "1.0"), ExecutionResult.Successful, true);
@@ -600,7 +600,7 @@ namespace SenseNet.Packaging.IntegrationTests
             // ASSERT
             Assert.AreEqual("C01v1.0(,,Successful) REFv1.0(,,Successful)", ComponentsToStringWithResult(currentComponents));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_Load_Issue1174_All_Installers()
         {
             //  S  F Sb Fb  U  ->              -> result
@@ -698,7 +698,7 @@ namespace SenseNet.Packaging.IntegrationTests
                             " C31v1.0(,,Successful)", ComponentsToStringWithResult(currentComponents));
             */
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_System_Load_Issue1174_All_Patches()
         {
             //  S  F Sb Fb  U  ->              -> result
@@ -802,7 +802,7 @@ namespace SenseNet.Packaging.IntegrationTests
 
         /* ===================================================================== EXECUTION TESTS */
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_NoAction()
         {
             // Faulty execution blocks the following patches on the same component.
@@ -844,7 +844,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("1, C1: Install Successful, 2.0",
                 PackagesToString(packages[3]));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_NoAfterAction()
         {
             // Faulty execution blocks the following patches on the same component.
@@ -887,7 +887,7 @@ namespace SenseNet.Packaging.IntegrationTests
                 PackagesToString(packages[3]));
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_InstallOne_Success()
         {
             var packages = new List<Package[]>();
@@ -929,7 +929,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("1, C1: Install Successful, 1.0", PackagesToString(packages[3]));
 
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_InstallOne_FaultyBefore()
         {
             var packages = new List<Package[]>();
@@ -967,7 +967,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("1, C1: Install Unfinished, 1.0", PackagesToString(packages[0]));
             Assert.AreEqual("1, C1: Install FaultyBefore, 1.0", PackagesToString(packages[1]));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_PatchOne_Success()
         {
             var packages = new List<Package[]>();
@@ -1017,7 +1017,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("1, C1: Install Successful, 1.0|" +
                             "2, C1: Patch Successful, 2.0", PackagesToString(packages[7]));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_PatchOne_Faulty()
         {
             var packages = new List<Package[]>();
@@ -1063,7 +1063,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("1, C1: Install Successful, 1.0|2, C1: Patch SuccessfulBefore, 2.0", PackagesToString(packages[6]));
             Assert.AreEqual("1, C1: Install Successful, 1.0|2, C1: Patch Faulty, 2.0", PackagesToString(packages[7]));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_SkipPatch_FaultyInstaller()
         {
             // Faulty execution blocks the following patches on the same component.
@@ -1110,7 +1110,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("1, C1: Install Faulty, 1.0|2, C1: Patch SuccessfulBefore, 2.0", PackagesToString(packages[5]));
             Assert.AreEqual("1, C1: Install Faulty, 1.0|2, C1: Patch SuccessfulBefore, 2.0", PackagesToString(packages[6]));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_SkipPatch_FaultySnPatch()
         {
             // Faulty execution blocks the following patches on the same component.
@@ -1163,7 +1163,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual("1, C1: Install Successful, 1.0|2, C1: Patch Faulty, 2.0|3, C1: Patch SuccessfulBefore, 3.0", PackagesToString(packages[10]));
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_SkipPatch_MoreFaultyChains()
         {
             // Faulty execution blocks the following patches on the same component.
@@ -1255,7 +1255,7 @@ namespace SenseNet.Packaging.IntegrationTests
                             "9, C3: Patch Successful, 3.0", PackagesToString(packages[32]));
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_WaitForDependency_WaitingBeforeAndAfter()
         {
             // Faulty execution blocks the following patches on the same component.
@@ -1329,7 +1329,7 @@ namespace SenseNet.Packaging.IntegrationTests
                             "6, C1: Patch Successful, 3.0",
                 PackagesToString(packages[23]));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_InstallerIsLast()
         {
             // Faulty execution blocks the following patches on the same component.
@@ -1376,7 +1376,7 @@ namespace SenseNet.Packaging.IntegrationTests
 
         /* ===================================================================== EXECUTION VS VERSIONINFO TESTS */
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_ComponentLifeCycleVsVersionInfo()
         {
             void Exec(PatchExecutionContext ctx) { /* do nothing but register the fact of execution */ }
@@ -1449,7 +1449,7 @@ namespace SenseNet.Packaging.IntegrationTests
         /* ======================================================================= CONDITIONAL EXECUTION TESTS */
 
         // Patch vary component versions conditionally
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_ConditionalActions_a()
         {
             var log = new List<PatchExecutionLogRecord>();
@@ -1499,7 +1499,7 @@ namespace SenseNet.Packaging.IntegrationTests
                 string.Join("|", log.Select(x => x.ToString())));
             Assert.AreEqual("", ErrorsToString(pm.Errors));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_ConditionalActions_b()
         {
             var log = new List<PatchExecutionLogRecord>();
@@ -1549,7 +1549,7 @@ namespace SenseNet.Packaging.IntegrationTests
                 string.Join("|", log.Select(x => x.ToString())));
             Assert.AreEqual("", ErrorsToString(pm.Errors));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_ConditionalActions_c()
         {
             var log = new List<PatchExecutionLogRecord>();
@@ -1627,7 +1627,7 @@ namespace SenseNet.Packaging.IntegrationTests
                 ctx.Log("After <=3.0");
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_ConditionalActions_AllConditions_a()
         {
             var log = new List<PatchExecutionLogRecord>();
@@ -1654,7 +1654,7 @@ namespace SenseNet.Packaging.IntegrationTests
                         x.EventType == PatchExecutionEventType.ExecutingOnAfter)
                     .Select(x => x.Message)));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_ConditionalActions_AllConditions_b()
         {
             var log = new List<PatchExecutionLogRecord>();
@@ -1681,7 +1681,7 @@ namespace SenseNet.Packaging.IntegrationTests
                         x.EventType == PatchExecutionEventType.ExecutingOnAfter)
                     .Select(x => x.Message)));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_ConditionalActions_AllConditions_c()
         {
             var log = new List<PatchExecutionLogRecord>();
@@ -1708,7 +1708,7 @@ namespace SenseNet.Packaging.IntegrationTests
                         x.EventType == PatchExecutionEventType.ExecutingOnAfter)
                     .Select(x => x.Message)));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_ConditionalActions_AllConditions_d()
         {
             var log = new List<PatchExecutionLogRecord>();
@@ -1735,7 +1735,7 @@ namespace SenseNet.Packaging.IntegrationTests
                         x.EventType == PatchExecutionEventType.ExecutingOnAfter)
                     .Select(x => x.Message)));
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Patching_Exec_ConditionalActions_AllConditions_e()
         {
             var log = new List<PatchExecutionLogRecord>();

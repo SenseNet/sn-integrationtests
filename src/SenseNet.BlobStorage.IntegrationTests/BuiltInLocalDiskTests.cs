@@ -33,105 +33,105 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
         /* ==================================================== Test cases */
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_CreateFileSmall()
         {
             TestCase_CreateFileSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_CreateFileBig()
         {
             TestCase_CreateFileBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_UpdateFileSmallEmpty()
         {
             TestCase_UpdateFileSmallEmpty();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_UpdateFileBigEmpty()
         {
             TestCase_UpdateFileBigEmpty();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_UpdateFileSmallSmall()
         {
             TestCase_UpdateFileSmallSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_UpdateFileSmallBig()
         {
             TestCase_UpdateFileSmallBig();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_UpdateFileBigSmall()
         {
             TestCase_UpdateFileBigSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_UpdateFileBigBig()
         {
             TestCase_UpdateFileBigBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_WriteChunksSmall()
         {
             TestCase_WriteChunksSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_WriteChunksBig()
         {
             TestCase_WriteChunksBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_DeleteBinaryPropertySmall()
         {
             TestCase_DeleteBinaryPropertySmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_DeleteBinaryPropertyBig()
         {
             TestCase_DeleteBinaryPropertyBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_CopyfileRowSmall()
         {
             TestCase_CopyfileRowSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_CopyfileRowBig()
         {
             TestCase_CopyfileRowBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_BinaryCacheEntitySmall()
         {
             TestCase_BinaryCacheEntitySmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_BinaryCacheEntityBig()
         {
             TestCase_BinaryCacheEntityBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_DeleteSmall_Maintenance()
         {
             TestCase_DeleteSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_DeleteBig_Maintenance()
         {
             TestCase_DeleteBig();
         }
 
         //TODO: Use this test when the sn-blob-mssqlfs repository is implemented well
-        //[TestMethod]
+        //// /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDisk_Bug_EmptyFileStreamAndExternalRecord()
         {
             // Symptom: record in the Files table that contains external provider and empty

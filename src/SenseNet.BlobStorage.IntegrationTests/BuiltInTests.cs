@@ -27,114 +27,114 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
         /* ==================================================== Test cases */
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_CreateFileSmall()
         {
             TestCase_CreateFileSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_CreateFileBig()
         {
             TestCase_CreateFileBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_UpdateFileSmallEmpty()
         {
             TestCase_UpdateFileSmallEmpty();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_UpdateFileBigEmpty()
         {
             TestCase_UpdateFileBigEmpty();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_UpdateFileSmallSmall()
         {
             TestCase_UpdateFileSmallSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_UpdateFileSmallBig()
         {
             TestCase_UpdateFileSmallBig();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_UpdateFileBigSmall()
         {
             TestCase_UpdateFileBigSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_UpdateFileBigBig()
         {
             TestCase_UpdateFileBigBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_WriteChunksSmall()
         {
             TestCase_WriteChunksSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_WriteChunksBig()
         {
             TestCase_WriteChunksBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_DeleteBinaryPropertySmall()
         {
             TestCase_DeleteBinaryPropertySmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_DeleteBinaryPropertyBig()
         {
             TestCase_DeleteBinaryPropertyBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_CopyfileRowSmall()
         {
             TestCase_CopyfileRowSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_CopyfileRowBig()
         {
             TestCase_CopyfileRowBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_BinaryCacheEntitySmall()
         {
             TestCase_BinaryCacheEntitySmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_BinaryCacheEntityBig()
         {
             TestCase_BinaryCacheEntityBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_DeleteSmall_Maintenance()
         {
             TestCase_DeleteSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_DeleteBig_Maintenance()
         {
             TestCase_DeleteBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_DeletionPolicy_Default()
         {
             TestCase_DeletionPolicy_Default();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltIn_DeletionPolicy_Immediately()
         {
             TestCase_DeletionPolicy_Immediately();
         }
-        //[TestMethod]
+        //// /*ok*/ [TestMethod]
         public void Blob_BuiltIn_DeletionPolicy_BackgroundImmediately()
         {
             // This test cannot be executed well because the background threading does not work.

@@ -28,98 +28,98 @@ namespace SenseNet.BlobStorage.IntegrationTests
 
         /* ==================================================== Test cases */
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_CreateFileSmall()
         {
             TestCase_CreateFileSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_CreateFileBig()
         {
             TestCase_CreateFileBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_UpdateFileSmallEmpty()
         {
             TestCase_UpdateFileSmallEmpty();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_UpdateFileBigEmpty()
         {
             TestCase_UpdateFileBigEmpty();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_UpdateFileSmallSmall()
         {
             TestCase_UpdateFileSmallSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_UpdateFileSmallBig()
         {
             TestCase_UpdateFileSmallBig();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_UpdateFileBigSmall()
         {
             TestCase_UpdateFileBigSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_UpdateFileBigBig()
         {
             TestCase_UpdateFileBigBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_WriteChunksSmall()
         {
             TestCase_WriteChunksSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_WriteChunksBig()
         {
             TestCase_WriteChunksBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_DeleteBinaryPropertySmall()
         {
             TestCase_DeleteBinaryPropertySmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_DeleteBinaryPropertyBig()
         {
             TestCase_DeleteBinaryPropertyBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_CopyfileRowSmall()
         {
             TestCase_CopyfileRowSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_CopyfileRowBig()
         {
             TestCase_CopyfileRowBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_BinaryCacheEntitySmall()
         {
             TestCase_BinaryCacheEntitySmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_BinaryCacheEntityBig()
         {
             TestCase_BinaryCacheEntityBig();
         }
 
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_DeleteSmall_Maintenance()
         {
             TestCase_DeleteSmall();
         }
-        [TestMethod]
+        // /*ok*/ [TestMethod]
         public void Blob_BuiltInLocalDiskChunk_DeleteBig_Maintenance()
         {
             TestCase_DeleteBig();
