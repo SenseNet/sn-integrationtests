@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.BackgroundOperations;
 using SenseNet.Configuration;
@@ -85,7 +86,10 @@ namespace SenseNet.Storage.IntegrationTests
 
             var builder = new RepositoryBuilder()
                     .UseDataProvider(dataProvider)
-                    .UseBlobMetaDataProvider(new MsSqlBlobMetaDataProvider())
+                    .UseBlobMetaDataProvider(new MsSqlBlobMetaDataProvider(
+                        Providers.Instance.BlobProviders,
+                        Options.Create(DataOptions.GetLegacyConfiguration()),
+                        Options.Create(BlobStorageOptions.GetLegacyConfiguration())))
                     .UseBlobProviderSelector(new InMemoryBlobProviderSelector())
                     .StartWorkflowEngine(false)
                     .DisableNodeObservers();

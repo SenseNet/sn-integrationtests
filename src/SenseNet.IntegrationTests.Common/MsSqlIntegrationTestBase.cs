@@ -1,4 +1,6 @@
-﻿using SenseNet.ContentRepository.Storage.Data;
+﻿using Microsoft.Extensions.Options;
+using SenseNet.Configuration;
+using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
 using SenseNet.ContentRepository.Storage.Data.SqlClient;
 using SenseNet.IntegrationTests.Common.Implementations;
@@ -11,7 +13,10 @@ namespace SenseNet.IntegrationTests.Common
         protected override DataProvider DataProvider => new MsSqlDataProvider();
         protected override ISharedLockDataProviderExtension SharedLockDataProvider => new MsSqlSharedLockDataProvider();
         protected override IAccessTokenDataProviderExtension AccessTokenDataProvider => new MsSqlAccessTokenDataProvider();
-        protected override IBlobStorageMetaDataProvider BlobStorageMetaDataProvider => new MsSqlBlobMetaDataProvider();
+        protected override IBlobStorageMetaDataProvider BlobStorageMetaDataProvider => new MsSqlBlobMetaDataProvider(
+            Providers.Instance.BlobProviders,
+            Options.Create(DataOptions.GetLegacyConfiguration()),
+            Options.Create(BlobStorageOptions.GetLegacyConfiguration()));
         protected override ITestingDataProviderExtension TestingDataProvider => new MsSqlTestingDataProvider();
 
         // ReSharper disable once InconsistentNaming
