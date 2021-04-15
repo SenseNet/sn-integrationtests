@@ -31,7 +31,7 @@ namespace SenseNet.Storage.IntegrationTests
     [TestClass]
     public partial class MsSqlDataProviderTests : MsSqlIntegrationTestBase
     {
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_InsertNode()
         {
             await StorageTest(async () =>
@@ -77,7 +77,7 @@ namespace SenseNet.Storage.IntegrationTests
 
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Update()
         {
             await StorageTest(async () =>
@@ -119,7 +119,7 @@ namespace SenseNet.Storage.IntegrationTests
                 NodeDataChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_CopyAndUpdate_NewVersion()
         {
             await StorageTest(async () =>
@@ -172,7 +172,7 @@ namespace SenseNet.Storage.IntegrationTests
                 NodeDataChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data, "BrowseApplication");
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_CopyAndUpdate_ExpectedVersion()
         {
             await StorageTest(async () =>
@@ -229,7 +229,7 @@ namespace SenseNet.Storage.IntegrationTests
                 NodeDataChecker.Assert_DynamicPropertiesAreEqualExceptBinaries(nodeData, loaded.Data, "BrowseApplication");
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_UpdateNodeHead()
         {
             await StorageTest(async () =>
@@ -290,7 +290,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_HandleAllDynamicProps()
         {
             var contentTypeName = "TestContent";
@@ -383,7 +383,7 @@ namespace SenseNet.Storage.IntegrationTests
         }
 
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Rename()
         {
             await StorageTest(async () =>
@@ -422,7 +422,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_LoadChildren()
         {
             await StorageTest(async () =>
@@ -446,7 +446,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Move()
         {
             await MoveTest(async (source, target) =>
@@ -463,7 +463,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //There are further asserts in the caller. See the MoveTest method.
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Move_DataStore_NodeHead()
         {
             await MoveTest(async (source, target) =>
@@ -480,7 +480,7 @@ namespace SenseNet.Storage.IntegrationTests
                 //There are further asserts in the caller. See the MoveTest method.
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Move_DataStore_NodeData()
         {
             await MoveTest(async (source, target) =>
@@ -498,7 +498,6 @@ namespace SenseNet.Storage.IntegrationTests
                 //There are further asserts in the caller. See the MoveTest method.
             });
         }
-
         private async Task MoveTest(Func<Node, Node, Task> callback)
         {
             await StorageTest(async () =>
@@ -534,7 +533,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_RefreshCacheAfterSave()
         {
             await StorageTest(() =>
@@ -578,7 +577,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_LazyLoadedBigText()
         {
             await StorageTest(async () =>
@@ -617,7 +616,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(longText, lazyLoadedDescription);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_LazyLoadedBigTextVsCache()
         {
             await StorageTest(() =>
@@ -680,7 +679,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_LoadChildTypesToAllow()
         {
             await StorageTest(async () =>
@@ -709,7 +708,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual("DocumentLibrary, Folder, MemoList, Task", names);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_ContentListTypesInTree()
         {
             await StorageTest(async () =>
@@ -743,7 +742,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_ForceDelete()
         {
             await StorageTest(async () =>
@@ -776,7 +775,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(countsBefore.AllCountsExceptFiles, countsAfter.AllCountsExceptFiles);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_DeleteDeleted()
         {
             await StorageTest(async () =>
@@ -795,7 +794,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_GetVersionNumbers()
         {
             await StorageTest(() =>
@@ -830,7 +829,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_GetVersionNumbers_MissingNode()
         {
             await StorageTest(async () =>
@@ -843,7 +842,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_LoadBinaryPropertyValues()
         {
             await StorageTest(async () =>
@@ -884,7 +883,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_NodeEnumerator()
         {
             await StorageTest(() =>
@@ -911,7 +910,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_NameSuffix()
         {
             await StorageTest(() =>
@@ -930,7 +929,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_TreeSize_Root()
         {
             await IsolatedStorageTest(async () =>
@@ -943,7 +942,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(expectedSize, size);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_TreeSize_Subtree()
         {
             await StorageTest(async () =>
@@ -961,7 +960,7 @@ WHERE Path LIKE '/Root/System/Schema/ContentTypes/GenericContent/Folder%'";
                 Assert.AreEqual(expectedSize, size);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_TreeSize_Item()
         {
             await StorageTest(async () =>
@@ -982,7 +981,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         /* ================================================================================================== ShortText escape */
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_ShortText_Escape()
         {
             await StorageTest(() =>
@@ -1027,7 +1026,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         /* ================================================================================================== NodeQuery */
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_NodeQuery_InstanceCount()
         {
             await IsolatedStorageTest(async () =>
@@ -1065,7 +1064,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_NodeQuery_ChildrenIdentfiers()
         {
             await IsolatedStorageTest(async () =>
@@ -1080,7 +1079,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_NodeQuery_QueryNodesByTypeAndPathAndName()
         {
             await IsolatedStorageTest(async () =>
@@ -1152,7 +1151,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 AssertSequenceEqual(expected, result);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_NodeQuery_QueryNodesByTypeAndPathAndProperty()
         {
             var contentType1 = "TestContent1";
@@ -1275,7 +1274,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 }
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_NodeQuery_QueryNodesByReferenceAndType()
 
         {
@@ -1351,7 +1350,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         /* ================================================================================================== TreeLock */
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_LoadEntityTree()
         {
             await StorageTest(async () =>
@@ -1373,7 +1372,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         /* ================================================================================================== TreeLock */
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_TreeLock()
         {
             await IsolatedStorageTest(async () =>
@@ -1431,7 +1430,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         /* ================================================================================================== IndexDocument */
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_LoadIndexDocuments()
         {
             const string fileContent = "File content.";
@@ -1476,7 +1475,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual(7, onlySystemFolders.Length);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_SaveIndexDocumentById()
         {
             await StorageTest(async () =>
@@ -1503,7 +1502,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         /* ================================================================================================== IndexingActivities */
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_IA_GetLastIndexingActivityId()
         {
             await IndexingActivityTest(async (firstId, lastId) =>
@@ -1512,7 +1511,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual(lastId, result);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_IA_LoadIndexingActivities_Page()
         {
             await IndexingActivityTest(async (firstId, lastId) =>
@@ -1539,7 +1538,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.IsFalse(result[4].IsUnprocessedActivity);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_IA_LoadIndexingActivities_PageUnprocessed()
         {
             await IndexingActivityTest(async (firstId, lastId) =>
@@ -1566,7 +1565,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.IsTrue(result[4].IsUnprocessedActivity);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_IA_LoadIndexingActivities_Gaps()
         {
             await IndexingActivityTest(async (firstId, lastId) =>
@@ -1584,7 +1583,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual(105, result[2].NodeId);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_IA_LoadIndexingActivities_Executable()
         {
             await IndexingActivityTest(async (firstId, lastId) =>
@@ -1602,7 +1601,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual(expectedIds, string.Join(",", result.Activities.Select(x => x.NodeId.ToString())));
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_IA_LoadIndexingActivities_ExecutableAndFinished()
         {
             await IndexingActivityTest(async (firstId, lastId) =>
@@ -1624,7 +1623,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual(expectedIds, string.Join(",", result.Activities.Select(x => x.NodeId.ToString())));
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_IA_UpdateRunningState()
         {
             await IndexingActivityTest(async (firstId, lastId) =>
@@ -1647,7 +1646,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual(IndexingActivityRunningState.Waiting, after[2].RunningState);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_IA_RefreshLockTime()
         {
             await IndexingActivityTest(async (firstId, lastId) =>
@@ -1671,7 +1670,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.IsTrue(after[1].LockTime >= startTime);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_IA_DeleteFinished()
         {
             await IndexingActivityTest(async (firstId, lastId) =>
@@ -1685,7 +1684,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual(firstId + 3, result.First().Id);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_IA_LoadFull()
         {
             await StorageTest(async () =>
@@ -1790,7 +1789,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         /* ================================================================================================== Nodes */
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_CopyAndUpdateNode_Rename()
         {
             await StorageTest(async () =>
@@ -1831,7 +1830,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_LoadNodes()
         {
             await StorageTest(async () =>
@@ -1848,7 +1847,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_LoadNodeHeadByVersionId_Missing()
         {
             await StorageTest(async () =>
@@ -1861,7 +1860,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_NodeAndVersion_CountsAndTimestamps()
         {
             await StorageTest(async () =>
@@ -1895,7 +1894,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         /* ================================================================================================== Errors */
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_InsertNode_AlreadyExists()
         {
             await StorageTest(async () =>
@@ -1921,7 +1920,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_UpdateNode_Deleted()
         {
             await StorageTest(async () =>
@@ -1947,7 +1946,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 }
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_UpdateNode_MissingVersion()
         {
             await StorageTest(async () =>
@@ -1977,7 +1976,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 }
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_UpdateNode_OutOfDate()
         {
             await StorageTest(async () =>
@@ -2008,7 +2007,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_CopyAndUpdateNode_Deleted()
         {
             await StorageTest(async () =>
@@ -2037,7 +2036,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 }
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_CopyAndUpdateNode_MissingVersion()
         {
             await StorageTest(async () =>
@@ -2066,7 +2065,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 }
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_CopyAndUpdateNode_OutOfDate()
         {
             await StorageTest(async () =>
@@ -2096,7 +2095,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_UpdateNodeHead_Deleted()
         {
             await StorageTest(async () =>
@@ -2121,7 +2120,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 }
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_UpdateNodeHead_OutOfDate()
         {
             await StorageTest(async () =>
@@ -2147,7 +2146,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_DeleteNode()
         {
             await StorageTest(async () =>
@@ -2172,7 +2171,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_MoveNode_MissingSource()
         {
             await StorageTest(async () =>
@@ -2197,7 +2196,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 }
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_MoveNode_MissingTarget()
         {
             await StorageTest(async () =>
@@ -2221,7 +2220,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 }
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_MoveNode_OutOfDate()
         {
             await StorageTest(async () =>
@@ -2247,7 +2246,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Error_QueryNodesByReferenceAndTypeAsync()
         {
             await StorageTest(async () =>
@@ -2283,7 +2282,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         /* ================================================================================================== Transaction */
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Transaction_InsertNode()
         {
             await StorageTest(async () =>
@@ -2318,7 +2317,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual(countsBefore, countsAfter);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Transaction_UpdateNode()
         {
             await StorageTest(async () =>
@@ -2360,7 +2359,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual("Description-1", reloaded.Description);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Transaction_CopyAndUpdateNode()
         {
             await StorageTest(async () =>
@@ -2406,7 +2405,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual(versionId2, reloaded.VersionId);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Transaction_UpdateNodeHead()
         {
             await StorageTest(async () =>
@@ -2453,7 +2452,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual(versionId2, reloaded.VersionId);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Transaction_MoveNode()
         {
             await StorageTest(async () =>
@@ -2500,7 +2499,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 Assert.AreEqual($"/Root/{rootName}/Source/F1/F4", f4.Path);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Transaction_RenameNode()
         {
             await StorageTest(async () =>
@@ -2544,7 +2543,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
                 AssertSequenceEqual(expectedPaths, paths);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Transaction_DeleteNode()
         {
             await StorageTest(async () =>
@@ -2627,7 +2626,7 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
 
         /* ================================================================================================== Schema */
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_Schema_ExclusiveUpdate()
         {
             await StorageTest(async () =>
