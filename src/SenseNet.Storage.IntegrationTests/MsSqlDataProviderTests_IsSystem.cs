@@ -30,7 +30,7 @@ namespace SenseNet.Storage.IntegrationTests
     {
         /* ================================================================== IsSystem flag tests */
 
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task MsSqlDP_IsSystem_OnFolder()
         {
             await StorageTest(() =>
@@ -49,7 +49,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return STT.Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task MsSqlDP_IsSystem_OnSystemFolder()
         {
             await StorageTest(() =>
@@ -69,7 +69,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return STT.Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task MsSqlDP_IsSystem_OnFolderUnderSystemFolder()
         {
             await StorageTest(() =>
@@ -93,7 +93,7 @@ namespace SenseNet.Storage.IntegrationTests
         }
 
 
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task MsSqlDP_IsSystem_Copy_FromFolderToFolder()
         {
             await IsolatedStorageTest(() =>
@@ -173,7 +173,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return STT.Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task MsSqlDP_IsSystem_Copy_FromSystemFolderToSystemFolder()
         {
             await IsolatedStorageTest(() =>
@@ -253,7 +253,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return STT.Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task MsSqlDP_IsSystem_Copy_FromFolderToSystemFolder()
         {
             await IsolatedStorageTest(() =>
@@ -333,7 +333,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return STT.Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task MsSqlDP_IsSystem_Copy_FromSystemFolderToFolder()
         {
             await StorageTest(() =>
@@ -415,7 +415,7 @@ namespace SenseNet.Storage.IntegrationTests
         }
 
 
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task MsSqlDP_IsSystem_Move_FromFolderToFolder()
         {
             await StorageTest(() =>
@@ -494,7 +494,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return STT.Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task MsSqlDP_IsSystem_Move_FromSystemFolderToSystemFolder()
         {
             await StorageTest(() =>
@@ -573,7 +573,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return STT.Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task MsSqlDP_IsSystem_Move_FromFolderToSystemFolder()
         {
             await StorageTest(() =>
@@ -652,7 +652,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return STT.Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task MsSqlDP_IsSystem_Move_FromSystemFolderToFolder()
         {
             await StorageTest(() =>
@@ -732,7 +732,7 @@ namespace SenseNet.Storage.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         [Description("Tree root is folder but subtree contains system folder descendants.")]
         public async STT.Task MsSqlDP_IsSystem_Move_FromFolderToSystemFolder_Descendant()
         {

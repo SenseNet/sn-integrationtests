@@ -16,7 +16,7 @@ namespace SenseNet.Storage.IntegrationTests
     {
         /* ============================================================================== PropertyType */
 
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_CreatePropertyType()
         {
             StorageTest(() =>
@@ -46,7 +46,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             }).GetAwaiter().GetResult();
         }
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_CreateContentListPropertyType()
         {
             StorageTest(() =>
@@ -74,7 +74,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             }).GetAwaiter().GetResult();
         }
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_DeletePropertyType()
         {
             StorageTest(() =>
@@ -106,7 +106,7 @@ namespace SenseNet.Storage.IntegrationTests
 
         /* ============================================================================== NodeType */
 
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_CreateRootNodeType_WithoutClassName()
         {
             StorageTest(() =>
@@ -133,7 +133,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             }).GetAwaiter().GetResult();
         }
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_CreateRootNodeType_WithClassName()
         {
             StorageTest(() =>
@@ -160,7 +160,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             }).GetAwaiter().GetResult();
         }
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_CreateNodeType_WithParent()
         {
             StorageTest(() =>
@@ -195,7 +195,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             }).GetAwaiter().GetResult();
         }
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_ModifyNodeType()
         {
             StorageTest(() =>
@@ -225,7 +225,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             }).GetAwaiter().GetResult();
         }
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_DeleteNodeType()
         {
             StorageTest(() =>
@@ -256,7 +256,7 @@ namespace SenseNet.Storage.IntegrationTests
 
         /* ============================================================================== ContentListType */
 
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_CreateContentListType()
         {
             StorageTest(() =>
@@ -280,7 +280,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             }).GetAwaiter().GetResult();
         }
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_DeleteContentListType()
         {
             StorageTest(() =>
@@ -318,7 +318,7 @@ namespace SenseNet.Storage.IntegrationTests
 
         /* ============================================================================== PropertyType assignment */
 
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_AddPropertyTypeToNodeType_Declared()
         {
             StorageTest(() =>
@@ -350,7 +350,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             }).GetAwaiter().GetResult();
         }
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_AddPropertyTypeToNodeType_Inherited()
         {
             //Assert.Inconclusive();
@@ -390,7 +390,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             }).GetAwaiter().GetResult();
         }
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_AddPropertyTypeToContentListType()
         {
             StorageTest(() =>
@@ -419,7 +419,7 @@ namespace SenseNet.Storage.IntegrationTests
             }).GetAwaiter().GetResult();
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_RemovePropertyTypeFromNodeType()
         {
             StorageTest(() =>
@@ -464,7 +464,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             }).GetAwaiter().GetResult();
         }
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_RemovePropertyTypeFromContentListType()
         {
             StorageTest(() =>
@@ -502,7 +502,7 @@ namespace SenseNet.Storage.IntegrationTests
             }).GetAwaiter().GetResult();
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void MsSqlSchemaWriter_RemovePropertyTypeFromBaseNodeType()
         {
             StorageTest(() =>

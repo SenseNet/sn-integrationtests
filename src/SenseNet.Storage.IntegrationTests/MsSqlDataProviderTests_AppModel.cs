@@ -11,7 +11,7 @@ namespace SenseNet.Storage.IntegrationTests
 {
     public partial class MsSqlDataProviderTests
     {
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_AppModel_ResolveFromPredefinedPaths_First()
         {
             await StorageTest(() =>
@@ -43,7 +43,7 @@ namespace SenseNet.Storage.IntegrationTests
                 return Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDP_AppModel_ResolveFromPredefinedPaths_All()
         {
             await StorageTest(() =>
