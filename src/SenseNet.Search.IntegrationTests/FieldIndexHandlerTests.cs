@@ -39,7 +39,7 @@ namespace SenseNet.Search.IntegrationTests
             }
         }
 
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_BooleanIndexHandler()
         {
             var fieldValue = true;
@@ -58,7 +58,7 @@ namespace SenseNet.Search.IntegrationTests
             var retrieved = fieldIndexHandler.GetBack("yes");
             Assert.AreEqual(fieldValue, retrieved);
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_IntegerIndexHandler()
         {
             var fieldValue = 42;
@@ -77,7 +77,7 @@ namespace SenseNet.Search.IntegrationTests
             var retrieved = fieldIndexHandler.GetBack("42");
             Assert.AreEqual(fieldValue, retrieved);
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_NumberIndexHandler()
         {
             var fieldValue = Convert.ToDecimal(42L + int.MaxValue);
@@ -96,7 +96,7 @@ namespace SenseNet.Search.IntegrationTests
             var retrieved = fieldIndexHandler.GetBack(fieldValue.ToString());
             Assert.AreEqual(fieldValue, retrieved);
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_LongTextIndexHandler()
         {
             var fieldValue = "Long text.";
@@ -114,7 +114,7 @@ namespace SenseNet.Search.IntegrationTests
 
             // get back is not supported
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_InFolderIndexHandler()
         {
             var fieldValue = "/Root/A/B";
@@ -133,7 +133,7 @@ namespace SenseNet.Search.IntegrationTests
             var retrieved = fieldIndexHandler.GetBack("/Root/A/B");
             Assert.AreEqual(fieldValue, retrieved);
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_InTreeIndexHandler()
         {
             var fieldValue = "/Root/A/B";
@@ -151,7 +151,7 @@ namespace SenseNet.Search.IntegrationTests
 
             // get back is not supported
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_HyperLinkIndexHandler()
         {
             var fieldValue = new HyperLinkField.HyperlinkData("href", "text", "title", "target");
@@ -170,7 +170,7 @@ namespace SenseNet.Search.IntegrationTests
 
             // get back is not supported
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_PermissionChoiceIndexHandler()
         {
             var fieldValue = new[] { "href", "text", "title", "target" };
@@ -189,7 +189,7 @@ namespace SenseNet.Search.IntegrationTests
 
             // get back is not supported
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_TagIndexHandler()
         {
             var fieldValue = "Tag1,Tag2,Tag3";
@@ -212,7 +212,7 @@ namespace SenseNet.Search.IntegrationTests
 
         /* ===================================================================== tests with repo */
 
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_LowerStringIndexHandler()
         {
             Test(() =>
@@ -235,7 +235,7 @@ namespace SenseNet.Search.IntegrationTests
                 Assert.AreEqual(contentName, retrieved);
             });
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_DateTimeIndexHandler()
         {
             Test(() =>
@@ -259,7 +259,7 @@ namespace SenseNet.Search.IntegrationTests
                 Assert.AreEqual(now, retrieved);
             });
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_TypeTreeIndexHandler()
         {
             Test(() =>
@@ -281,7 +281,7 @@ namespace SenseNet.Search.IntegrationTests
                 // get back is not supported
             });
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_ExclusiveTypeIndexHandler()
         {
             Test(() =>
@@ -303,7 +303,7 @@ namespace SenseNet.Search.IntegrationTests
                 // get back is not supported
             });
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod] TestCategory("IR")]
         public void FieldIndexHandler_ReferenceIndexHandler()
         {
             Test(() =>
@@ -326,7 +326,7 @@ namespace SenseNet.Search.IntegrationTests
                 Assert.AreEqual(42, retrieved);
             });
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod, TestCategory("IR")]
         public void FieldIndexHandler_BinaryIndexHandler()
         {
             Test(() =>
@@ -357,7 +357,7 @@ namespace SenseNet.Search.IntegrationTests
                 // get back is not supported
             });
         }
-        [TestMethod, TestCategory("IR")]
+        //[TestMethod, TestCategory("IR")]
         public void FieldIndexHandler_ChoiceIndexHandler()
         {
             Test(() =>
