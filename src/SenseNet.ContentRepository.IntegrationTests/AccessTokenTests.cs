@@ -16,7 +16,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
     [TestClass]
     public class AccessTokenTests : MsSqlIntegrationTestBase
     {
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Create_ForUser()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -38,7 +38,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsTrue((token.ExpirationDate - DateTime.UtcNow - timeout).TotalMilliseconds < 1000);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Create_ForUser_ValueLength()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -54,7 +54,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsTrue(token.Value.Length >= 50);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Create_ForUser_Twice()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -72,7 +72,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.AreNotEqual(token1.Value, token2.Value);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Create_ForUserAndContent()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -95,7 +95,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsTrue((token.ExpirationDate - DateTime.UtcNow - timeout).TotalMilliseconds < 1000);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Create_ForUserAndFeature()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -118,7 +118,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsTrue((token.ExpirationDate - DateTime.UtcNow - timeout).TotalMilliseconds < 1000);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Create_ForUserContentAndFeature()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -143,7 +143,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Get_ForUser()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -160,7 +160,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 AssertTokensAreEqual(savedToken, token);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Get_ForUserAndContent()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -179,7 +179,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsNull(await AccessTokenVault.GetTokenAsync(savedToken.Value, CancellationToken.None));
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Get_ForUserAndFeature()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -198,7 +198,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsNull(await AccessTokenVault.GetTokenAsync(savedToken.Value, CancellationToken.None));
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Get_ForUserContentAndFeature()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -220,7 +220,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsNull(await AccessTokenVault.GetTokenAsync(savedToken.Value, contentId, CancellationToken.None));
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Get_Expired()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -239,7 +239,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_GetByUser()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -282,7 +282,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Exists()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -299,7 +299,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsTrue(isExists);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Exists_Missing()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -313,7 +313,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsFalse(isExists);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Exists_Expired()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -332,7 +332,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_AssertExists()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -348,7 +348,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 //Assert.AllRight() :)
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
         public async Tasks.Task AccessToken_AssertExists_Missing()
         {
@@ -358,7 +358,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 await AccessTokenVault.AssertTokenExistsAsync("asdf", CancellationToken.None);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
         public async Tasks.Task AccessToken_AssertExists_Expired()
         {
@@ -375,7 +375,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Update()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -395,7 +395,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsTrue(loadedToken.ExpirationDate > DateTime.UtcNow.AddMinutes(20.0d));
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
         public async Tasks.Task AccessToken_UpdateMissing()
         {
@@ -405,7 +405,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 await AccessTokenVault.UpdateTokenAsync("asdf", DateTime.UtcNow.AddMinutes(30.0d), CancellationToken.None);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(InvalidAccessTokenException))]
         public async Tasks.Task AccessToken_UpdateExpired()
         {
@@ -422,7 +422,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Delete_Token()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -452,7 +452,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[3].Id, CancellationToken.None));
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Delete_ByUser()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -481,7 +481,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsNotNull(await AccessTokenVault.GetTokenByIdAsync(savedTokens[3].Id, CancellationToken.None));
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Tasks.Task AccessToken_Delete_ByContent()
         {
             await NoRepositoryIntegrtionTest(async () =>
