@@ -13,13 +13,14 @@ namespace SenseNet.Search.IntegrationTests
     [TestClass]
     public class CentralizedIndexingSqlTests : CentralizedIndexingTestCases
     {
-        protected override DataProvider DataProvider => new MsSqlDataProvider();
+        protected override DataProvider DataProvider => new MsSqlDataProvider(Options.Create(ConnectionStringOptions.GetLegacyConnectionStrings()));
         protected override ISharedLockDataProviderExtension SharedLockDataProvider => new MsSqlSharedLockDataProvider();
         protected override IAccessTokenDataProviderExtension AccessTokenDataProvider => new MsSqlAccessTokenDataProvider();
         protected override IBlobStorageMetaDataProvider BlobStorageMetaDataProvider => new MsSqlBlobMetaDataProvider(
             Providers.Instance.BlobProviders,
             Options.Create(DataOptions.GetLegacyConfiguration()),
-            Options.Create(BlobStorageOptions.GetLegacyConfiguration()));
+            Options.Create(BlobStorageOptions.GetLegacyConfiguration()),
+            Options.Create(ConnectionStringOptions.GetLegacyConnectionStrings()));
         protected override ITestingDataProviderExtension TestingDataProvider => new MsSqlTestingDataProvider();
 
         [TestMethod, TestCategory("IR")]

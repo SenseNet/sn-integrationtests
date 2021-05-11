@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository;
@@ -2618,6 +2619,9 @@ WHERE Path = '/Root/System/Schema/ContentTypes/GenericContent/Folder'";
         }
         private class CannotCommitDataProvider : MsSqlDataProvider
         {
+            public CannotCommitDataProvider() : base(Options.Create(ConnectionStringOptions.GetLegacyConnectionStrings()))
+            {
+            }
             public override SnDataContext CreateDataContext(CancellationToken token)
             {
                 return new TestDataContext(ConnectionStrings.ForStorageTests, new DataOptions(), token);

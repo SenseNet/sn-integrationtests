@@ -82,14 +82,15 @@ namespace SenseNet.Storage.IntegrationTests
 
         protected RepositoryBuilder CreateRepositoryBuilderForStorageTest()
         {
-            var dataProvider = new MsSqlDataProvider();
+            var dataProvider = new MsSqlDataProvider(Options.Create(ConnectionStringOptions.GetLegacyConnectionStrings()));
 
             var builder = new RepositoryBuilder()
                     .UseDataProvider(dataProvider)
                     .UseBlobMetaDataProvider(new MsSqlBlobMetaDataProvider(
                         Providers.Instance.BlobProviders,
                         Options.Create(DataOptions.GetLegacyConfiguration()),
-                        Options.Create(BlobStorageOptions.GetLegacyConfiguration())))
+                        Options.Create(BlobStorageOptions.GetLegacyConfiguration()),
+                        Options.Create(ConnectionStringOptions.GetLegacyConnectionStrings())))
                     .UseBlobProviderSelector(new InMemoryBlobProviderSelector())
                     .StartWorkflowEngine(false)
                     .DisableNodeObservers();

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using LoggingIntegrationTests.Implementations;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository.Storage.Data;
@@ -21,7 +22,7 @@ namespace LoggingIntegrationTests
                 if (DataStore.DataProvider is MsSqlDataProvider dp && ConnectionStrings.ConnectionString == SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests)
                     return dp;
                 ConnectionStrings.ConnectionString = SenseNet.IntegrationTests.Common.ConnectionStrings.ForLoggingTests;
-                Providers.Instance.DataProvider = (dp = new MsSqlDataProvider());
+                Providers.Instance.DataProvider = (dp = new MsSqlDataProvider(Options.Create(ConnectionStringOptions.GetLegacyConnectionStrings())));
                 return dp;
             }
         }

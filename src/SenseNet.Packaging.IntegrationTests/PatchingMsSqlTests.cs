@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SenseNet.Configuration;
 using SenseNet.ContentRepository;
@@ -38,7 +39,7 @@ namespace SenseNet.Packaging.IntegrationTests
             loggerAcc.SetStaticField("_loggers", loggers);
 
             // set default implementation directly
-            var sqlDb = new MsSqlDataProvider();
+            var sqlDb = new MsSqlDataProvider(Options.Create(ConnectionStringOptions.GetLegacyConnectionStrings()));
             Providers.Instance.DataProvider = sqlDb;
 
             // build database

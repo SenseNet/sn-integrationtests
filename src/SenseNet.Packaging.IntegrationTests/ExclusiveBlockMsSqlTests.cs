@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.Configuration;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.Data.MsSqlClient;
@@ -13,7 +15,7 @@ namespace SenseNet.Packaging.IntegrationTests
         {
             ConnectionStrings.ConnectionString =
                 SenseNet.IntegrationTests.Common.ConnectionStrings.ForContentRepositoryTests;
-            return new MsSqlDataProvider();
+            return new MsSqlDataProvider(Options.Create(ConnectionStringOptions.GetLegacyConnectionStrings()));
         }
         protected override IExclusiveLockDataProviderExtension GetDataProviderExtension()
         {
