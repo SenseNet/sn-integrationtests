@@ -128,7 +128,7 @@ namespace SenseNet.Packaging.IntegrationTests
         {
             Providers.Instance.DataProvider = GetMainDataProvider();
             var ext = GetDataProviderExtension();
-            DataStore.DataProvider.SetExtension(typeof(IExclusiveLockDataProviderExtension), ext);
+            Providers.Instance.DataStore.DataProvider.SetExtension(typeof(IExclusiveLockDataProviderExtension), ext);
 
             ext.ReleaseAllAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
 

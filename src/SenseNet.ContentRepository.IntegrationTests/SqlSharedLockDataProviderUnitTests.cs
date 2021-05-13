@@ -14,7 +14,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
     [TestClass]
     public class SqlSharedLockDataProviderUnitTests : MsSqlIntegrationTestBase
     {
-        private MsSqlSharedLockDataProvider Provider => (MsSqlSharedLockDataProvider)DataStore.GetDataProviderExtension<ISharedLockDataProviderExtension>();
+        private MsSqlSharedLockDataProvider Provider => (MsSqlSharedLockDataProvider)Providers.Instance.DataProvider.GetExtension<ISharedLockDataProviderExtension>();
 
         /* ====================================================================== */
 

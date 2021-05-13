@@ -29,6 +29,8 @@ namespace SenseNet.Search.IntegrationTests
     [TestClass]
     public class ActivityQueueSelectorTests : TestBase
     {
+        private IDataStore DataStore => Providers.Instance.DataStore;
+
         private class IndexingEngineForActivityQueueSelectorTests : IIndexingEngine
         {
             public IndexingEngineForActivityQueueSelectorTests(bool centralized)

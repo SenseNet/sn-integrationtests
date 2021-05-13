@@ -247,7 +247,7 @@ namespace SenseNet.Storage.IntegrationTests
                 Assert.AreEqual(0, counts["NodeTypes"]);
 
                 // ACTION
-                await DataStore.InstallInitialDataAsync(data, CancellationToken.None);
+                await Providers.Instance.DataStore.InstallInitialDataAsync(data, CancellationToken.None);
 
                 // ASSERT
                 counts = await GetTablesAndCountsAsync();

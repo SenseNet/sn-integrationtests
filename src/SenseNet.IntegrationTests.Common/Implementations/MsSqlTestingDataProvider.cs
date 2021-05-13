@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using SenseNet.Configuration;
 using SenseNet.ContentRepository.Storage;
 using SenseNet.ContentRepository.Storage.Data;
 using SenseNet.ContentRepository.Storage.DataModel;
@@ -17,6 +18,8 @@ namespace SenseNet.IntegrationTests.Common.Implementations
     [SuppressMessage("ReSharper", "AccessToDisposedClosure")]
     public class MsSqlTestingDataProvider : ITestingDataProviderExtension
     {
+        private IDataStore DataStore => Providers.Instance.DataStore;
+
         // ReSharper disable once InconsistentNaming
         private RelationalDataProviderBase __dataProvider;
         private RelationalDataProviderBase MainProvider => __dataProvider ?? (__dataProvider = (RelationalDataProviderBase) DataStore.DataProvider);

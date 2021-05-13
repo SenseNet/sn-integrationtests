@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SenseNet.Configuration;
 using SenseNet.ContentRepository.Search.Indexing;
 using SenseNet.ContentRepository.Search.Indexing.Activities;
 using SenseNet.ContentRepository.Storage.Data;
@@ -13,7 +14,7 @@ namespace SenseNet.Search.IntegrationTests
     public abstract class CentralizedIndexingTestCases : IntegrationTestBase
     {
         // ReSharper disable once InconsistentNaming
-        private static DataProvider DP => DataStore.DataProvider;
+        private static DataProvider DP => Providers.Instance.DataStore.DataProvider;
 
         protected async Task Indexing_Centralized_RegisterAndReload()
         {

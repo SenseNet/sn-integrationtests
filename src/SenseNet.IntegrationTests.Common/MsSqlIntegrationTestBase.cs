@@ -21,9 +21,9 @@ namespace SenseNet.IntegrationTests.Common
         protected override ITestingDataProviderExtension TestingDataProvider => new MsSqlTestingDataProvider();
 
         // ReSharper disable once InconsistentNaming
-        protected MsSqlDataProvider DP => (MsSqlDataProvider)DataStore.DataProvider;
+        protected MsSqlDataProvider DP => (MsSqlDataProvider)Providers.Instance.DataStore.DataProvider;
         // ReSharper disable once InconsistentNaming
-        protected MsSqlTestingDataProvider TDP => (MsSqlTestingDataProvider)DataStore.GetDataProviderExtension<ITestingDataProviderExtension>();
+        protected MsSqlTestingDataProvider TDP => (MsSqlTestingDataProvider)DataProvider.GetExtension<ITestingDataProviderExtension>();
 
     }
 }
