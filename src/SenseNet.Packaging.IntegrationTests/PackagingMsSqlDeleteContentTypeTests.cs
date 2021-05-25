@@ -19,10 +19,10 @@ using Task = System.Threading.Tasks.Task;
 
 namespace SenseNet.Packaging.IntegrationTests
 {
-    [TestClass]
+    //[TestClass]
     public class PackagingMsSqlDeleteContentTypeTests : MsSqlIntegrationTestBase
     {
-        [TestMethod]
+        //[TestMethod]
         public void Packaging_SQL_Step_DeleteContentType_Parse()
         {
             DeleteContentType CreateStep(string stepElementString)
@@ -65,7 +65,7 @@ namespace SenseNet.Packaging.IntegrationTests
             Assert.AreEqual(DeleteContentType.Mode.Force, step.Delete);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task Packaging_SQL_Step_DeleteContentType_DefaultOrInformationOnly()
         {
             await DeleteContentTypeTest(() =>
@@ -98,7 +98,7 @@ namespace SenseNet.Packaging.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task Packaging_SQL_Step_DeleteContentType_Leaf()
         {
             await IsolatedDeleteContentTypeTest(() =>
@@ -130,7 +130,7 @@ namespace SenseNet.Packaging.IntegrationTests
                 return Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task Packaging_SQL_Step_DeleteContentType_Subtree()
         {
             var contentTypeTemplate =
@@ -163,7 +163,7 @@ namespace SenseNet.Packaging.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task Packaging_SQL_Step_DeleteContentType_WithInstances()
         {
             var contentTypeTemplate =
@@ -262,7 +262,7 @@ namespace SenseNet.Packaging.IntegrationTests
                 return Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task Packaging_SQL_Step_DeleteContentType_WithRelatedFieldSetting()
         {
             var contentTypeTemplate =
@@ -330,7 +330,7 @@ namespace SenseNet.Packaging.IntegrationTests
                 return Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task Packaging_SQL_Step_DeleteContentType_WithRelatedContent()
         {
             Workspace CreateWorkspace(Node parent, string name, string[] allowedChildTypes)
@@ -399,7 +399,7 @@ namespace SenseNet.Packaging.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task Packaging_SQL_Step_DeleteContentType_Applications()
         {
             var contentTypeTemplate =
@@ -452,7 +452,7 @@ namespace SenseNet.Packaging.IntegrationTests
                 return Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task Packaging_SQL_Step_DeleteContentType_ContentTemplate()
         {
             var contentTypeTemplate =
@@ -503,7 +503,7 @@ namespace SenseNet.Packaging.IntegrationTests
                 return Task.CompletedTask;
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task Packaging_SQL_Step_DeleteContentType_ContentView()
         {
             var contentTypeTemplate =
@@ -580,7 +580,7 @@ namespace SenseNet.Packaging.IntegrationTests
             });
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task Packaging_SQL_Step_DeleteContentType_IfNotUsed()
         {
             await DeleteContentTypeTest(() =>

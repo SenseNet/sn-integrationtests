@@ -11,14 +11,14 @@ using STT = System.Threading.Tasks;
 
 namespace SenseNet.ContentRepository.IntegrationTests
 {
-    [TestClass]
+    //[TestClass]
     public class SqlSharedLockDataProviderUnitTests : MsSqlIntegrationTestBase
     {
         private MsSqlSharedLockDataProvider Provider => (MsSqlSharedLockDataProvider)Providers.Instance.DataProvider.GetExtension<ISharedLockDataProviderExtension>();
 
         /* ====================================================================== */
 
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task SharedLock_LockAndGetLock()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -36,7 +36,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.AreEqual(expectedLockValue, actualLockValue);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task SharedLock_GetTimedOut()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -55,7 +55,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsNull(SharedLock.GetLock(nodeId, CancellationToken.None));
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task SharedLock_Lock_Same()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -78,7 +78,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsTrue(delta < 1);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(LockedNodeException))]
         public async STT.Task SharedLock_Lock_Different()
         {
@@ -96,7 +96,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 await Provider.CreateSharedLockAsync(nodeId, newLockValue, CancellationToken.None);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task SharedLock_Lock_DifferentTimedOut()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -118,7 +118,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
 
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task SharedLock_ModifyLock()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -137,7 +137,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.AreEqual(newLockValue, await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(LockedNodeException))]
         public async STT.Task SharedLock_ModifyLockDifferent()
         {
@@ -157,7 +157,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.AreEqual(oldLockValue, actualLock);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(SharedLockNotFoundException))]
         public async STT.Task SharedLock_ModifyLock_Missing()
         {
@@ -173,7 +173,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 await Provider.ModifySharedLockAsync(nodeId, oldLockValue, newLockValue, CancellationToken.None);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(SharedLockNotFoundException))]
         public async STT.Task SharedLock_ModifyLock_TimedOut()
         {
@@ -193,7 +193,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
 
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task SharedLock_RefreshLock()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -211,7 +211,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsTrue((DateTime.UtcNow - GetSharedLockCreationDate(nodeId)).TotalSeconds < 1);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(LockedNodeException))]
         public async STT.Task SharedLock_RefreshLock_Different()
         {
@@ -229,7 +229,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.AreEqual(lockValue, actualLock);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(SharedLockNotFoundException))]
         public async STT.Task SharedLock_RefreshLock_Missing()
         {
@@ -244,7 +244,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 await Provider.RefreshSharedLockAsync(nodeId, lockValue, CancellationToken.None);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(SharedLockNotFoundException))]
         public async STT.Task SharedLock_RefreshLock_TimedOut()
         {
@@ -263,7 +263,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
         }
 
 
-        [TestMethod]
+        //[TestMethod]
         public async STT.Task SharedLock_Unlock()
         {
             await NoRepositoryIntegrtionTest(async () =>
@@ -280,7 +280,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.IsNull(await Provider.GetSharedLockAsync(nodeId, CancellationToken.None));
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(LockedNodeException))]
         public async STT.Task SharedLock_Unlock_Different()
         {
@@ -298,7 +298,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 Assert.AreEqual(existingLock, actualLock);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(SharedLockNotFoundException))]
         public async STT.Task SharedLock_Unlock_Missing()
         {
@@ -313,7 +313,7 @@ namespace SenseNet.ContentRepository.IntegrationTests
                 await Provider.DeleteSharedLockAsync(nodeId, existingLock, CancellationToken.None);
             });
         }
-        [TestMethod]
+        //[TestMethod]
         [ExpectedException(typeof(SharedLockNotFoundException))]
         public async STT.Task SharedLock_Unlock_TimedOut()
         {

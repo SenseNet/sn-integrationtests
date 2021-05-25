@@ -25,7 +25,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace SenseNet.Storage.IntegrationTests
 {
-    [TestClass]
+    //[TestClass]
     public class MsSqlDataInstallerTests
     {
         #region Infrastructure
@@ -222,13 +222,13 @@ namespace SenseNet.Storage.IntegrationTests
 
         #endregion
 
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDataInstaller_TestData()
         {
             var data = InitialData.Load(InMemoryTestData.Instance, null);
             await InstallInitialDataTest(data);
         }
-        [TestMethod]
+        //[TestMethod]
         public async Task MsSqlDataInstaller_SensenetServices()
         {
             var data = InitialData.Load(new SenseNetServicesInitialData(), null);
